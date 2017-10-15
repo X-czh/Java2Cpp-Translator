@@ -57,8 +57,30 @@ public class Boot extends Tool {
             bool("cppFilePrinter", "cppFilePrinter", false, "Print example cpp file into output directory.").
             bool("printJavaImportCode", "printJavaImportCode", false, "Print Java code for imports of primary source file.").
             bool("printSymbolTable", "printSymbolTable", false, "Print symbol table for Java Ast.").
-            bool("printConfig", "printConfig", false, "Output application configuration to screen.");
+            bool("printConfig", "printConfig", false, "Output application configuration to screen.").
+                    bool("bla", "bla", true, "Bla");
+
+
   }
+
+  // Notes from Team Meeting on 10/13
+  // Do not try to modify the AST
+    // first step: write a visitor that analyzes the Java input program and puts up some kind of data structure that stores all of the information that you care about for laying out the data structs and the vtables.
+    // for every class you need to know: what are its parents class, what are the fields it declares, what are the methods it declares
+    // In principle you can think of it as this data structure that you want to build
+    // prepopulate the three classes (object, class, string) in some treelike structure where the edges represent the immediate superclass relationship
+    // you have to come up with a design for this kind of data structure, its up to you how you want to represent it
+    // then you want to take this data structure and look at every node
+    // for every node you want to generate a AST that represents the struct declaration of all the fields and all the methods that it contains
+    // essentially when you traverse, the data structure is always going upwards
+    // it might make sense for each of the nodes to have a list of fields, a list of methods, and a parent pointer pointing to the parent class
+    // from this, generate the C++ AST that describes the content of the header file
+    // you need to agree how you represent the C++ code as an AST
+    // this code will have to generate GNodes for the different C++ constructs
+    // create some sort of class that has some sort of factory methods for the C++ class (like create a struct with these fields and methods)
+    // need to implement a pretty printer that will work for phase three (printing output.h) and phase five (printing the entire c++ file)
+    // you have to figure out how to use xtc, it's not going to be well-documented
+    // need to build unit tests for it as well
 
   @Override
   public void prepare() {
@@ -86,7 +108,7 @@ public class Boot extends Tool {
   }
 
   @Override
-  public void process(Node n) {
+  public void process(Node n) { // essentially the main method for phase 1
     if (runtime.test("printJavaAst")) {
       runtime.console().format(n).pln().flush();
     }
@@ -112,6 +134,10 @@ public class Boot extends Tool {
 
     if (runtime.test("printConfig")) {
       XtcProps.getProperties().list(System.out);
+    }
+
+    if (runtime.test("bla")) {
+      System.out.println("BlaBla");
     }
 
     if (runtime.test("cppFilePrinter")) {
