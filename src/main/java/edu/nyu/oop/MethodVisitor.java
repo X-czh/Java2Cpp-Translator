@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.ArrayList;
 
 /**
- * This class demostrates a trivial usage of Xtc's Visitor class.
+ * This class demonstrates a trivial usage of Xtc's Visitor class.
  * You may use this as a base for your ScopeVisitor.
  */
 public class MethodVisitor extends Visitor {

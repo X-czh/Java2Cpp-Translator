@@ -58,6 +58,7 @@ public class Boot extends Tool {
             bool("printJavaImportCode", "printJavaImportCode", false, "Print Java code for imports of primary source file.").
             bool("printSymbolTable", "printSymbolTable", false, "Print symbol table for Java Ast.").
             bool("printConfig", "printConfig", false, "Output application configuration to screen.").
+            bool("printJavaAstList", "printJavaAstList", false, "Print list of Java Ast.").
                     bool("bla", "bla", true, "Bla");
 
 
@@ -124,7 +125,7 @@ public class Boot extends Tool {
     }
 
     if (runtime.test("printJavaImportCode")) {
-      List<GNode> nodes = JavaFiveImportParser.parse((GNode) n);
+      List<GNode> nodes = new JavaFiveImportParser().parse((GNode) n);
       for (Node node : nodes) {
         runtime.console().pln();
         new JavaPrinter(runtime.console()).dispatch(node);
@@ -147,6 +148,13 @@ public class Boot extends Tool {
     if (runtime.test("printSymbolTable")) {
       SymbolTable table = new SymbolTableBuilder(runtime).getTable(n);
       new SymbolTablePrinter(runtime, table).full();
+    }
+
+    if (runtime.test("printJavaAstList")) {
+      List<GNode> nodes = new JavaFiveImportParser().parse((GNode) n);
+      for (Node node : nodes) {
+        runtime.console().format(node).pln().flush();
+      }
     }
   }
 

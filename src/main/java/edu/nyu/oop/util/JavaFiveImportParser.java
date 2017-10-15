@@ -7,10 +7,7 @@ import xtc.tree.GNode;
 import xtc.tree.Visitor;
 
 import java.io.*;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.List;
-import java.util.LinkedList;
+import java.util.*;
 
 /**
  * This is a utility class which will load the source files for anything referenced by the primary source.
@@ -26,8 +23,19 @@ public class JavaFiveImportParser {
 
   private static List<String> inputLocations = loadInputLocations();
 
-  public static List<GNode> parse(final GNode primarySrc) {
+  private Set<GNode> sourceTable;  // keep track of the sources parsed or imported by import parser
+  private Set<GNode> primarySourceTable;  // keep track of the sources parsed as a primary source by import parser
+
+  public JavaFiveImportParser() {
+    sourceTable = new HashSet<GNode>();
+    primarySourceTable = new HashSet<GNode>();
+  }
+
+  public List<GNode> parse(final GNode primarySrc) {
     final List<GNode> importedSources = new LinkedList<GNode>();
+
+    sourceTable.add(primarySrc);
+    primarySourceTable.add(primarySrc);
 
     new Visitor() {
 
@@ -39,10 +47,18 @@ public class JavaFiveImportParser {
       public void visitImportDeclaration(GNode node) {
         if (node.getString(2) == null) {   // There is no '*' character in the import, import single file.
           String relPath = NodeUtil.mkString(node.getNode(1), File.separator) + ".java";
-          importedSources.add(loadNodeForFile(relPath));
+          GNode n = loadNodeForFile(relPath);
+          if (n != null) {
+            importedSources.add(n);
+            sourceTable.add(n);
+          }
         } else {
           String relPath = NodeUtil.mkString(node.getNode(1), File.separator);
-          importedSources.addAll(loadNodesFromDirectory(relPath));
+          List<GNode> sources = loadNodesFromDirectory(relPath);
+          if (sources != null) {
+            importedSources.addAll(sources);
+            sourceTable.addAll(sources);
+          }
         }
       }
 
@@ -56,7 +72,8 @@ public class JavaFiveImportParser {
           String absPath = System.getProperty("user.dir") + File.separator + l + File.separator + relPath;
           File f = loadSourceFile(absPath);
           if (f != null) {
-            source = (GNode) NodeUtil.parseJavaFile(f);
+            GNode n = (GNode) NodeUtil.parseJavaFile(f);
+            if (!sourceTable.contains(n)) source = n;
             break;
           }
         }
@@ -75,7 +92,7 @@ public class JavaFiveImportParser {
           if (files != null) {
             for (File f : files) {
               GNode n = (GNode) NodeUtil.parseJavaFile(f);
-              if (!n.equals(primarySrc)) sources.add(n); // Don't include the primary source.
+              if (!sourceTable.contains(n)) sources.add(n);
             }
             break; // stop at the first input location containing the package of the primary source
           }
@@ -84,6 +101,14 @@ public class JavaFiveImportParser {
       }
 
     }.dispatch(primarySrc);
+
+
+    // recursively parse dependencies
+    List<GNode> tmpImportedSources = new LinkedList<GNode>(importedSources);
+    for (GNode s : tmpImportedSources) {
+      if (!primarySourceTable.contains(s)) // skip if already parsed by import parser
+        importedSources.addAll(parse(s));
+    }
 
     return importedSources;
   }
