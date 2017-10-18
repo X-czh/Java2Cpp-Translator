@@ -3,6 +3,7 @@ package edu.nyu.oop;
 import java.io.File;
 import java.io.IOException;
 import java.io.Reader;
+import java.util.HashMap;
 import java.util.List;
 
 import edu.nyu.oop.util.JavaFiveImportParser;
@@ -137,8 +138,10 @@ public class Boot extends Tool {
       XtcProps.getProperties().list(System.out);
     }
 
-    if (runtime.test("bla")) {
-      System.out.println("BlaBla");
+    if (runtime.test("testDataStructure")) {
+      List<GNode> nodes = new JavaFiveImportParser().parse((GNode) n);
+      ClassTreeVisitor testv= new ClassTreeVisitor();
+      HashMap<String, ClassTreeVisitor.TreeNode> ans = testv.getClassTree(nodes);
     }
 
     if (runtime.test("cppFilePrinter")) {
