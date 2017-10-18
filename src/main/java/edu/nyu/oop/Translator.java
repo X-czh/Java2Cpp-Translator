@@ -1,5 +1,15 @@
 package edu.nyu.oop;
 
+<<<<<<< HEAD
+=======
+import edu.nyu.oop.util.*;
+
+import xtc.tree.Node;
+import xtc.tree.GNode;
+
+import java.util.*;
+
+>>>>>>> team2
 /**
  * This is the entry point to the translator facilities. While Boot.java implements the user-program
  * interaction interface--gets command from the command line, and calls the method from the translator,
@@ -11,6 +21,33 @@ package edu.nyu.oop;
 
 public class Translator {
 
+<<<<<<< HEAD
     public Translator() {
+=======
+    private Node root;
+
+    private List<GNode> javaAstList = new ArrayList<GNode>();
+
+    public Translator(Node n) {
+        root = n;
+    }
+
+    public void makeJavaAstList() {
+        javaAstList = new JavaFiveImportParser().parse((GNode) root);
+    }
+
+    public void makeHeaderAst() {
+
+    }
+
+    public void makeHeaderFile() {
+
+    }
+
+    public void run() {
+        makeJavaAstList();
+        makeHeaderAst();
+        makeHeaderFile();
+>>>>>>> team2
     }
 }
