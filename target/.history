@@ -1,0 +1,7 @@
+runxtc -cppFilePrinter src/main/java/edu/nyu/oop/MethodVisitor.java
+runxtc -cppHeadPrinter src/main/java/edu/nyu/oop/MethodVisitor.java
+runxtc -cppFilePrinter src/main/java/edu/nyu/oop/MethodVisitor.java
+runxtc -cppFilePrinter
+runxtc -cppHeadPrinter
+runxtc -cppHeadPrinter src/main/java/edu/nyu/oop/MethodVisitor.java
+exit
