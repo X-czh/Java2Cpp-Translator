@@ -1,15 +1,11 @@
 package edu.nyu.oop;
 
-<<<<<<< HEAD
-=======
 import edu.nyu.oop.util.*;
-
 import xtc.tree.Node;
 import xtc.tree.GNode;
+import edu.nyu.oop.CppFilePrinter;
 
 import java.util.*;
-
->>>>>>> team2
 /**
  * This is the entry point to the translator facilities. While Boot.java implements the user-program
  * interaction interface--gets command from the command line, and calls the method from the translator,
@@ -21,12 +17,14 @@ import java.util.*;
 
 public class Translator {
 
-<<<<<<< HEAD
-    public Translator() {
-=======
+    public Translator() {}
+
     private Node root;
 
     private List<GNode> javaAstList = new ArrayList<GNode>();
+
+    private GNode inheritanceAstRoot;
+    private GNode sourceAstRoot;
 
     public Translator(Node n) {
         root = n;
@@ -41,13 +39,13 @@ public class Translator {
     }
 
     public void makeHeaderFile() {
-
+        CppHeadPrinter printer = new CppHeadPrinter();
+        printer.print(inheritanceAstRoot,sourceAstRoot);
     }
 
     public void run() {
         makeJavaAstList();
         makeHeaderAst();
         makeHeaderFile();
->>>>>>> team2
     }
 }
