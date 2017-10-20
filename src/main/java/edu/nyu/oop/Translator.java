@@ -2,12 +2,12 @@ package edu.nyu.oop;
 
 
 import edu.nyu.oop.util.*;
-
 import xtc.tree.Node;
 import xtc.tree.GNode;
 import edu.nyu.oop.CppFilePrinter;
 
 import java.util.*;
+
 
 
 /**
@@ -28,6 +28,9 @@ public class Translator {
 
     private List<GNode> javaAstList = new ArrayList<GNode>();
 
+    private GNode inheritanceAstRoot;
+    private GNode sourceAstRoot;
+
     public Translator(Node n) {
         root = n;
     }
@@ -42,17 +45,21 @@ public class Translator {
         CppFilePrinter printer = new CppFilePrinter();
     }
 
+
     public void makeHeaderFile(Node root) {
 
 
-
+    }
+    public void makeHeaderFile() {
+        CppHeadPrinter printer = new CppHeadPrinter();
+        printer.print(inheritanceAstRoot,sourceAstRoot);
 
     }
 
     public void run() {
         makeJavaAstList();
         makeHeaderAst();
-        makeHeaderFile(root);
+        makeHeaderFile();
 
     }
 }
