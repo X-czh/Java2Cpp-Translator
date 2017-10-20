@@ -20,6 +20,8 @@ public class CppHeadPrinter extends Visitor {
 
     private Printer printer;
 
+
+
     private String outputLocation = XtcProps.get("output.location");
 
     public CppHeadPrinter() {
@@ -39,8 +41,9 @@ public class CppHeadPrinter extends Visitor {
         printer.register(this);
     }
 
-    public void print(Node n) {
+    public void print(GNode inheritance, GNode source) {
         headOfFile();
+        packageDeclaration();
 
 
         printer.flush(); // important!
@@ -49,6 +52,15 @@ public class CppHeadPrinter extends Visitor {
 
 
     private void headOfFile() {
+        printer.pln("#pragma once");
+        printer.pln();
+        printer.pln("#include \"java_lang.h\"");
+        printer.pln();
+        printer.pln("using namespace java::lang;");
+        printer.pln();
+    }
+
+    private void packageDeclaration() {
         printer.pln("#pragma once");
         printer.pln();
         printer.pln("#include \"java_lang.h\"");
