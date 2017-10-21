@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="7057b6fb-a0ea-40be-ba1b-58346f399827" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/logs/xtc.log" afterPath="$PROJECT_DIR$/logs/xtc.log" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/java/edu/nyu/oop/CppHeadPrinter.java" afterPath="$PROJECT_DIR$/src/main/java/edu/nyu/oop/CppHeadPrinter.java" />
-    </list>
+    <list default="true" id="7057b6fb-a0ea-40be-ba1b-58346f399827" name="Default" comment="" />
     <ignored path="$PROJECT_DIR$/target/" />
     <ignored path="$PROJECT_DIR$/project/project/target/" />
     <ignored path="$PROJECT_DIR$/project/target/" />
@@ -365,12 +362,12 @@
       <updated>1508084590680</updated>
       <workItem from="1508084595213" duration="5848000" />
       <workItem from="1508294551867" duration="3730000" />
-      <workItem from="1508356725263" duration="8739000" />
+      <workItem from="1508356725263" duration="8873000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="18317000" />
+    <option name="totallyTimeSpent" value="18451000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="0" y="0" width="958" height="900" extended-state="0" />

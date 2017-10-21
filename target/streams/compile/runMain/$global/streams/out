@@ -1,5 +1,0 @@
-[0m[[0minfo[0m] [0mRunning edu.nyu.oop.Boot -cppHeadPrinter src/test/java/inputs/test002/Test002.java[0m
-[0m[[0minfo[0m] [0mJava2CppTranslator, v. 2.4.0, SevenBobcat[0m
-[0m[[0minfo[0m] [0m2017-10-21 12:54:08,963 - [main] DEBUG edu.nyu.oop.Boot - This is a debugging statement.[0m
-[0m[[0minfo[0m] [0mProcessing src/test/java/inputs/test002/Test002.java ...[0m
-[0m[[0minfo[0m] [0mBlaBla[0m
