@@ -1,11 +1,9 @@
 package edu.nyu.oop;
 
 import java.io.*;
-import java.util.*;
 
 import edu.nyu.oop.util.XtcProps;
 import org.slf4j.Logger;
-import xtc.lang.CPrinter;
 import xtc.tree.*;
 
 /**
@@ -76,15 +74,34 @@ public class CppHeadPrinter extends Visitor {
 
     public void visitPackageDeclaration(GNode source) {
 
-            Node qualifiedIdentifier = source.getNode(1);
+        Node qualifiedIdentifier = source.getNode(1);
 
-            for (int i = 0; i < qualifiedIdentifier.size(); i++) {
-                namespaceNum++;
-                printer.indent().incr().p("namespace " + qualifiedIdentifier.get(i).toString());
-                printer.pln(" {");
+        for (int i = 0; i < qualifiedIdentifier.size(); i++) {
+            namespaceNum++;
+            printer.indent().incr().p("namespace " + qualifiedIdentifier.get(i).toString());
+            printer.pln(" {");
 
-            }
+        }
 
+        visit(source);
+    }
+
+    public void visitClassDeclaration(GNode source){
+
+        //get class name and class modifiers
+        Node classModifiers = source.getNode(0);
+        String className = source.getString(1);
+
+        //get class methods info
+        Node classBody = source.getNode(5);
+        Node classMethod = classBody.getNode(0);
+        Node classMethodModifiers = classMethod.getNode(0);//need for loop
+
+        //this is unsure how to get VoidType()
+        Object methodReturnType = classMethod.get(2);
+        String methodName = classMethod.getString(3);
+
+        //visit source at the end
         visit(source);
     }
 }
