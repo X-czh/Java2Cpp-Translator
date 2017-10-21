@@ -2,10 +2,7 @@ package edu.nyu.oop;
 
 import java.io.*;
 import java.util.*;
-import java.util.List;
-import java.util.ArrayList;
 
-import edu.nyu.oop.util.NodeUtil;
 import edu.nyu.oop.util.XtcProps;
 import org.slf4j.Logger;
 import xtc.lang.CPrinter;
@@ -13,9 +10,6 @@ import xtc.tree.Node;
 import xtc.tree.GNode;
 import xtc.tree.Printer;
 import xtc.tree.Visitor;
-
-import javax.rmi.CORBA.Util;
-
 
 /**
  * This class demonstrates a trivial usage of XTC's Printer class.
@@ -26,8 +20,6 @@ public class CppFilePrinter extends Visitor {
 
   private Printer printer;
 
-
-  private  GNode root;
   private String outputLocation = XtcProps.get("output.location");
 
   public CppFilePrinter() {
@@ -74,42 +66,9 @@ public class CppFilePrinter extends Visitor {
     printer.incr().indent().pln("cout << \"" + line + "\" << endl;").decr();
   }
 
-
   private void tailOfFile() {
     printer.incr().indent().pln("return 0;");
     printer.decr(); // not really necessary, but for demonstration.
     printer.pln("}");
   }
-  /*
-  public boolean isMain(GNode N){
-
-    GNode body = N.getGeneric(5);
-    if(N.size()>0){
-
-      if(N.getGeneric(0).hasName("MethodDeclaration")){
-
-        GNode N_method= N.getGeneric(0);
-
-        if(N_method.get(3).equals("main")) return true;
-      }
-
-    }
-    return false;
-  }
-  private void bodyOfFile(){
-    //class declaration
-
-    //NodeUtil.dfsAll Searches AST for a node with specified name. Returns all that it finds.
-    List<Node> classDeclarations = NodeUtil.dfsAll(root,"ClassDeclaration");
-
-    for(Node n : classDeclarations) {
-
-      if(!isMain((GNode)n)) dispatch(n);
-    }
-
-  }
-
-
-*/
-
 }

@@ -17,6 +17,7 @@ public class CppHeadPrinter extends Visitor {
 
     private Printer printer;
 
+    private static int namespaceNum=0;
 
 
     private String outputLocation = XtcProps.get("output.location");
@@ -40,13 +41,20 @@ public class CppHeadPrinter extends Visitor {
 
     public void print(GNode inheritance, GNode source) {
         headOfFile();
-        if(!source.isGeneric()) {
-            dispatch(source);
-        }
+        visit(source);
+        tailOfFile();
         printer.flush(); // important!
     }
 
+    // Print all the node names in an Ast
+    public void visit(Node n) {
+        //cout(n.getName());//This line is for debugging
+        for (Object o : n) if (o instanceof Node) dispatch((Node) o);
+    }
 
+    private void cout(String line) {
+        printer.incr().indent().pln("cout << \"" + line + "\" << endl;").decr();
+    }
 
     private void headOfFile() {
         printer.pln("#pragma once");
@@ -57,23 +65,27 @@ public class CppHeadPrinter extends Visitor {
         printer.pln();
     }
 
-    private void visitpackageDeclaration(GNode source) {
+    private void tailOfFile() {
+        printer.pln();
+        while(namespaceNum-- > 0){
+            printer.indent().decr().pln("}");
+        }
+    }
 
-    //index0
-        if(((GNode) source.get(0)).hasName("PackageDeclaration")){
+    public void visitCompilationUnit(GNode source){visit(source);}
 
-            GNode namespace = (GNode) source.getNode(0);
-            //index1 of PackageDeclaration
-            GNode qualifiedIdentifier = (GNode) namespace.getNode(1);
+    public void visitPackageDeclaration(GNode source) {
 
-            for (int i = 0; i <= qualifiedIdentifier.size(); i++) {
+            Node qualifiedIdentifier = source.getNode(1);
 
+            for (int i = 0; i < qualifiedIdentifier.size(); i++) {
+                namespaceNum++;
                 printer.indent().incr().p("namespace " + qualifiedIdentifier.get(i).toString());
                 printer.pln(" {");
 
             }
 
-        }
+        visit(source);
     }
 }
 

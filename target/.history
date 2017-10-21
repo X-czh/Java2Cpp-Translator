@@ -1,7 +1,21 @@
-runxtc -cppFilePrinter src/main/java/edu/nyu/oop/MethodVisitor.java
-runxtc -cppHeadPrinter src/main/java/edu/nyu/oop/MethodVisitor.java
-runxtc -cppFilePrinter src/main/java/edu/nyu/oop/MethodVisitor.java
+;reload; set org.jetbrains.sbt.StructureKeys.sbtStructureOptions in Global := "download resolveClassifiers resolveSbtClassifiers" ;*/*:dumpStructureTo /private/var/folders/j1/7j311d1x5p71_7g67fqdkk800000gn/T/sbt-structure.xml
+xtc -printJavaImportCode
+runxtc -printJavaImportCode
+runxtc -printJavaAst 
+runxtc -cppFilePrinter scopes.txt
+runxtc -cppFilePrinter LinkedListAst.txt
 runxtc -cppFilePrinter
-runxtc -cppHeadPrinter
-runxtc -cppHeadPrinter src/main/java/edu/nyu/oop/MethodVisitor.java
+runxtc -cppHeadPrinter /src/test/java/inputs/point/Point.java
+runxtc -cppHeadPrinter /src/test/java/inputs/test000/Test000.java
+runxtc -cppHeadPrinter /src/test/java/inputs/testOOO/TestOOO.java
+runxtc -cppHeadPrinter /src/test/java/inputs/testOOO/TestOOO
+runxtc -cppHeadPrinter /src/test/java/inputs/test000/Test000
+runxtc -cppHeadPrinter /src/test/java/inputs/homework2/Input.java
+runxtc -cppHeadPrinter src/test/java/inputs/homework2/Input.java
+runxtc -printSymbolTable src/test/java/inputs/homework2/Input.java
+runxtc -printSymbolTable src/test/java/inputs/test001/Test001.java
 exit
+runxtc -printSimpleJavaAst src/test/java/inputs/test001/Test001.java
+runxtc -printJavaAst src/test/java/inputs/test001/Test001.java
+runxtc -cppHeadPrinter src/test/java/inputs/test001/Test001.java
+runxtc -cppHeadPrinter src/test/java/inputs/test002/Test002.java
