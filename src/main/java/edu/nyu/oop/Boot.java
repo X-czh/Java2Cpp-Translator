@@ -138,11 +138,11 @@ public class Boot extends Tool {
       XtcProps.getProperties().list(System.out);
     }
 
-    if (runtime.test("testDataStructure")) {
-      List<GNode> nodes = new JavaFiveImportParser().parse((GNode) n);
-      ClassTreeVisitor testv= new ClassTreeVisitor();
-      HashMap<String, ClassTreeVisitor.TreeNode> ans = testv.getClassTree(nodes);
-    }
+//    if (runtime.test("testDataStructure")) {
+//      List<GNode> nodes = new JavaFiveImportParser().parse((GNode) n);
+//      ClassTreeVisitor testv= new ClassTreeVisitor();
+//      HashMap<String, ClassTreeVisitor.TreeNode> ans = testv.getClassTree(nodes);
+//    }
 
     if (runtime.test("cppFilePrinter")) {
       new CppFilePrinter().print(n);
