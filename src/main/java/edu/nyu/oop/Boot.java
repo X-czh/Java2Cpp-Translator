@@ -56,6 +56,7 @@ public class Boot extends Tool {
             bool("printSimpleJavaAst", "printSimpleJavaAst", false, "Print Simplified Java Ast.").
             bool("printJavaCode", "printJavaCode", false, "Print Java code.").
             bool("cppFilePrinter", "cppFilePrinter", false, "Print example cpp file into output directory.").
+            bool("cppHeadPrinter", "cppHeadPrinter", false, "Print cppheader.").
             bool("printJavaImportCode", "printJavaImportCode", false, "Print Java code for imports of primary source file.").
             bool("printSymbolTable", "printSymbolTable", false, "Print symbol table for Java Ast.").
             bool("printConfig", "printConfig", false, "Output application configuration to screen.").
@@ -146,6 +147,9 @@ public class Boot extends Tool {
 
     if (runtime.test("cppFilePrinter")) {
       new CppFilePrinter().print(n);
+    }
+    if (runtime.test("cppHeadPrinter")) {
+      new CppHeadPrinter().print((GNode) n, (GNode) n);
     }
 
     if (runtime.test("printSymbolTable")) {
