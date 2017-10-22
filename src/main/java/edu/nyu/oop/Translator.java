@@ -36,12 +36,13 @@ public class Translator {
     }
 
     public void makeJavaAstList() {
-        javaAstList = new JavaFiveImportParser().parse((GNode) root);
+        javaAstList.add((GNode) root);
+        javaAstList.addAll(new JavaFiveImportParser().parse((GNode) root));
     }
 
     public void makeHeaderAst() {
-
-
+        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor(javaAstList);
+        HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder();
         CppFilePrinter printer = new CppFilePrinter();
     }
 
