@@ -1,14 +1,11 @@
 package edu.nyu.oop;
 
-
 import edu.nyu.oop.util.*;
+
 import xtc.tree.Node;
 import xtc.tree.GNode;
-import edu.nyu.oop.CppFilePrinter;
 
 import java.util.*;
-
-
 
 /**
  * This is the entry point to the translator facilities. While Boot.java implements the user-program
@@ -21,15 +18,9 @@ import java.util.*;
 
 public class Translator {
 
-
-    public Translator() {}
-
     private Node root;
 
-    private List<GNode> javaAstList = new ArrayList<GNode>();
-
-    private GNode inheritanceAstRoot;
-    private GNode sourceAstRoot;
+    private List<GNode> javaAstList = new ArrayList<>();
 
     public Translator(Node n) {
         root = n;
@@ -41,19 +32,12 @@ public class Translator {
     }
 
     public void makeHeaderAst() {
-        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor(javaAstList);
-        HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder();
-        CppFilePrinter printer = new CppFilePrinter();
+        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor();
+        HashMap<String, ClassSignature> classTreeMap = classTreeVisitor.getClassTree(javaAstList);
+        HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder(classTreeMap);
     }
 
-
-    public void makeHeaderFile(Node root) {
-
-
-    }
     public void makeHeaderFile() {
-        CppHeadPrinter printer = new CppHeadPrinter();
-        printer.print(inheritanceAstRoot,sourceAstRoot);
 
     }
 
@@ -61,6 +45,5 @@ public class Translator {
         makeJavaAstList();
         makeHeaderAst();
         makeHeaderFile();
-
     }
 }
