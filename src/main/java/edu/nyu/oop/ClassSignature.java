@@ -19,23 +19,23 @@ public class ClassSignature {
         this.constructor_list = new ArrayList<>();
     }
 
-    public String getClass_name() {
+    public String getClassName() {
         return class_name;
     }
 
-    public String getParent_class_name() {
+    public String getParentClassName() {
         return parent_class_name;
     }
 
-    public ArrayList<GNode> getField_list() {
+    public ArrayList<GNode> getFieldList() {
         return field_list;
     }
 
-    public ArrayList<GNode> getMethod_list() {
+    public ArrayList<GNode> getMethodList() {
         return method_list;
     }
 
-    public ArrayList<GNode> getConstructor_list() {
+    public ArrayList<GNode> getConstructorList() {
         return constructor_list;
     }
 
@@ -51,17 +51,30 @@ public class ClassSignature {
         this.constructor_list.add(n);
     }
 
+    /**
+     * The following are static fields and methods used for prepopulating
+     * class signatures of Object, String and Class
+     */
+
+    private static final GNode type_int =
+            GNode.create("Type", GNode.create("PrimitiveType", "int"), null);
+    private static final GNode type_bool =
+            GNode.create("Type", GNode.create("PrimitiveType", "bool"), null);
+    private static final GNode type_char =
+            GNode.create("Type", GNode.create("PrimitiveType", "char"), null);
+    private static final GNode type_object =
+            GNode.create("Type", GNode.create("QualifiedIdentifier", "Object"), null);
+    private static final GNode type_string =
+            GNode.create("Type", GNode.create("QualifiedIdentifier", "String"), null);
+    private static final GNode type_class =
+            GNode.create("Type", GNode.create("QualifiedIdentifier", "Class"), null);
+
     public static ClassSignature buildObject() {
         ClassSignature cs = new ClassSignature("Object", null);
 
-        GNode type_string = GNode.create("Type", GNode.create("QualifiedIdentifier", "String"), null);
-        GNode type_class = GNode.create("Type", GNode.create("QualifiedIdentifier", "Class"), null);
-        GNode type_object = GNode.create("Type", GNode.create("QualifiedIdentifier", "Object"), null);
-        GNode type_int = GNode.create("Type", GNode.create("PrimitiveType", "int"), null);
-        GNode type_bool = GNode.create("Type", GNode.create("PrimitiveType", "bool"), null);
         GNode param = GNode.create(
                 "FormalParameters",
-                GNode.create("FormalParameter", null, type_object, null, "name", null)
+                GNode.create("FormalParameter", null, type_object, null, null, null)
         );
         cs.addConstructor(buildConstructorDeclaration("Object", null));
         cs.addMethod(buildMethodDeclaration(type_int, "hashCode", null));
@@ -75,22 +88,17 @@ public class ClassSignature {
     public static ClassSignature buildString() {
         ClassSignature cs = new ClassSignature("String", "Object");
 
-        GNode type_string = GNode.create("Type", GNode.create("QualifiedIdentifier", "String"), null);
-        GNode type_object = GNode.create("Type", GNode.create("QualifiedIdentifier", "Object"), null);
-        GNode type_int = GNode.create("Type", GNode.create("PrimitiveType", "int"), null);
-        GNode type_bool = GNode.create("Type", GNode.create("PrimitiveType", "bool"), null);
-        GNode type_char = GNode.create("Type", GNode.create("PrimitiveType", "char"), null);
         GNode param1 = GNode.create(
                 "FormalParameters",
-                GNode.create("FormalParameter", null, type_string, null, "name", null)
+                GNode.create("FormalParameter", null, type_string, null, "data", null)
         );
         GNode param2 = GNode.create(
                 "FormalParameters",
-                GNode.create("FormalParameter", null, type_object, null, "name", null)
+                GNode.create("FormalParameter", null, type_object, null, null, null)
         );
         GNode param3 = GNode.create(
                 "FormalParameters",
-                GNode.create("FormalParameter", null, type_int, null, "name", null)
+                GNode.create("FormalParameter", null, type_int, null, null, null)
         );
         cs.addField(buildFieldDeclaration(type_string, "data"));
         cs.addConstructor(buildConstructorDeclaration("String", param1));
@@ -106,10 +114,6 @@ public class ClassSignature {
     public static ClassSignature buildClass() {
         ClassSignature cs = new ClassSignature("Class", "Object");
 
-        GNode type_string = GNode.create("Type", GNode.create("QualifiedIdentifier", "String"), null);
-        GNode type_class = GNode.create("Type", GNode.create("QualifiedIdentifier", "Class"), null);
-        GNode type_object = GNode.create("Type", GNode.create("QualifiedIdentifier", "Object"), null);
-        GNode type_bool = GNode.create("Type", GNode.create("PrimitiveType", "bool"), null);
         GNode param1 = GNode.create(
                 "FormalParameters",
                 GNode.create("FormalParameter", null, type_string, null, "name", null),
@@ -117,7 +121,7 @@ public class ClassSignature {
         );
         GNode param2 = GNode.create(
                 "FormalParameters",
-                GNode.create("FormalParameter", null, type_object, null, "name", null)
+                GNode.create("FormalParameter", null, type_object, null, null, null)
         );
         cs.addField(buildFieldDeclaration(type_string, "name"));
         cs.addField(buildFieldDeclaration(type_class, "parent"));
@@ -129,8 +133,6 @@ public class ClassSignature {
 
         return cs;
     }
-
-    // auxiliary methods for prepopulate Object, String and Class
 
     private static GNode buildFieldDeclaration(GNode type, String name) {
         return GNode.create(

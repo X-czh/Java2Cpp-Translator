@@ -20,7 +20,7 @@ public class Translator {
 
     private Node root;
 
-    private List<GNode> javaAstList = new ArrayList<GNode>();
+    private List<GNode> javaAstList = new ArrayList<>();
 
     public Translator(Node n) {
         root = n;
@@ -32,8 +32,9 @@ public class Translator {
     }
 
     public void makeHeaderAst() {
-        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor(javaAstList);
-        HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder();
+        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor();
+        HashMap<String, ClassSignature> classTreeMap = classTreeVisitor.getClassTree(javaAstList);
+        HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder(classTreeMap);
     }
 
     public void makeHeaderFile() {
