@@ -13,6 +13,7 @@ public class MethodSignature {
     private String method_name;
     private List<String> parameters;
     private List<String> parameter_types;
+    private String owner;
 
     public MethodSignature(List<String> modifier, String return_type, String method_name, List<String> parameters, List<String> parameter_types) {
         this.modifier = modifier;
@@ -42,8 +43,8 @@ public class MethodSignature {
         return null;
     }
 
-    public String setOwner(){
-        return "";
+    public void setOwner(String owner){
+        this.owner = owner;
     }
 
     public String getOwner(){
