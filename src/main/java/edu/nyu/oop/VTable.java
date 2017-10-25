@@ -100,6 +100,13 @@ public class VTable {
         return  Vtable;
     }
 
+    public boolean checkMethod(MethodSignature m) {
+        for (String modifi : m.getModifier()){
+            if (modifi.compareTo("static") == 0 || modifi.compareTo("private") == 0) return false;
+        }
+        return true;
+    }
+
     public ArrayList<Node> getVTable(HashMap<String, ClassSignature> map) {
 
         ArrayList<Node> VTs= new ArrayList<Node>();
@@ -111,13 +118,15 @@ public class VTable {
             while (current_class_name.compareTo("null") != 0) {
                 ClassSignature current_class = map.get(k);
                 for (MethodSignature m : current_class.getMethodList()) {
-                    boolean find = false;
-                    for (MethodSignature existed : methods) {
-                        if (existed.getMethodName().compareTo(m.getMethodName()) == 0) find = true;
-                    }
-                    if (!find) {
-                        m.setOwner(current_class_name);
-                        methods.add(m);
+                    if (checkMethod(m)){
+                        boolean find = false;
+                        for (MethodSignature existed : methods) {
+                            if (existed.getMethodName().compareTo(m.getMethodName()) == 0) find = true;
+                        }
+                        if (!find) {
+                            m.setOwner(current_class_name);
+                            methods.add(m);
+                        }
                     }
                 }
                 current_class_name = current_class.getParentClassName();
