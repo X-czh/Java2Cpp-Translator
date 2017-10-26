@@ -43,7 +43,15 @@ public class DataLayout {
     private void fillFieldMap(ClassSignature c) {
         if (c.getParentClassName() != null)
             fillFieldMap(classTreeMap.get(c.getParentClassName()));
-        fieldMap.addAll(c.getFieldList());
+
+        if (c.equals(thisClass))
+            fieldMap.addAll(c.getFieldList());
+        else {
+            for (FieldSignature f : c.getFieldList()) {
+                if (!f.getModifier().contains("static"))
+                    fieldMap.add(f);
+            }
+        }
     }
 
     private GNode makePtrToVtableField() {
@@ -111,13 +119,10 @@ public class DataLayout {
 
         // modifiers
         GNode modifiers = GNode.create("Modifiers");
-        for (String s : f.getModifier()) {
-            if (s.equals("static")) {
-                GNode modifier = GNode.create("Modifier");
-                modifier.add(s);
-                modifiers.add(modifier);
-                break;
-            }
+        if (f.getModifier().contains("static")) {
+            GNode modifier = GNode.create("Modifier");
+            modifier.add("static");
+            modifiers.add(modifier);
         }
         fieldDec.add(modifiers);
 
@@ -141,13 +146,10 @@ public class DataLayout {
 
         // modifiers
         GNode modifiers = GNode.create("Modifiers");
-        for (String s : m.getModifier()) {
-            if (s.equals("static")) {
-                GNode modifier = GNode.create("Modifier");
-                modifier.add(s);
-                modifiers.add(modifier);
-                break;
-            }
+        if (m.getModifier().contains("static")) {
+            GNode modifier = GNode.create("Modifier");
+            modifier.add("static");
+            modifiers.add(modifier);
         }
         methodDec.add(modifiers);
 
