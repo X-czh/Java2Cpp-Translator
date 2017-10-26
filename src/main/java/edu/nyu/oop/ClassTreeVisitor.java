@@ -6,10 +6,11 @@ import xtc.tree.Visitor;
 
 import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 
 
 public class ClassTreeVisitor extends Visitor {
-    private HashMap<String,  ClassSignature> tree_map;
+    private Map<String,  ClassSignature> tree_map;
     private ClassSignature current_class;
 
     public void visitClassDeclaration(GNode n) {
@@ -44,7 +45,7 @@ public class ClassTreeVisitor extends Visitor {
         for (Object o : n) if (o instanceof Node) dispatch((Node) o);
     }
 
-    public HashMap<String, ClassSignature> getClassTree(List<GNode> javaAstList) {
+    public HashMap<String, ClassSignature> getClassTree(List<Node> javaAstList) {
         tree_map = new HashMap<>();
 
         // prepopulate Object, String and Class
