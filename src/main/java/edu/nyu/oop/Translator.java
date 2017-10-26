@@ -32,9 +32,10 @@ public class Translator {
     }
 
     public void makeHeaderAst() {
-        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor();
-        HashMap<String, ClassSignature> classTreeMap = classTreeVisitor.getClassTree(javaAstList);
-        HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder(classTreeMap);
+        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor(javaAstList);
+        HashMap<String, ClassSignature> classTreeMap = classTreeVisitor.getClassTree();
+        List<String> packageInfo = classTreeVisitor.getPackageInfo();
+        HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder(classTreeMap, packageInfo);
     }
 
     public void makeHeaderFile() {
