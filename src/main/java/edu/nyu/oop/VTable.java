@@ -8,7 +8,7 @@ import xtc.tree.Visitor;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.Map;
 
 public class VTable {
 
@@ -106,7 +106,7 @@ public class VTable {
         return true;
     }
 
-    public ArrayList<Node> getVTable(HashMap<String, ClassSignature> map) {
+    public ArrayList<Node> getVTable(Map<String, ClassSignature> map) {
 
         ArrayList<Node> VTs= new ArrayList<Node>();
         for (String k: map.keySet()) {

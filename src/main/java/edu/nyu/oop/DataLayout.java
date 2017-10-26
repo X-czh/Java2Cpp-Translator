@@ -26,12 +26,15 @@ public class DataLayout {
 
         // class body
         GNode classBody = GNode.create("ClassBody");
-        for (ConstructorSignature c : thisClass.getConstructorList())
-            classBody.add(makeConstructorDeclarationNode(c));
+        classBody.add(makePtrToVtableField());
         for (FieldSignature f : fieldMap)
-            classBody.add(makeFieldDeclarationNode(f));
+            classBody.add(makeFieldDeclaration(f));
+        for (ConstructorSignature c : thisClass.getConstructorList())
+            classBody.add(makeConstructorDeclaration(c));
         for (MethodSignature m : thisClass.getMethodList())
-            classBody.add(makeMethodDeclarationNode(m));
+            classBody.add(makeMethodDeclaration(m));
+        classBody.add(makeReturnClassMethod());
+        classBody.add(makeVtableField());
         classDec.add(classBody);
 
         return classDec;
@@ -43,7 +46,36 @@ public class DataLayout {
         fieldMap.addAll(c.getFieldList());
     }
 
-    private GNode makeConstructorDeclarationNode(ConstructorSignature c) {
+    private GNode makePtrToVtableField() {
+        FieldSignature f = new FieldSignature(
+                null,
+                "__" + thisClass.getClassName() + "_VT*",
+                Arrays.asList("__vptr")
+        );
+        return makeFieldDeclaration(f);
+    }
+
+    private GNode makeReturnClassMethod() {
+        MethodSignature m = new MethodSignature(
+                Arrays.asList("static"),
+                "Class",
+                "__class",
+                null,
+                null
+        );
+        return makeMethodDeclaration(m);
+    }
+
+    private GNode makeVtableField() {
+        FieldSignature f = new FieldSignature(
+                Arrays.asList("static"),
+                "__" + thisClass.getClassName() + "_VT",
+                Arrays.asList("__vtable")
+        );
+        return makeFieldDeclaration(f);
+    }
+
+    private GNode makeConstructorDeclaration(ConstructorSignature c) {
         GNode constrDec = GNode.create("ConstructorDeclaration");
 
         constrDec.add(null);
@@ -74,7 +106,7 @@ public class DataLayout {
         return constrDec;
     }
 
-    private GNode makeFieldDeclarationNode(FieldSignature f) {
+    private GNode makeFieldDeclaration(FieldSignature f) {
         GNode fieldDec = GNode.create("FieldDeclaration");
 
         // modifiers
@@ -104,7 +136,7 @@ public class DataLayout {
         return fieldDec;
     }
 
-    private GNode makeMethodDeclarationNode(MethodSignature m) {
+    private GNode makeMethodDeclaration(MethodSignature m) {
         GNode methodDec = GNode.create("MethodDeclaration");
 
         // modifiers

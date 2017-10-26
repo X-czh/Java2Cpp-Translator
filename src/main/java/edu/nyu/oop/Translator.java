@@ -20,25 +20,28 @@ public class Translator {
 
     private Node root;
 
-    private List<GNode> javaAstList = new ArrayList<>();
+    private List<Node> javaAstList;
+    private Node headerAst;
 
     public Translator(Node n) {
         root = n;
     }
 
-    public void makeJavaAstList() {
-        javaAstList.add((GNode) root);
+    private void makeJavaAstList() {
+        javaAstList = new ArrayList<>();
+        javaAstList.add(root);
         javaAstList.addAll(new JavaFiveImportParser().parse((GNode) root));
     }
 
-    public void makeHeaderAst() {
-        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor(javaAstList);
-        HashMap<String, ClassSignature> classTreeMap = classTreeVisitor.getClassTree();
+    private void makeHeaderAst() {
+        ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor();
+        Map<String, ClassSignature> classTreeMap = classTreeVisitor.getClassTree(javaAstList);
         List<String> packageInfo = classTreeVisitor.getPackageInfo();
         HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder(classTreeMap, packageInfo);
+        headerAst = headerAstBuilder.buildHeaderAst();
     }
 
-    public void makeHeaderFile() {
+    private void makeHeaderFile() {
 
     }
 
@@ -47,4 +50,16 @@ public class Translator {
         makeHeaderAst();
         makeHeaderFile();
     }
+
+    public List<Node> getJavaAstList() {
+        makeJavaAstList();
+        return javaAstList;
+    }
+
+    public Node getHeaderAst() {
+        makeJavaAstList();
+        makeHeaderAst();
+        return headerAst;
+    }
+
 }

@@ -61,9 +61,8 @@ public class Boot extends Tool {
             bool("printSymbolTable", "printSymbolTable", false, "Print symbol table for Java Ast.").
             bool("printConfig", "printConfig", false, "Output application configuration to screen.").
             bool("printJavaAstList", "printJavaAstList", false, "Print list of Java Ast.").
-                    bool("bla", "bla", true, "Bla");
-
-
+            bool("printHeaderAst", "printHeaderAst", false, "print C++ header AST").
+            bool("runTranslator", "runTranslator", false, "run translator");
   }
 
   // Notes from Team Meeting on 10/13
@@ -139,12 +138,6 @@ public class Boot extends Tool {
       XtcProps.getProperties().list(System.out);
     }
 
-//    if (runtime.test("testDataStructure")) {
-//      List<GNode> nodes = new JavaFiveImportParser().parse((GNode) n);
-//      ClassTreeVisitor testv= new ClassTreeVisitor();
-//      HashMap<String, ClassTreeVisitor.TreeNode> ans = testv.getClassTree(nodes);
-//    }
-
     if (runtime.test("cppFilePrinter")) {
       new CppFilePrinter().print(n);
     }
@@ -158,10 +151,22 @@ public class Boot extends Tool {
     }
 
     if (runtime.test("printJavaAstList")) {
-      List<GNode> nodes = new JavaFiveImportParser().parse((GNode) n);
+      Translator t = new Translator(n);
+      List<Node> nodes = t.getJavaAstList();
       for (Node node : nodes) {
         runtime.console().format(node).pln().flush();
       }
+    }
+
+    if (runtime.test("printHeaderAst")) {
+      Translator t = new Translator(n);
+      Node root = t.getHeaderAst();
+      runtime.console().format(root).pln().flush();
+    }
+
+    if (runtime.test("runTranslator")) {
+      Translator t = new Translator(n);
+      t.run();
     }
   }
 

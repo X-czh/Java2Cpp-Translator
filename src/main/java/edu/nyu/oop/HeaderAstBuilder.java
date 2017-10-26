@@ -1,6 +1,7 @@
 package edu.nyu.oop;
 
 import xtc.tree.GNode;
+import xtc.tree.Node;
 
 import java.util.List;
 import java.util.Map;
@@ -15,17 +16,19 @@ public class HeaderAstBuilder {
     }
 
     public GNode buildHeaderAst() {
-        for (String s : classTreeMap.keySet()) {
-            ClassSignature c = classTreeMap.get(s);
-        }
-        return null;
-    }
-
-    private void createHead() {
+        // compilation unit
         GNode compilationUnit = GNode.create("CompilationUnit");
-        GNode namespace1 = GNode.create("NamespaceDeclaration");
-        GNode namespace2 = GNode.create("NamespaceDeclaration");
+        GNode prevHierarchy = compilationUnit;
 
+        // namespaces
+        for (String s : packageInfo) {
+            GNode namespace = GNode.create("NamespaceDeclaration");
+            namespace.add(s);
+            prevHierarchy.add(namespace);
+            prevHierarchy = namespace;
+        }
+
+        // forward declarations and type specifiers
         GNode forwardDecs = GNode.create("ForwardDeclarations");
         GNode typespecs = GNode.create("TypeSpecifiers");
         GNode forwardDec, typespec;
@@ -51,5 +54,26 @@ public class HeaderAstBuilder {
                 typespecs.add(typespec);
             }
         }
+
+        prevHierarchy.add(forwardDecs);
+        prevHierarchy.add(typespecs);
+
+        // DataLayouts
+        for (String s : classTreeMap.keySet()) {
+            ClassSignature c = classTreeMap.get(s);
+            String className = c.getClassName();
+            if (className != "Object" && className != "String" && className != "Class") {
+                DataLayout dl = new DataLayout(c, classTreeMap);
+                prevHierarchy.add(dl.makeDataLayout());
+            }
+        }
+
+        // VTables
+        VTable vt = new VTable();
+        for (Node n : vt.getVTable(classTreeMap))
+            prevHierarchy.add(n);
+
+        // return full AST
+        return compilationUnit;
     }
 }
