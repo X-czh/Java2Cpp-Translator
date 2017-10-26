@@ -1,17 +1,14 @@
 package edu.nyu.oop;
 
-import scala.collection.immutable.Stream;
-import xtc.tree.GNode;
-
-import java.lang.reflect.Field;
+import java.util.List;
 import java.util.ArrayList;
 
 public class ClassSignature {
     private String class_name;
     private String parent_class_name;
-    private ArrayList<FieldSignature> field_list;
-    private ArrayList<MethodSignature> method_list;
-    private ArrayList<ConstructorSignature> constructor_list;
+    private List<FieldSignature> field_list;
+    private List<MethodSignature> method_list;
+    private List<ConstructorSignature> constructor_list;
 
     public ClassSignature(String class_name, String parent_class_name) {
         this.parent_class_name = parent_class_name;
@@ -29,15 +26,15 @@ public class ClassSignature {
         return parent_class_name;
     }
 
-    public ArrayList<FieldSignature> getFieldList() {
+    public List<FieldSignature> getFieldList() {
         return field_list;
     }
 
-    public ArrayList<MethodSignature> getMethodList() {
+    public List<MethodSignature> getMethodList() {
         return method_list;
     }
 
-    public ArrayList<ConstructorSignature> getConstructorList() {
+    public List<ConstructorSignature> getConstructorList() {
         return constructor_list;
     }
 

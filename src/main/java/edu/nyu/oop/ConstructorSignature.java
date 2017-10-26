@@ -18,15 +18,14 @@ public class ConstructorSignature {
     }
 
     public String getName(){
-        return "";
+        return name;
     }
 
-    public List<String> getParameter(){
-        return null;
+    public List<String> getParameters(){
+        return parameters;
     }
 
     public List<String> getParameterTypes(){
-        return null;
+        return parameter_types;
     }
-
 }

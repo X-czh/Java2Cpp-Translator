@@ -1,10 +1,6 @@
 package edu.nyu.oop;
 
 import java.util.List;
-import scala.collection.immutable.Stream;
-import xtc.tree.GNode;
-
-import java.lang.reflect.Field;
 
 public class MethodSignature {
 
@@ -24,23 +20,23 @@ public class MethodSignature {
     }
 
     public List<String> getModifier() {
-        return null;
+        return modifier;
     }
 
     public String getReturnType(){
-        return "";
+        return return_type;
     }
 
     public String getMethodName() {
-        return "";
+        return method_name;
     }
 
     public List<String> getParameters(){
-        return null;
+        return parameters;
     }
 
     public List<String> getParameterTypes(){
-        return null;
+        return parameter_types;
     }
 
     public void setOwner(String owner){
@@ -48,9 +44,8 @@ public class MethodSignature {
     }
 
     public String getOwner(){
-        return "";
+        return owner;
     }
-
 }
 
 

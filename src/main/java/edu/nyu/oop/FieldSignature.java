@@ -8,25 +8,24 @@ import java.lang.reflect.Field;
 
 public class FieldSignature {
     private List<String> modifier;
-    private String name;
     private String type;
+    private List<String> declarators;
 
-    public FieldSignature(List<String> modifier, String name, String type) {
+    public FieldSignature(List<String> modifier, String type, List<String> declarators) {
         this.modifier = modifier;
-        this.name = name;
         this.type = type;
+        this.declarators = declarators;
     }
 
     public List<String> getModifier() {
-        return null;
-    }
-
-    public String getName(){
-        return "";
+        return modifier;
     }
 
     public String getType() {
-        return "";
+        return type;
     }
 
+    public List<String> getDeclarators(){
+        return declarators;
+    }
 }
