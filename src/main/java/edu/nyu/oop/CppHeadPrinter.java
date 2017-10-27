@@ -94,6 +94,7 @@ public class CppHeadPrinter extends Visitor {
         //continue to visit sub-nodes
         visit(source);
     }
+
     public void visitClassDeclaration(GNode source){
 
         //get class name and class modifiers
