@@ -17,7 +17,6 @@ public class CppHeadPrinter extends Visitor {
 
     private static int namespaceNum=0;
 
-
     private String outputLocation = XtcProps.get("output.location");
 
     public CppHeadPrinter() {
@@ -37,10 +36,10 @@ public class CppHeadPrinter extends Visitor {
         printer.register(this);
     }
 
-    public void print(GNode inheritance, GNode source) {
+    public void printHeader(Node source) {
         headOfFile();
         visit(source);
-        tailOfFile();
+        namespaceMatch();
         printer.flush(); // important!
     }
 
@@ -63,7 +62,7 @@ public class CppHeadPrinter extends Visitor {
         printer.pln();
     }
 
-    private void tailOfFile() {
+    private void namespaceMatch() {
         printer.pln();
         while(namespaceNum-- > 0){
             printer.indent().decr().pln("}");
@@ -72,37 +71,166 @@ public class CppHeadPrinter extends Visitor {
 
     public void visitCompilationUnit(GNode source){visit(source);}
 
-    public void visitPackageDeclaration(GNode source) {
+    public void visitNameSpaceDeclaration(GNode source) {
 
-        Node qualifiedIdentifier = source.getNode(1);
+        String namespace = source.getString(0);
+        namespaceNum++;
+        printer.indent().p("namespace " + namespace);
+        printer.pln(" {");
 
-        for (int i = 0; i < qualifiedIdentifier.size(); i++) {
-            namespaceNum++;
-            printer.indent().incr().p("namespace " + qualifiedIdentifier.get(i).toString());
-            printer.pln(" {");
-
-        }
-
+        //continue to visit sub-nodes
         visit(source);
     }
 
-    public void visitClassDeclaration(GNode source){
+    public void visitForwardDeclarations(GNode source){
+        visit(source);
+    }
 
+    public void visitForwardDeclaration(GNode source) {
+        String type = source.getString(0);
+        String name = source.getString(1);
+        printer.pln();
+        printer.indent().p(type).pln(" "+name+";");
+    }
+
+    public void visitTypeSpecifiers(GNode source){
+        visit(source);
+    }
+
+    public void visitTypeSpecifier(GNode source){
+        String types = source.getString(0);
+        String systemType = source.getString(1);
+        String CustomType = source.getString(2);
+        printer.pln();
+        printer.indent().pln(types+" "+systemType+" "+CustomType+";");
+    }
+
+
+    public void visitClassDeclaration(GNode source){
         //get class name and class modifiers
-        Node classModifiers = source.getNode(0);
+        String classModifiers = source.getString(0);
         String className = source.getString(1);
 
-        //get class methods info
-        Node classBody = source.getNode(5);
-        Node classMethod = classBody.getNode(0);
-        Node classMethodModifiers = classMethod.getNode(0);//need for loop
+        //get class body info
+        //Node classBody = source.getNode(5);
 
-        //this is unsure how to get VoidType()
-        Object methodReturnType = classMethod.get(2);
-        String methodName = classMethod.getString(3);
+        //print class dec
+        printer.indent().pln("Struct "+className+"{").pln();
+
+        //visit source
+        visit(source);
+
+        //close the parentheses
+        printer.indent().pln("}");
+    }
+
+    public void visitClassBody(GNode source){
+        visit(source);
+    }
+
+    public void visitFieldDeclarations(GNode source){
+        visit(source);
+    }
+
+    public void visitFieldDeclaration(GNode source){
+        //get Field info
+        Node modifiers = source.getNode(0);
+        String name = source.getString(1);
+        Node declarators = source.getNode(2);
+
+        for(int i=0;i<modifiers.size();i++){
+            Node modifier = modifiers.getNode(i);
+            String modifierName = modifier.getString(0);
+            printer.indent();
+            printer.p(modifierName+" ");
+        }
+
+        printer.p(name+" ");
+
+        for(int i=0;i<declarators.size();i++){
+            Node declarator = declarators.getNode(i);
+            String declaratorName = declarator.getString(0);
+            printer.p(declaratorName+" ");
+        }
+
+        printer.pln();
 
         //visit source at the end
         visit(source);
+    }
+
+    public void visitConstructorDeclaration(GNode source){
+        //visit source at the end
+        visit(source);
+    }
+
+    public void visitMethodDeclaration(GNode source){
+        //getting method info
+        Node modifiers = source.getNode(0);
+        String returnType = source.getString(2);
+        String methodName = source.getString(3);
+        Node formalParameters = source.getNode(4);
+        Node block = source.getNode(7);
+
+        //printing modifiers
+        if(modifiers.getName() == "Modifiers") {
+            for (int i = 0; i < modifiers.size(); i++) {
+                Node modifier = modifiers.getNode(i);
+                String modifierName = modifier.getString(0);
+                printer.indent().p(modifierName + " ");
+            }
+        }
+        //if modifier is none
+        else{
+            printer.indent();
+        }
+        //printing returnType and the left parenthesis
+        printer.p(returnType+" ");
+        printer.p(methodName+"(");
+
+        //printing parameters
+        if(formalParameters.getName() == "FormalParameters") {
+            for (int i = 0; i < formalParameters.size(); i++) {
+                Node formalParameter = formalParameters.getNode(i);
+                Node parameterModifiers = formalParameter.getNode(0);
+
+                //if parameterModifiers is not null
+                if (parameterModifiers.getName() == "Modifiers") {
+                    for (int j = 0; j < parameterModifiers.size(); j++) {
+                        String parameterModifierName = parameterModifiers.getString(0);
+                        printer.p(parameterModifierName + " ");
+                    }
+                }
+
+                //do we need to output the type too?
+                String parameterType = formalParameter.getString(1);
+
+                //printing parameterName
+                String parameterName = formalParameter.getString(3);
+                if(i>0){
+                    printer.p(", ");
+                }
+                printer.p(parameterName);
+            }
+            printer.p(")");
+        }
+
+        //else there is no parameter
+        else{
+            printer.p(" )");
+        }
+
+        if(block.getName() == "Block"){
+            //print what is inside the block
+            //not yet to be implemented in headerfile printing
+        }
+
+        else{
+            printer.pln(";").pln();
+        }
+
+        //visited substructure by hand
+        //visit(source);
     }
 }
 
