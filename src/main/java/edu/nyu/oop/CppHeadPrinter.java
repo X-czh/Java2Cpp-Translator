@@ -94,8 +94,8 @@ public class CppHeadPrinter extends Visitor {
         //continue to visit sub-nodes
         visit(source);
     }
-    
-    public void visittypeSpecifier(GNode source){
+
+    public void visitTypeSpecifier(GNode source){
         String types = source.getString(0);
         String systemType = source.getString(1);
         String CustomType = source.getString(2);
