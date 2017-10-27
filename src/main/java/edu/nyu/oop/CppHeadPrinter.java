@@ -109,7 +109,7 @@ public class CppHeadPrinter extends Visitor {
     public void visitClassDeclaration(GNode source){
 
         //get class name and class modifiers
-        Node classModifiers = source.getNode(0);
+        String classModifiers = source.getString(0);
         String className = source.getString(1);
 
         //get class methods info
@@ -121,6 +121,45 @@ public class CppHeadPrinter extends Visitor {
         Object methodReturnType = classMethod.get(2);
         String methodName = classMethod.getString(3);
 
+        //visit source at the end
+        visit(source);
+    }
+
+    public void visitClassBody(GNode source){
+        visit(source);
+    }
+
+    public void visitFieldDeclaration(GNode source){
+        //get Field info
+        Node modifiers = source.getNode(0);
+        String name = source.getString(1);
+        Node declarators = source.getNode(2);
+
+        for(int i=0;i<modifiers.size();i++){
+            String modifier = modifiers.getString(i);
+            printer.indent();
+            printer.p(modifier+" ");
+        }
+
+        printer.p(name+" ");
+
+        for(int i=0;i<declarators.size();i++){
+            String declarator = declarators.getString(i);
+            printer.p(declarator+" ");
+        }
+
+        printer.pln();
+
+        //visit source at the end
+        visit(source);
+    }
+
+    public void visitConstructorDeclaration(GNode source){
+        //visit source at the end
+        visit(source);
+    }
+
+    public void visitMethodDeclaration(GNode source){
         //visit source at the end
         visit(source);
     }
