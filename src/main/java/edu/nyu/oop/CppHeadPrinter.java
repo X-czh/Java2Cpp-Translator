@@ -16,6 +16,7 @@ public class CppHeadPrinter extends Visitor {
     private Printer printer;
 
     private static int namespaceNum=0;
+    private static int forwardDeclarationNum=0;
 
 
     private String outputLocation = XtcProps.get("output.location");
@@ -37,10 +38,10 @@ public class CppHeadPrinter extends Visitor {
         printer.register(this);
     }
 
-    public void print(GNode inheritance, GNode source) {
+    public void printHeader(GNode inheritance, GNode source) {
         headOfFile();
         visit(source);
-        tailOfFile();
+        namespaceMatch();
         printer.flush(); // important!
     }
 
@@ -63,7 +64,7 @@ public class CppHeadPrinter extends Visitor {
         printer.pln();
     }
 
-    private void tailOfFile() {
+    private void namespaceMatch() {
         printer.pln();
         while(namespaceNum-- > 0){
             printer.indent().decr().pln("}");
@@ -72,20 +73,27 @@ public class CppHeadPrinter extends Visitor {
 
     public void visitCompilationUnit(GNode source){visit(source);}
 
-    public void visitPackageDeclaration(GNode source) {
+    public void visitNameSpaceDeclaration(GNode source) {
 
-        Node qualifiedIdentifier = source.getNode(1);
+        String namespace = source.getString(0);
+        namespaceNum++;
+        printer.indent().p("namespace " + namespace);
+        printer.pln(" {");
 
-        for (int i = 0; i < qualifiedIdentifier.size(); i++) {
-            namespaceNum++;
-            printer.indent().incr().p("namespace " + qualifiedIdentifier.get(i).toString());
-            printer.pln(" {");
-
-        }
-
+        //continue to visit sub-nodes
         visit(source);
     }
 
+    public void visitForwardDeclaration(GNode source) {
+        forwardDeclarationNum++;
+        String type = source.getString(0);
+        String name = source.getString(1);
+        printer.pln();
+        printer.indent().p(type).pln(" "+name+";");
+
+        //continue to visit sub-nodes
+        visit(source);
+    }
     public void visitClassDeclaration(GNode source){
 
         //get class name and class modifiers
