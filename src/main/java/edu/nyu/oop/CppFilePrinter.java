@@ -71,4 +71,27 @@ public class CppFilePrinter extends Visitor {
     printer.decr(); // not really necessary, but for demonstration.
     printer.pln("}");
   }
+  public void visitConstructorDeclaration(GNode source){
+
+   String className = source.getString(2);
+
+   //Formal parameter
+   Node formalParameter = source.getNode(3);
+
+   for (int i=0;i<formalParameter.size();++i){
+
+     printer.indent();
+
+     printer.pln(formalParameter.getString(1)+" "+formalParameter.getString(3));
+
+   }
+   //Initialization
+  Node initialization = source.getNode(4);
+
+    for (int j=0;j<initialization.size(); ++j){
+
+    }
+
+  }
+
 }
