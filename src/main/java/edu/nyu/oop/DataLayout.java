@@ -103,27 +103,6 @@ public class DataLayout {
         return makeFieldDeclaration(f);
     }
 
-    private GNode makeConstructorDeclaration() {
-        GNode constrDec = GNode.create("ConstructorDeclaration");
-
-        constrDec.add(null);
-        constrDec.add(null);
-
-        // name
-        constrDec.add(thisClass.getClassName());
-
-        // parameters
-        constrDec.add(null);
-
-        // initializations
-        constrDec.add(null);
-
-        // block
-        constrDec.add(null);
-
-        return constrDec;
-    }
-
     private GNode makeFieldDeclaration(FieldSignature f) {
         GNode fieldDec = GNode.create("FieldDeclaration");
 
@@ -149,6 +128,27 @@ public class DataLayout {
         fieldDec.add(declarators);
 
         return fieldDec;
+    }
+
+    private GNode makeConstructorDeclaration() {
+        GNode constrDec = GNode.create("ConstructorDeclaration");
+
+        constrDec.add(null);
+        constrDec.add(null);
+
+        // name
+        constrDec.add(thisClass.getClassName());
+
+        // parameters
+        constrDec.add(null);
+
+        // initializations
+        constrDec.add(null);
+
+        // block
+        constrDec.add(null);
+
+        return constrDec;
     }
 
     private GNode makeMethodDeclaration(MethodSignature m) {

@@ -30,9 +30,9 @@ namespace java {
 
     // Definition of types that are equivalent to Java semantics,
     // i.e., an instance is the address of the object's data layout.
-    typedef __Object *Object;
-    typedef __Class *Class;
-    typedef __String *String;
+    typedef __Object* Object;
+    typedef __Class* Class;
+    typedef __String* String;
 
   }
 }
@@ -55,9 +55,12 @@ namespace java {
       // reference we have to the Object vtable below. main.cc will demonstrate this.
       __Object_VT* __vptr;
 
-      // The constructor.
+      // The constructor for the data layout.
       __Object();
 
+      // The init method implementing the Java constructor Object()
+      static Object __init(Object __this) { return __this; }
+      
       // The methods implemented by java.lang.Object.
       static int32_t hashCode(Object);
       static bool equals(Object, Object);
@@ -111,6 +114,12 @@ namespace java {
 
       // The constructor
       __String(std::string data);
+
+      // The init method implementing the Java constructor String()
+      static String __init(String __this) { __this->data = ""; return __this; }
+
+      // The init method implementing the Java constructor String(String)
+      static String __init(String __this, std::string data) { __this->data = data; return __this; }
 
       // The methods implemented by java.lang.String.
       static int32_t hashCode(String);
@@ -169,6 +178,9 @@ namespace java {
               Class component = (Class)__rt::null(),
               bool primitive = false);
 
+      // The init method implementing the Java constructor Class()
+      static Class __init(Class __this) { return __this; }
+      
       // The instance methods of java.lang.Class.
       static String toString(Class);
       static String getName(Class);
