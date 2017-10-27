@@ -29,8 +29,9 @@ public class DataLayout {
         classBody.add(makePtrToVtableField());
         for (FieldSignature f : fieldMap)
             classBody.add(makeFieldDeclaration(f));
+        classBody.add(makeConstructorDeclaration());
         for (ConstructorSignature c : thisClass.getConstructorList())
-            classBody.add(makeConstructorDeclaration(c));
+            classBody.add(makeInitMethod(c));
         for (MethodSignature m : thisClass.getMethodList())
             classBody.add(makeMethodDeclaration(m));
         classBody.add(makeReturnClassMethod());
@@ -63,6 +64,25 @@ public class DataLayout {
         return makeFieldDeclaration(f);
     }
 
+    private GNode makeInitMethod(ConstructorSignature c) {
+        List<String> params = new ArrayList<>();
+        List<String> paramTypes = new ArrayList<>();
+        params.add("__this");
+        params.addAll(c.getParameters());
+        paramTypes.add(thisClass.getClassName());
+        paramTypes.addAll(c.getParameterTypes());
+
+        MethodSignature m = new MethodSignature(
+                Arrays.asList("static"),
+                thisClass.getClassName(),
+                "__init",
+                params,
+                paramTypes
+        );
+
+        return makeMethodDeclaration(m);
+    }
+
     private GNode makeReturnClassMethod() {
         MethodSignature m = new MethodSignature(
                 Arrays.asList("static"),
@@ -83,27 +103,17 @@ public class DataLayout {
         return makeFieldDeclaration(f);
     }
 
-    private GNode makeConstructorDeclaration(ConstructorSignature c) {
+    private GNode makeConstructorDeclaration() {
         GNode constrDec = GNode.create("ConstructorDeclaration");
 
         constrDec.add(null);
         constrDec.add(null);
 
         // name
-        constrDec.add(c.getName());
+        constrDec.add(thisClass.getClassName());
 
         // parameters
-        GNode params = GNode.create("FormalParameters");
-        for (int i = 0; i < c.getParameters().size(); i++) {
-            GNode param = GNode.create("FormalParameter");
-            param.add(null);
-            param.add(c.getParameterTypes().get(i));
-            param.add(null);
-            param.add(c.getParameters().get(i));
-            param.add(null);
-            params.add(param);
-        }
-        constrDec.add(params);
+        constrDec.add(null);
 
         // initializations
         constrDec.add(null);
