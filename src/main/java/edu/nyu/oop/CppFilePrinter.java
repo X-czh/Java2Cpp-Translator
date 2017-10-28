@@ -74,24 +74,67 @@ public class CppFilePrinter extends Visitor {
   public void visitConstructorDeclaration(GNode source){
 
    String className = source.getString(2);
-
-   //Formal parameter
+   printer.indent();
+   printer.p(className+"(");
+   
+   //Formal parameter 
    Node formalParameter = source.getNode(3);
 
-   for (int i=0;i<formalParameter.size();++i){
+   if (formalParameter.getName()=="FormalParameters"){
 
-     printer.indent();
+    for (int i=0;i<formalParameter.size();++i){
 
-     printer.pln(formalParameter.getString(1)+" "+formalParameter.getString(3));
+    // printer.indent();
+     Node modifier = formalParameter.getNode(0);
+     if(modifier.getName()!="null") {
+      printer.p("("+formalParameter.getString(0)+") ");
+     }
+     
+     printer.p(formalParameter.getString(1)+" "+formalParameter.getString(3));
+
+     if(formalParameter.size()>=1){
+      printer.p(",");
+     }
+     else
+      printer.p("): ");
 
    }
-   //Initialization
-  Node initialization = source.getNode(4);
+   }
 
-    for (int j=0;j<initialization.size(); ++j){
+   else {
+    //there is no formal parameters
+    printer.p(")");
+   }
 
+   //Initializations
+
+    Node initialization = source.getNode(4);
+    if(initialization.getName()=="Initializations"){
+
+      for (int i=0; i<initialization.size();i++){
+        printer.p(initialization.getString(0)+"("+initialization.getString(1)+")");
+
+        if (initialization.size()>=1){
+          printer.p(",");
+        }
+
+      }
     }
 
-  }
+    // last node ?
+    if (formalParameter.getNode(formalParameter.size()-1).getName() != "null"){
+      printer.p("{}");
+    }
+
+    else {
+
+      printer.p(";");
+    }
+
+   }
+
+   
+
+
 
 }
