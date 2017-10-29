@@ -52,7 +52,6 @@ public class HeaderAstBuilder {
                 typespec.add("__" + className + "*");
                 typespec.add(className);
                 typespecs.add(typespec);
-                typespecs.add(typespec);
             }
         }
 

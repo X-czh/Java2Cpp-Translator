@@ -161,7 +161,7 @@ public class Boot extends Tool {
       runtime.console().format(root).pln().flush();
     }
 
-    if (runtime.test("printCppAst")) {
+    if (runtime.test("printCppHeader")) {
       Translator t = new Translator(n);
       t.printCppHeader();
     }
