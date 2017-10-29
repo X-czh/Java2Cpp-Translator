@@ -168,14 +168,14 @@ public class CppPrinter extends Visitor {
         //Formal parameter
         Node formalParameters = source.getNode(3);
 
-        if (formalParameters.getName()=="FormalParameters"){
+        if (formalParameters.getName().compareTo("FormalParameters")==0){
 
             for (int i=0;i<formalParameters.size();++i){
 
                 Node formalParameter = formalParameters.getNode(i);
                 // printer.indent();
                 Node modifier = formalParameter.getNode(0);
-                if(modifier.getName()!="null") {
+                if(modifier.getName().compareTo("null")!=0) {
                     printer.p("("+formalParameter.getString(0)+") ");
                 }
 
@@ -198,7 +198,7 @@ public class CppPrinter extends Visitor {
         //Initializations
 
         Node initializations = source.getNode(4);
-        if(initializations.getName()=="Initializations"){
+        if(initializations.getName().compareTo("Initializations")==0){
 
             for (int i=0; i<initializations.size();i++){
                 Node initialization = initializations.getNode(i);
@@ -213,7 +213,7 @@ public class CppPrinter extends Visitor {
         }
 
         // last node ?
-        if (source.getNode(5).getName() != "null"){
+        if (source.getNode(5).getName().compareTo("null")!=0 ){
             //to be implemented in later phase
             printer.p("{}");
         }
@@ -233,7 +233,7 @@ public class CppPrinter extends Visitor {
         Node block = source.getNode(7);
 
         //printing modifiers
-        if(modifiers.getName() == "Modifiers") {
+        if(modifiers.getName().compareTo("Modifiers")==0) {
             for (int i = 0; i < modifiers.size(); i++) {
                 Node modifier = modifiers.getNode(i);
                 String modifierName = modifier.getString(0);
@@ -249,13 +249,13 @@ public class CppPrinter extends Visitor {
         printer.p(methodName+"(");
 
         //printing parameters
-        if(formalParameters.getName() == "FormalParameters") {
+        if(formalParameters.getName().compareTo("FormalParameters")==0 ) {
             for (int i = 0; i < formalParameters.size(); i++) {
                 Node formalParameter = formalParameters.getNode(i);
                 Node parameterModifiers = formalParameter.getNode(0);
 
                 //if parameterModifiers is not null
-                if (parameterModifiers.getName() == "Modifiers") {
+                if (parameterModifiers.getName().compareTo("Modifiers")==0) {
                     for (int j = 0; j < parameterModifiers.size(); j++) {
                         String parameterModifierName = parameterModifiers.getString(0);
                         printer.p(parameterModifierName + " ");
@@ -280,7 +280,7 @@ public class CppPrinter extends Visitor {
             printer.p(" )");
         }
 
-        if(block.getName() == "Block"){
+        if(block.getName().compareTo("Block")==0){
             //print what is inside the block
             //not yet to be implemented in headerfile printing
         }
