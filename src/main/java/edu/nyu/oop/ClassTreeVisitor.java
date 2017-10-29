@@ -1,9 +1,11 @@
 package edu.nyu.oop;
 
+import edu.nyu.oop.util.NodeUtil;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
@@ -29,8 +31,23 @@ public class ClassTreeVisitor extends Visitor {
     }
 
     public void visitFieldDeclaration(GNode n){
-        FieldSignature();
-        current_class.addField(n);
+        List<String> modifiers = new ArrayList<>();
+        Node mods = NodeUtil.dfs(n, "Modifiers");
+        for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
+            modifiers.add(mod.getString(0));
+
+        String type;
+        Node tp = NodeUtil.dfs(n, "Type");
+        type = tp.getNode(0).getString(0);
+
+        List<String> declarators = new ArrayList<>();
+        Node decs = NodeUtil.dfs(n, "Declarators");
+        for (Node dec : NodeUtil.dfsAll(decs, "Declarator"))
+            declarators.add(dec.getString(0));
+
+        FieldSignature f = new FieldSignature(modifiers, type, declarators);
+        current_class.addField(f);
+
         visit(n);
     }
 
