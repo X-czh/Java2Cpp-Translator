@@ -10,11 +10,13 @@ public class FieldSignature {
     private List<String> modifier;
     private String type;
     private List<String> declarators;
+    private List<String> name;
 
-    public FieldSignature(List<String> modifier, String type, List<String> declarators) {
+    public FieldSignature(List<String> modifier, String type, List<String> declarators, List<String> name) {
         this.modifier = modifier;
         this.type = type;
         this.declarators = declarators;
+        this.name = name;
     }
 
     public List<String> getModifier() {
@@ -28,4 +30,9 @@ public class FieldSignature {
     public List<String> getDeclarators(){
         return declarators;
     }
+
+    public List<String> getName(){
+        return name;
+    }
+
 }

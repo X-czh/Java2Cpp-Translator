@@ -6,9 +6,9 @@ import java.util.ArrayList;
 public class ClassSignature {
     private String class_name;
     private String parent_class_name;
-    private List<FieldSignature> field_list;
-    private List<MethodSignature> method_list;
-    private List<ConstructorSignature> constructor_list;
+    private ArrayList<FieldSignature> field_list;
+    private ArrayList<MethodSignature> method_list;
+    private ArrayList<ConstructorSignature> constructor_list;
 
     public ClassSignature(String class_name, String parent_class_name) {
         this.parent_class_name = parent_class_name;
@@ -26,15 +26,15 @@ public class ClassSignature {
         return parent_class_name;
     }
 
-    public List<FieldSignature> getFieldList() {
+    public ArrayList<FieldSignature> getFieldList() {
         return field_list;
     }
 
-    public List<MethodSignature> getMethodList() {
+    public ArrayList<MethodSignature> getMethodList() {
         return method_list;
     }
 
-    public List<ConstructorSignature> getConstructorList() {
+    public ArrayList<ConstructorSignature> getConstructorList() {
         return constructor_list;
     }
 
@@ -49,4 +49,28 @@ public class ClassSignature {
     public void addConstructor(ConstructorSignature n) {
         this.constructor_list.add(n);
     }
+
+    public static ClassSignature buildObject() {
+        ClassSignature object = new ClassSignature("Object",null);
+        MethodSignature toString = new MethodSignature("public", "String", "toString", null,null);
+        MethodSignature hashCode = new MethodSignature("public", "int", "hashCode",null,null);
+        MethodSignature getClass = new MethodSignature("public","Class", "getClass", null, null);
+        MethodSignature isA = new MethodSignature("public", "Class", "isA", null, null);
+        MethodSignature equals = new MethodSignature("public", "Boolean", "equals", null, null);
+
+        object.addMethod(toString);
+        object.addMethod(hashCode);
+        object.addMethod(getClass);
+        object.addMethod(isA);
+        object.addMethod(equals);
+    }
+
+    public static ClassSignature buildString() {
+        ClassSignature string = new ClassSignature("String",null);
+    }
+
+    public static ClassSignature buildClass() {
+        ClassSignature our_class = new ClassSignature("Class",null);
+    }
+
 }

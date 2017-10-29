@@ -7,11 +7,13 @@ import xtc.tree.Visitor;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
+import java.lang.Class;
 
 
 public class ClassTreeVisitor extends Visitor {
     private Map<String,  ClassSignature> tree_map;
     private ClassSignature current_class;
+    private Class cls;
 
     public void visitClassDeclaration(GNode n) {
         String class_name, parent_class_name;
@@ -27,6 +29,7 @@ public class ClassTreeVisitor extends Visitor {
     }
 
     public void visitFieldDeclaration(GNode n){
+        FieldSignature();
         current_class.addField(n);
         visit(n);
     }
@@ -39,6 +42,11 @@ public class ClassTreeVisitor extends Visitor {
     public void visitConstructorDeclaration(GNode n){
         current_class.addConstructor(n);
         visit(n);
+    }
+
+    public String getPackageInfo(){
+        Package pkg = cls.getPackage();
+        return pkg.toString();
     }
 
     public void visit(Node n) {
@@ -59,4 +67,5 @@ public class ClassTreeVisitor extends Visitor {
 
         return tree_map;
     }
+
 }
