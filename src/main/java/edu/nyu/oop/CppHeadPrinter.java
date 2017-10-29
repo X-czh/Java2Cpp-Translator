@@ -160,9 +160,69 @@ public class CppHeadPrinter extends Visitor {
     }
 
     public void visitConstructorDeclaration(GNode source){
-        //visit source at the end
-        visit(source);
+
+        String className = source.getString(2);
+        printer.indent();
+        printer.p(className+"(");
+
+        //Formal parameter
+        Node formalParameters = source.getNode(3);
+
+        if (formalParameters.getName()=="FormalParameters"){
+
+            for (int i=0;i<formalParameters.size();++i){
+
+                Node formalParameter = formalParameters.getNode(i);
+                // printer.indent();
+                Node modifier = formalParameter.getNode(0);
+                if(modifier.getName()!="null") {
+                    printer.p("("+formalParameter.getString(0)+") ");
+                }
+
+                printer.p(formalParameter.getString(1)+" "+formalParameter.getString(3));
+
+                if(formalParameters.size()>=1){
+                    printer.p(",");
+                }
+                else
+                    printer.p("): ");
+
+            }
+        }
+
+        else {
+            //there is no formal parameters
+            printer.p(")");
+        }
+
+        //Initializations
+
+        Node initializations = source.getNode(4);
+        if(initializations.getName()=="Initializations"){
+
+            for (int i=0; i<initializations.size();i++){
+                Node initialization = initializations.getNode(i);
+
+                printer.p(initialization.getString(0)+"("+initialization.getString(1)+")");
+
+                if (initializations.size()>=1){
+                    printer.p(",");
+                }
+
+            }
+        }
+
+        // last node ?
+        if (source.getNode(5) != "null"){
+            //to be implemented in later phase
+            printer.p("{}");
+        }
+
+        else {
+            printer.p(";");
+        }
     }
+
 
     public void visitMethodDeclaration(GNode source){
         //getting method info
