@@ -74,15 +74,15 @@ public class ClassSignature {
     public static ClassSignature buildString() {
         ClassSignature string_class = new ClassSignature("String","Object");
 
-        FieldSignature data = new FieldSignature(null, "String", Arrays.asList("data"));
+        FieldSignature data = new FieldSignature(new ArrayList<>(), "String", Arrays.asList("data"));
 
         ConstructorSignature constr = new ConstructorSignature("String", Arrays.asList("data"), Arrays.asList("String"));
 
-        MethodSignature hashCode = new MethodSignature(null, "int", "hashCode", null, null);
-        MethodSignature toString = new MethodSignature(null, "String", "toString", null, null);
-        MethodSignature length = new MethodSignature(null, "int", "length", null, null);
-        MethodSignature equals = new MethodSignature(null, "int", "equals", null, Arrays.asList("Object"));
-        MethodSignature charAt = new MethodSignature(null, "char", "charAt", null, Arrays.asList("int"));
+        MethodSignature hashCode = new MethodSignature(new ArrayList<>(), "int", "hashCode", null, null);
+        MethodSignature toString = new MethodSignature(new ArrayList<>(), "String", "toString", null, null);
+        MethodSignature length = new MethodSignature(new ArrayList<>(), "int", "length", null, null);
+        MethodSignature equals = new MethodSignature(new ArrayList<>(), "int", "equals", null, Arrays.asList("Object"));
+        MethodSignature charAt = new MethodSignature(new ArrayList<>(), "char", "charAt", null, Arrays.asList("int"));
 
         string_class.addField(data);
         string_class.addConstructor(constr);
@@ -98,8 +98,8 @@ public class ClassSignature {
     public static ClassSignature buildClass() {
         ClassSignature class_class = new ClassSignature("Class", "Object");
 
-        FieldSignature name = new FieldSignature(null, "String", Arrays.asList("name"));
-        FieldSignature parent = new FieldSignature(null, "Class", Arrays.asList("parent"));
+        FieldSignature name = new FieldSignature(new ArrayList<>(), "String", Arrays.asList("name"));
+        FieldSignature parent = new FieldSignature(new ArrayList<>(), "Class", Arrays.asList("parent"));
 
         ArrayList<String> params = new ArrayList<>();
         ArrayList<String> param_types = new ArrayList<>();
@@ -109,10 +109,10 @@ public class ClassSignature {
         param_types.add("Class");
         ConstructorSignature constr = new ConstructorSignature("Class", params, param_types);
 
-        MethodSignature toString = new MethodSignature(null, "String", "toString", null, null);
-        MethodSignature getName = new MethodSignature(null, "Class", "getName", null, null);
-        MethodSignature getSuperclass = new MethodSignature(null, "Class", "getSuperclass", null, null);
-        MethodSignature isInstance = new MethodSignature(null, "boolean", "isInstance", null, Arrays.asList("Object"));
+        MethodSignature toString = new MethodSignature(new ArrayList<>(), "String", "toString", null, null);
+        MethodSignature getName = new MethodSignature(new ArrayList<>(), "Class", "getName", null, null);
+        MethodSignature getSuperclass = new MethodSignature(new ArrayList<>(), "Class", "getSuperclass", null, null);
+        MethodSignature isInstance = new MethodSignature(new ArrayList<>(), "boolean", "isInstance", null, Arrays.asList("Object"));
 
         class_class.addField(name);
         class_class.addField(parent);

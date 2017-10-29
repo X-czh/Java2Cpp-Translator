@@ -42,7 +42,6 @@ public class DataLayout {
     }
 
     private void fillFieldMap(ClassSignature c) {
-        System.out.println("fuck3" + c.getClassName());
         if (c.getParentClassName().compareTo("null")!=0)
             fillFieldMap(classTreeMap.get(c.getParentClassName()));
 
@@ -106,10 +105,7 @@ public class DataLayout {
 
     private GNode makeFieldDeclaration(FieldSignature f) {
         GNode fieldDec = GNode.create("FieldDeclaration");
-        System.out.println(f.toString());
 
-        for (String s : f.getModifier())
-            System.out.println(s);
         // modifiers
         GNode modifiers = GNode.create("Modifiers");
         if (f.getModifier().contains("static")) {
@@ -144,7 +140,7 @@ public class DataLayout {
         constrDec.add(thisClass.getClassName());
 
         // parameters
-        constrDec.add(new ArrayList<>());
+        constrDec.add(null);
 
         // initializations
         constrDec.add(null);
