@@ -6,7 +6,7 @@ import xtc.tree.Node;
 import xtc.tree.GNode;
 
 import java.util.*;
-import edu.nyu.oop.CppHeadPrinter;
+import edu.nyu.oop.CppPrinter;
 
 /**
  * This is the entry point to the translator facilities. While Boot.java implements the user-program
@@ -43,7 +43,7 @@ public class Translator {
     }
 
     private void makeHeaderFile() {
-        CppHeadPrinter cppPrinter = new CppHeadPrinter();
+        CppPrinter cppPrinter = new CppPrinter("/output.h");
         cppPrinter.printHeader(headerAst);
     }
 
