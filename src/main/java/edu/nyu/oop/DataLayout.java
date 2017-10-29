@@ -29,8 +29,9 @@ public class DataLayout {
         classBody.add(makePtrToVtableField());
         for (FieldSignature f : fieldMap)
             classBody.add(makeFieldDeclaration(f));
+        classBody.add(makeConstructorDeclaration());
         for (ConstructorSignature c : thisClass.getConstructorList())
-            classBody.add(makeConstructorDeclaration(c));
+            classBody.add(makeInitMethod(c));
         for (MethodSignature m : thisClass.getMethodList())
             classBody.add(makeMethodDeclaration(m));
         classBody.add(makeReturnClassMethod());
@@ -43,7 +44,15 @@ public class DataLayout {
     private void fillFieldMap(ClassSignature c) {
         if (c.getParentClassName() != null)
             fillFieldMap(classTreeMap.get(c.getParentClassName()));
-        fieldMap.addAll(c.getFieldList());
+
+        if (c.equals(thisClass))
+            fieldMap.addAll(c.getFieldList());
+        else {
+            for (FieldSignature f : c.getFieldList()) {
+                if (!f.getModifier().contains("static"))
+                    fieldMap.add(f);
+            }
+        }
     }
 
     private GNode makePtrToVtableField() {
@@ -53,6 +62,25 @@ public class DataLayout {
                 Arrays.asList("__vptr")
         );
         return makeFieldDeclaration(f);
+    }
+
+    private GNode makeInitMethod(ConstructorSignature c) {
+        List<String> params = new ArrayList<>();
+        List<String> paramTypes = new ArrayList<>();
+        params.add("__this");
+        params.addAll(c.getParameters());
+        paramTypes.add(thisClass.getClassName());
+        paramTypes.addAll(c.getParameterTypes());
+
+        MethodSignature m = new MethodSignature(
+                Arrays.asList("static"),
+                thisClass.getClassName(),
+                "__init",
+                params,
+                paramTypes
+        );
+
+        return makeMethodDeclaration(m);
     }
 
     private GNode makeReturnClassMethod() {
@@ -75,49 +103,15 @@ public class DataLayout {
         return makeFieldDeclaration(f);
     }
 
-    private GNode makeConstructorDeclaration(ConstructorSignature c) {
-        GNode constrDec = GNode.create("ConstructorDeclaration");
-
-        constrDec.add(null);
-        constrDec.add(null);
-
-        // name
-        constrDec.add(c.getName());
-
-        // parameters
-        GNode params = GNode.create("FormalParameters");
-        for (int i = 0; i < c.getParameters().size(); i++) {
-            GNode param = GNode.create("FormalParameter");
-            param.add(null);
-            param.add(c.getParameterTypes().get(i));
-            param.add(null);
-            param.add(c.getParameters().get(i));
-            param.add(null);
-            params.add(param);
-        }
-        constrDec.add(params);
-
-        // initializations
-        constrDec.add(null);
-
-        // block
-        constrDec.add(null);
-
-        return constrDec;
-    }
-
     private GNode makeFieldDeclaration(FieldSignature f) {
         GNode fieldDec = GNode.create("FieldDeclaration");
 
         // modifiers
         GNode modifiers = GNode.create("Modifiers");
-        for (String s : f.getModifier()) {
-            if (s.equals("static")) {
-                GNode modifier = GNode.create("Modifier");
-                modifier.add(s);
-                modifiers.add(modifier);
-                break;
-            }
+        if (f.getModifier().contains("static")) {
+            GNode modifier = GNode.create("Modifier");
+            modifier.add("static");
+            modifiers.add(modifier);
         }
         fieldDec.add(modifiers);
 
@@ -136,18 +130,36 @@ public class DataLayout {
         return fieldDec;
     }
 
+    private GNode makeConstructorDeclaration() {
+        GNode constrDec = GNode.create("ConstructorDeclaration");
+
+        constrDec.add(null);
+        constrDec.add(null);
+
+        // name
+        constrDec.add(thisClass.getClassName());
+
+        // parameters
+        constrDec.add(null);
+
+        // initializations
+        constrDec.add(null);
+
+        // block
+        constrDec.add(null);
+
+        return constrDec;
+    }
+
     private GNode makeMethodDeclaration(MethodSignature m) {
         GNode methodDec = GNode.create("MethodDeclaration");
 
         // modifiers
         GNode modifiers = GNode.create("Modifiers");
-        for (String s : m.getModifier()) {
-            if (s.equals("static")) {
-                GNode modifier = GNode.create("Modifier");
-                modifier.add(s);
-                modifiers.add(modifier);
-                break;
-            }
+        if (m.getModifier().contains("static")) {
+            GNode modifier = GNode.create("Modifier");
+            modifier.add("static");
+            modifiers.add(modifier);
         }
         methodDec.add(modifiers);
 
