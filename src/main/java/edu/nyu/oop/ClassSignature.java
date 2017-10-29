@@ -1,5 +1,9 @@
 package edu.nyu.oop;
 
+import com.sun.xml.internal.bind.v2.runtime.unmarshaller.XsiNilLoader;
+
+import java.lang.reflect.Array;
+import java.util.Arrays;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -62,7 +66,7 @@ public class ClassSignature {
         MethodSignature getClass = new MethodSignature(modifiers, "Class", "getClass", params, param_types);
         params.add("other");
         param_types.add("Object");
-        MethodSignature equals = new MethodSignature(modifiers, "Boolean", "equals", params, param_types);
+        MethodSignature equals = new MethodSignature(modifiers, "boolean", "equals", params, param_types);
 
         object_class.addMethod(toString);
         object_class.addMethod(hashCode);
@@ -72,11 +76,56 @@ public class ClassSignature {
     }
 
     public static ClassSignature buildString() {
-        ClassSignature string = new ClassSignature("String",null);
+        ClassSignature string_class = new ClassSignature("String","Object");
+
+        FieldSignature data = new FieldSignature(null, "String", Arrays.asList("data"));
+
+        ConstructorSignature constr = new ConstructorSignature("String", Arrays.asList("data"), Arrays.asList("String"));
+
+        MethodSignature hashCode = new MethodSignature(null, "int", "hashCode", null, null);
+        MethodSignature toString = new MethodSignature(null, "String", "toString", null, null);
+        MethodSignature length = new MethodSignature(null, "int", "length", null, null);
+        MethodSignature equals = new MethodSignature(null, "int", "equals", null, Arrays.asList("Object"));
+        MethodSignature charAt = new MethodSignature(null, "char", "charAt", null, Arrays.asList("int"));
+
+        string_class.addField(data);
+        string_class.addConstructor(constr);
+        string_class.addMethod(hashCode);
+        string_class.addMethod(equals);
+        string_class.addMethod(toString);
+        string_class.addMethod(length);
+        string_class.addMethod(charAt);
+
+        return string_class;
     }
 
     public static ClassSignature buildClass() {
-        ClassSignature our_class = new ClassSignature("Class",null);
-    }
+        ClassSignature class_class = new ClassSignature("Class", "Object");
 
+        FieldSignature name = new FieldSignature(null, "String", Arrays.asList("name"));
+        FieldSignature parent = new FieldSignature(null, "Class", Arrays.asList("parent"));
+
+        ArrayList<String> params = new ArrayList<>();
+        ArrayList<String> param_types = new ArrayList<>();
+        params.add("name");
+        param_types.add("String");
+        params.add("parent");
+        param_types.add("Class");
+        ConstructorSignature constr = new ConstructorSignature("Class", params, param_types);
+
+        MethodSignature toString = new MethodSignature(null, "String", "toString", null, null);
+        MethodSignature getName = new MethodSignature(null, "Class", "getName", null, null);
+        MethodSignature getSuperclass = new MethodSignature(null, "Class", "getSuperclass", null, null);
+        MethodSignature isInstance = new MethodSignature(null, "boolean", "isInstance", null, Arrays.asList("Object"));
+
+        class_class.addField(name);
+        class_class.addField(parent);
+        class_class.addConstructor(constr);
+        class_class.addMethod(toString);
+        class_class.addMethod(getName);
+        class_class.addMethod(getSuperclass);
+        class_class.addMethod(isInstance);
+
+        return class_class;
+    }
 }
