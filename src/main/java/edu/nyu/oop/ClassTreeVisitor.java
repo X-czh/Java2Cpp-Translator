@@ -25,8 +25,8 @@ public class ClassTreeVisitor extends Visitor {
         else
             parent_class_name = extension.getNode(0).getNode(0).getString(0);
         current_class = new ClassSignature(class_name, parent_class_name);
-        tree_map.put(class_name, current_class);
         visit(n);
+        tree_map.put(class_name, current_class);
     }
 
     public void visitFieldDeclaration(GNode n){
