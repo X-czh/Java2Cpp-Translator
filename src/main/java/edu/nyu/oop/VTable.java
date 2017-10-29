@@ -110,29 +110,31 @@ public class VTable {
 
         ArrayList<Node> VTs= new ArrayList<Node>();
         for (String k: map.keySet()) {
+            System.out.println("vt "+k);
+            if (k.compareTo("Object") != 0 && k.compareTo("String") != 0 && k.compareTo("Class") != 0) {
+                ArrayList<MethodSignature> methods = new ArrayList<MethodSignature>();
 
-            ArrayList<MethodSignature> methods = new ArrayList<MethodSignature>();
-
-            String current_class_name = k;
-            while (current_class_name.compareTo("null") != 0) {
-                ClassSignature current_class = map.get(k);
-                for (MethodSignature m : current_class.getMethodList()) {
-                    if (checkMethod(m)){
-                        boolean find = false;
-                        for (MethodSignature existed : methods) {
-                            if (existed.getMethodName().compareTo(m.getMethodName()) == 0) find = true;
-                        }
-                        if (!find) {
-                            m.setOwner(current_class_name);
-                            methods.add(m);
+                String current_class_name = k;
+                while (current_class_name.compareTo("null") != 0) {
+                    System.out.println("recursive "+current_class_name);
+                    ClassSignature current_class = map.get(k);
+                    for (MethodSignature m : current_class.getMethodList()) {
+                        if (checkMethod(m)) {
+                            boolean find = false;
+                            for (MethodSignature existed : methods) {
+                                if (existed.getMethodName().compareTo(m.getMethodName()) == 0) find = true;
+                            }
+                            if (!find) {
+                                m.setOwner(current_class_name);
+                                methods.add(m);
+                            }
                         }
                     }
+                    current_class_name = current_class.getParentClassName();
                 }
-                current_class_name = current_class.getParentClassName();
+
+                VTs.add(createVTable(methods, k));
             }
-
-            VTs.add(createVTable(methods, k));
-
         }
         return VTs;
     }

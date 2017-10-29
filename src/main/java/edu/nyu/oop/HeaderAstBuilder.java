@@ -52,6 +52,7 @@ public class HeaderAstBuilder {
                 typespec.add("__" + className + "*");
                 typespec.add(className);
                 typespecs.add(typespec);
+                typespecs.add(typespec);
             }
         }
 
@@ -60,19 +61,21 @@ public class HeaderAstBuilder {
 
         // DataLayouts
         for (String s : classTreeMap.keySet()) {
+
             ClassSignature c = classTreeMap.get(s);
-            String className = c.getClassName();
-            if (className != "Object" && className != "String" && className != "Class") {
+            System.out.println(s + " " + c.toString());
+            if (s.compareTo("Object") != 0 && s.compareTo("String") != 0 && s.compareTo("Class") != 0) {
                 DataLayout dl = new DataLayout(c, classTreeMap);
                 prevHierarchy.add(dl.makeDataLayout());
             }
         }
-
+        System.out.println("Datalaout end");
         // VTables
         VTable vt = new VTable();
-        for (Node n : vt.getVTable(classTreeMap))
+        List<Node> vtable = vt.getVTable(classTreeMap);
+        System.out.println("vtable end");
+        for (Node n: vtable)
             prevHierarchy.add(n);
-
         // return full AST
         return compilationUnit;
     }

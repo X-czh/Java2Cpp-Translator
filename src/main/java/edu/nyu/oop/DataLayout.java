@@ -42,7 +42,8 @@ public class DataLayout {
     }
 
     private void fillFieldMap(ClassSignature c) {
-        if (c.getParentClassName() != null)
+        System.out.println("fuck3" + c.getClassName());
+        if (c.getParentClassName().compareTo("null")!=0)
             fillFieldMap(classTreeMap.get(c.getParentClassName()));
 
         if (c.equals(thisClass))
@@ -57,7 +58,7 @@ public class DataLayout {
 
     private GNode makePtrToVtableField() {
         FieldSignature f = new FieldSignature(
-                null,
+                new ArrayList<>(),
                 "__" + thisClass.getClassName() + "_VT*",
                 Arrays.asList("__vptr")
         );
@@ -88,8 +89,8 @@ public class DataLayout {
                 Arrays.asList("static"),
                 "Class",
                 "__class",
-                null,
-                null
+                new ArrayList<>(),
+                new ArrayList<>()
         );
         return makeMethodDeclaration(m);
     }
@@ -105,7 +106,10 @@ public class DataLayout {
 
     private GNode makeFieldDeclaration(FieldSignature f) {
         GNode fieldDec = GNode.create("FieldDeclaration");
+        System.out.println(f.toString());
 
+        for (String s : f.getModifier())
+            System.out.println(s);
         // modifiers
         GNode modifiers = GNode.create("Modifiers");
         if (f.getModifier().contains("static")) {
@@ -140,7 +144,7 @@ public class DataLayout {
         constrDec.add(thisClass.getClassName());
 
         // parameters
-        constrDec.add(null);
+        constrDec.add(new ArrayList<>());
 
         // initializations
         constrDec.add(null);

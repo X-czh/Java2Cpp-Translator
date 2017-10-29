@@ -29,7 +29,8 @@ public class ClassTreeVisitor extends Visitor {
         tree_map.put(class_name, current_class);
     }
 
-    public void visitFieldDeclaration(GNode n){
+    public void visitFieldDeclaration(GNode n) {
+        System.out.println("fuck1");
         List<String> modifiers = new ArrayList<>();
         Node mods = NodeUtil.dfs(n, "Modifiers");
         for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
@@ -61,18 +62,17 @@ public class ClassTreeVisitor extends Visitor {
         return_type = rtp.getNode(0).getString(0);
 
         String method_name;
-        Node mn = NodeUtil.dfs(n, n.getString(3));
-        method_name = mn.getNode(0).getString(0);
+        method_name = n.getString(3);
 
         List<String> parameters = new ArrayList<>();
         Node params = NodeUtil.dfs(n,"FormalParameters");
         for(Node param : NodeUtil.dfsAll(params,"FormalParameter"))
-            parameters.add(param.getString(0));
+            parameters.add(param.getString(3));
 
         List<String> parameter_types = new ArrayList<>();
         Node pts = NodeUtil.dfs(n, "FormalParameters");
         for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
-            parameter_types.add(pt.getNode(1).getString(0));
+            parameter_types.add(pt.getNode(1).getNode(1).getString(0));
 
         MethodSignature m = new MethodSignature(modifiers, return_type, method_name,parameters,parameter_types);
         current_class.addMethod(m);
@@ -115,7 +115,7 @@ public class ClassTreeVisitor extends Visitor {
         for (Object o : n) if (o instanceof Node) dispatch((Node) o);
     }
 
-    public HashMap<String, ClassSignature> getClassTree(List<Node> javaAstList) {
+    public Map<String, ClassSignature> getClassTree(List<Node> javaAstList) {
         tree_map = new HashMap<>();
 
         // prepopulate Object, String and Class

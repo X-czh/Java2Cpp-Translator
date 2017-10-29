@@ -12,6 +12,7 @@ public class FieldSignature {
     private List<String> declarators;
 
     public FieldSignature(List<String> modifier, String type, List<String> declarators) {
+        System.out.println("fuck2" + declarators.get(0));
         this.modifier = modifier;
         this.type = type;
         this.declarators = declarators;
