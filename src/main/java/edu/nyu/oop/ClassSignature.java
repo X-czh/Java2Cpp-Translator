@@ -51,18 +51,24 @@ public class ClassSignature {
     }
 
     public static ClassSignature buildObject() {
-        ClassSignature object = new ClassSignature("Object",null);
-        MethodSignature toString = new MethodSignature("public", "String", "toString", null,null);
-        MethodSignature hashCode = new MethodSignature("public", "int", "hashCode",null,null);
-        MethodSignature getClass = new MethodSignature("public","Class", "getClass", null, null);
-        MethodSignature isA = new MethodSignature("public", "Class", "isA", null, null);
-        MethodSignature equals = new MethodSignature("public", "Boolean", "equals", null, null);
+        ClassSignature object_class = new ClassSignature("Object", "null");
+        ArrayList<String> modifiers = new ArrayList<String>();
+        ArrayList<String> params = new ArrayList<String>();
+        ArrayList<String> param_types = new ArrayList<String>();
 
-        object.addMethod(toString);
-        object.addMethod(hashCode);
-        object.addMethod(getClass);
-        object.addMethod(isA);
-        object.addMethod(equals);
+        modifiers.add("public");
+        MethodSignature toString = new MethodSignature(modifiers, "String", "toString", params, param_types);
+        MethodSignature hashCode = new MethodSignature(modifiers, "int", "hashCode", params, param_types);
+        MethodSignature getClass = new MethodSignature(modifiers, "Class", "getClass", params, param_types);
+        params.add("other");
+        param_types.add("Object");
+        MethodSignature equals = new MethodSignature(modifiers, "Boolean", "equals", params, param_types);
+
+        object_class.addMethod(toString);
+        object_class.addMethod(hashCode);
+        object_class.addMethod(getClass);
+        object_class.addMethod(equals);
+        return object_class;
     }
 
     public static ClassSignature buildString() {
