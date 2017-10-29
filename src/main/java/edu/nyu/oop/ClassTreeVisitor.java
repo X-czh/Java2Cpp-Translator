@@ -52,12 +52,53 @@ public class ClassTreeVisitor extends Visitor {
     }
 
     public void visitMethodDeclaration(GNode n){
-        current_class.addMethod(n);
+        List<String> modifiers = new ArrayList<>();
+        Node mods = NodeUtil.dfs(n, "Modifiers");
+        for(Node mod : NodeUtil.dfsAll(mods, "Modifier"))
+            modifiers.add(mod.getString(0));
+
+        String return_type;
+        Node rtp = NodeUtil.dfs(n,"Type");
+        return_type = rtp.getNode(0).getString(0);
+
+        String method_name;
+        Node mn = NodeUtil.dfs(n, n.getString(3));
+        method_name = mn.getNode(0).getString(0);
+
+        List<String> parameters = new ArrayList<>();
+        Node params = NodeUtil.dfs(n,"FormalParameters");
+        for(Node param : NodeUtil.dfsAll(params,"FormalParameter"))
+            parameters.add(param.getString(0));
+
+        List<String> parameter_types = new ArrayList<>();
+        Node pts = NodeUtil.dfs(n, "FormalParameters");
+        for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
+            parameter_types.add(pt.getNode(1).getString(0));
+
+        MethodSignature m = new MethodSignature(modifiers, return_type, method_name,parameters,parameter_types);
+        current_class.addMethod(m);
+
         visit(n);
     }
 
     public void visitConstructorDeclaration(GNode n){
-        current_class.addConstructor(n);
+        String name;
+        Node nm = NodeUtil.dfs(n, n.getString(3));
+        name = nm.getNode(0).getString(0);
+
+        List<String> parameters = new ArrayList<>();
+        Node params = NodeUtil.dfs(n,"FormalParameters");
+        for(Node param : NodeUtil.dfsAll(params, "FormalParameter"))
+            parameters.add(param.getString(0));
+
+        List<String> parameter_types = new ArrayList<>();
+        Node pts = NodeUtil.dfs(n, "FormalParameters");
+        for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
+            parameter_types.add(pt.getNode(1).getString(0));
+
+        ConstructorSignature c = new ConstructorSignature(name,parameters,parameter_types);
+        current_class.addConstructor(c);
+
         visit(n);
     }
 
