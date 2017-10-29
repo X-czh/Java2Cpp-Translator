@@ -213,7 +213,7 @@ public class CppHeadPrinter extends Visitor {
         }
 
         // last node ?
-        if (source.getNode(5) != "null"){
+        if (source.getNode(5).getName() != "null"){
             //to be implemented in later phase
             printer.p("{}");
         }
