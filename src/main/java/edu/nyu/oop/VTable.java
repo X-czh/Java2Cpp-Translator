@@ -81,7 +81,7 @@ public class VTable {
         Vtable.add(null);
         Vtable.add(null);
         GNode VtableClassBody = GNode.create("ClassBody");
-        VtableClassBody.add(create_field_dec(null, "Class", "__is_a"));
+        VtableClassBody.add(create_field_dec(new ArrayList<String>(), "Class", "__is_a"));
         for (MethodSignature m: methods){
             String extended_name;
             extended_name = "(*" + m.getMethodName() + ")(";
@@ -90,7 +90,7 @@ public class VTable {
             }
             extended_name = extended_name.substring(0, extended_name.length()-2);
             extended_name += ")";
-            VtableClassBody.add(create_field_dec(null, m.getReturnType(), extended_name));
+            VtableClassBody.add(create_field_dec(new ArrayList<String>(), m.getReturnType(), extended_name));
         }
 
         VtableClassBody.add(create_vt_constructor(methods, class_name));
@@ -117,7 +117,7 @@ public class VTable {
                 String current_class_name = k;
                 while (current_class_name.compareTo("null") != 0) {
                     System.out.println("recursive "+current_class_name);
-                    ClassSignature current_class = map.get(k);
+                    ClassSignature current_class = map.get(current_class_name);
                     for (MethodSignature m : current_class.getMethodList()) {
                         if (checkMethod(m)) {
                             boolean find = false;

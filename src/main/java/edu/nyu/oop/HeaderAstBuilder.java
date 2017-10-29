@@ -69,12 +69,11 @@ public class HeaderAstBuilder {
         }
 
         // VTables
-//        VTable vt = new VTable();
-//        List<Node> vtable = vt.getVTable(classTreeMap);
-//        System.out.println("vtable end");
-//        for (Node n: vtable)
-//            prevHierarchy.add(n);
-//        // return full AST
+        VTable vt = new VTable();
+        for (Node n: vt.getVTable(classTreeMap))
+            prevHierarchy.add(n);
+
+        // return full AST
         return compilationUnit;
     }
 }
