@@ -1,12 +1,12 @@
-#SevenBobcat-Java2CppTranslator
+# SevenBobcat-Java2CppTranslator
 
-##Features
+## Features
 By far, the translator supports the translation of Java with inheritance and dynamic dispatch, Java package imports, 
 standard Java field and method declarations to C++ using Virtual Class Table without inheritance.  However, it does 
 NOT support the generation of actually implementation file yet, only the header file. We will keep updating it 
 to support more advanced features during the rest of the semester.
 
-##Usage
+## Usage
 Call sbt from the terminal in the translator directory and run the following code:
 
 &nbsp;&nbsp;&nbsp;`runxtc -runTranslator src/test/java/inputs/testxxx/Testxxx.java`
