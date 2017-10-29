@@ -9,13 +9,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
-import java.lang.Class;
 
 
 public class ClassTreeVisitor extends Visitor {
     private Map<String,  ClassSignature> tree_map;
     private ClassSignature current_class;
-    private Class cls;
+    List<String> package_declaration = new ArrayList<>();
 
     public void visitClassDeclaration(GNode n) {
         String class_name, parent_class_name;
@@ -101,10 +100,15 @@ public class ClassTreeVisitor extends Visitor {
 
         visit(n);
     }
+    public void visitPackageDeclaration(GNode n){
+        Node temp = n.getNode(1);
+        for (int i=0; i<temp.size(); i++) {
+            package_declaration.add(temp.getString(i));
+        }
+    }
 
-    public String getPackageInfo(){
-        Package pkg = cls.getPackage();
-        return pkg.toString();
+    public List<String> getPackageInfo(){
+        return package_declaration;
     }
 
     public void visit(Node n) {
