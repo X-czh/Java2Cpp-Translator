@@ -58,8 +58,11 @@ public class ClassTreeVisitor extends Visitor {
             modifiers.add(mod.getString(0));
 
         String return_type;
-        Node rtp = NodeUtil.dfs(n,"Type");
-        return_type = rtp.getNode(0).getString(0);
+        Node rtp = n.getNode(2);
+        if (rtp.size() != 0)
+            return_type = rtp.getNode(0).getString(0);
+        else
+            return_type = "void";
 
         String method_name;
         method_name = n.getString(3);
