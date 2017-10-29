@@ -109,7 +109,7 @@ public class CppFilePrinter extends Visitor {
    //Initializations
 
     Node initialization = source.getNode(4);
-    if(initialization.getName()=="Initializations"){
+    if(initialization.getName().compareTo("Initializations")==0){
 
       for (int i=0; i<initialization.size();i++){
         printer.p(initialization.getString(0)+"("+initialization.getString(1)+")");
