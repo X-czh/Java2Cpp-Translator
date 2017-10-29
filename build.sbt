@@ -1,4 +1,4 @@
-name := "xtc-demo"
+name := "Java2CppTranslator"
 
 version := "1.0"
 
