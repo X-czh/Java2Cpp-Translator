@@ -61,6 +61,7 @@ public class Boot extends Tool {
             bool("printConfig", "printConfig", false, "Output application configuration to screen.").
             bool("printJavaAstList", "printJavaAstList", false, "Print list of Java Ast.").
             bool("printHeaderAst", "printHeaderAst", false, "print C++ header AST").
+            bool("printCppHeader", "printCppHeader", false, "print C++ header").
             bool("runTranslator", "runTranslator", false, "run translator");
   }
 
@@ -158,6 +159,11 @@ public class Boot extends Tool {
       Translator t = new Translator(n);
       Node root = t.getHeaderAst();
       runtime.console().format(root).pln().flush();
+    }
+
+    if (runtime.test("printCppAst")) {
+      Translator t = new Translator(n);
+      t.printCppHeader();
     }
 
     if (runtime.test("runTranslator")) {

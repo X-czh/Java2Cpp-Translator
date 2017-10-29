@@ -61,21 +61,18 @@ public class HeaderAstBuilder {
 
         // DataLayouts
         for (String s : classTreeMap.keySet()) {
-
             ClassSignature c = classTreeMap.get(s);
-            System.out.println(s + " " + c.toString());
             if (s.compareTo("Object") != 0 && s.compareTo("String") != 0 && s.compareTo("Class") != 0) {
                 DataLayout dl = new DataLayout(c, classTreeMap);
                 prevHierarchy.add(dl.makeDataLayout());
             }
         }
-        System.out.println("Datalaout end");
+
         // VTables
         VTable vt = new VTable();
-        List<Node> vtable = vt.getVTable(classTreeMap);
-        System.out.println("vtable end");
-        for (Node n: vtable)
+        for (Node n: vt.getVTable(classTreeMap))
             prevHierarchy.add(n);
+
         // return full AST
         return compilationUnit;
     }

@@ -64,4 +64,10 @@ public class Translator {
         return headerAst;
     }
 
+    public void printCppHeader() {
+        makeJavaAstList();
+        makeHeaderAst();
+        makeHeaderFile();
+    }
+
 }
