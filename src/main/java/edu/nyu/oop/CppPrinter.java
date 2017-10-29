@@ -10,7 +10,7 @@ import xtc.tree.*;
  * This class demonstrates a trivial usage of XTC's Printer class.
  * For much more sophisticated printing, see xtc.lang.CPrinter
  */
-public class CppHeadPrinter extends Visitor {
+public class CppPrinter extends Visitor {
     private Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
     private Printer printer;
@@ -19,10 +19,10 @@ public class CppHeadPrinter extends Visitor {
 
     private String outputLocation = XtcProps.get("output.location");
 
-    public CppHeadPrinter() {
+    public CppPrinter(String outputFile) {
         Writer w = null;
         try {
-            FileOutputStream fos = new FileOutputStream(outputLocation + "/output.h");
+            FileOutputStream fos = new FileOutputStream(outputLocation + outputFile);
             OutputStreamWriter ows = new OutputStreamWriter(fos, "utf-8");
             w = new BufferedWriter(ows);
             this.printer = new Printer(w);
