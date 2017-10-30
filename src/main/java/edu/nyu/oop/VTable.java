@@ -106,13 +106,11 @@ public class VTable {
 
         ArrayList<Node> VTs= new ArrayList<Node>();
         for (String k: map.keySet()) {
-            System.out.println("vt "+k);
             if (k.compareTo("Object") != 0 && k.compareTo("String") != 0 && k.compareTo("Class") != 0) {
                 ArrayList<MethodSignature> methods = new ArrayList<MethodSignature>();
 
                 String current_class_name = k;
                 while (current_class_name.compareTo("null") != 0) {
-                    System.out.println("recursive "+current_class_name);
                     ClassSignature current_class = map.get(current_class_name);
                     for (MethodSignature m : current_class.getMethodList()) {
                         if (checkMethod(m)) {
@@ -123,11 +121,6 @@ public class VTable {
                             if (!find) {
                                 m.setOwner(current_class_name);
                                 methods.add(m);
-                                System.out.println(current_class_name + " " + m.getMethodName());
-                                for (Node t: m.getParameterTypes()){
-                                    System.out.println(ClassSignature.typeToString(t));
-                                }
-                                System.out.println("fuck");
                             }
                         }
                     }

@@ -30,7 +30,6 @@ public class ClassTreeVisitor extends Visitor {
     }
 
     public void visitFieldDeclaration(GNode n) {
-        System.out.println("fuck1");
         List<String> modifiers = new ArrayList<>();
         Node mods = NodeUtil.dfs(n, "Modifiers");
         for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))

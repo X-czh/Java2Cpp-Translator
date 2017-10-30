@@ -53,6 +53,29 @@ public class ClassSignature {
         this.constructor_list.add(n);
     }
 
+    public static Node createType(String name, Node dimension){
+        GNode type = GNode.create("Type");
+        GNode temp1 = GNode.create("QualifiedIdentifier");
+        temp1.add(name);
+        type.add(temp1);
+        type.add(null);
+        return type;
+    }
+
+    public static String typeToString(Node type){
+        String typeString = type.getNode(0).getString(0);
+
+        if (typeString.compareTo("boolean") == 0){
+            return "bool";
+        } else if (typeString.compareTo("int") == 0) {
+            return "int32_t";
+        } else if (typeString.compareTo("long") == 0) {
+            return "int64_t";
+        }
+
+        return typeString;
+    }
+
     public static ClassSignature buildObject() {
         ClassSignature object_class = new ClassSignature("Object", "null");
 
@@ -66,25 +89,6 @@ public class ClassSignature {
         object_class.addMethod(getClass);
         object_class.addMethod(equals);
         return object_class;
-    }
-
-    public static Node createType(String name, Node dimension){
-        GNode type = GNode.create("Type");
-        GNode temp1 = GNode.create("QualifiedIdentifier");
-        temp1.add(name);
-        type.add(temp1);
-        type.add(null);
-        return type;
-    }
-
-    public static String typeToString(Node type){
-        if (type.getNode(0).getString(0).compareTo("boolean") == 0){
-            return "bool";
-        }
-        if (type.getNode(0).getString(0).compareTo("int") == 0) {
-            return "int32_t";
-        }
-        return type.getNode(0).getString(0);
     }
 
     public static ClassSignature buildString() {
@@ -114,7 +118,6 @@ public class ClassSignature {
 
     public static ClassSignature buildClass() {
         ClassSignature class_class = new ClassSignature("Class", "Object");
-
 
         GNode String_type = GNode.create("Type");
         GNode temp1 = GNode.create("QualifiedIdentifier");

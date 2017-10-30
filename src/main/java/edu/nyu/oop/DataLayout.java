@@ -34,7 +34,7 @@ public class DataLayout {
         for (ConstructorSignature c : thisClass.getConstructorList())
             classBody.add(makeInitMethod(c));
         for (MethodSignature m : thisClass.getMethodList())
-            classBody.add(makeMethodDeclaration(m));
+            classBody.add(makeMethodDeclaration(m, true));
         classBody.add(makeReturnClassMethod());
         classBody.add(makeVtableField());
         classDec.add(classBody);
@@ -66,22 +66,15 @@ public class DataLayout {
     }
 
     private GNode makeInitMethod(ConstructorSignature c) {
-        List<String> params = new ArrayList<>();
-        List<Node> paramTypes = new ArrayList<>();
-        params.add("__this");
-        params.addAll(c.getParameters());
-        paramTypes.add(ClassSignature.createType(thisClass.getClassName(), null));
-        paramTypes.addAll(c.getParameterTypes());
-
         MethodSignature m = new MethodSignature(
                 Arrays.asList("static"),
                 ClassSignature.createType(thisClass.getClassName(), null),
                 "__init",
-                params,
-                paramTypes
+                new ArrayList<>(),
+                new ArrayList<>()
         );
 
-        return makeMethodDeclaration(m);
+        return makeMethodDeclaration(m, true);
     }
 
     private GNode makeReturnClassMethod() {
@@ -92,7 +85,7 @@ public class DataLayout {
                 new ArrayList<>(),
                 new ArrayList<>()
         );
-        return makeMethodDeclaration(m);
+        return makeMethodDeclaration(m, false);
     }
 
     private GNode makeVtableField() {
@@ -138,7 +131,7 @@ public class DataLayout {
         constrDec.add(null);
 
         // name
-        constrDec.add("__"+thisClass.getClassName());
+        constrDec.add("__" + thisClass.getClassName());
 
         // parameters
         constrDec.add(null);
@@ -152,16 +145,14 @@ public class DataLayout {
         return constrDec;
     }
 
-    private GNode makeMethodDeclaration(MethodSignature m) {
+    private GNode makeMethodDeclaration(MethodSignature m, boolean implicitThisParam) {
         GNode methodDec = GNode.create("MethodDeclaration");
 
         // modifiers
         GNode modifiers = GNode.create("Modifiers");
-        if (m.getModifier().contains("static")) {
-            GNode modifier = GNode.create("Modifier");
-            modifier.add("static");
-            modifiers.add(modifier);
-        }
+        GNode modifier = GNode.create("Modifier");
+        modifier.add("static");
+        modifiers.add(modifier);
         methodDec.add(modifiers);
 
         methodDec.add(null);
@@ -174,13 +165,15 @@ public class DataLayout {
 
         // parameters
         GNode params = GNode.create("FormalParameters");
-        GNode temp = GNode.create("FormalParameter");
-        temp.add(null);
-        temp.add(ClassSignature.createType(thisClass.getClassName(), null));
-        temp.add(null);
-        temp.add("");
-        temp.add(null);
-        params.add(temp);
+        if (implicitThisParam) {
+            GNode temp = GNode.create("FormalParameter");
+            temp.add(null);
+            temp.add(ClassSignature.createType(thisClass.getClassName(), null));
+            temp.add(null);
+            temp.add("");
+            temp.add(null);
+            params.add(temp);
+        }
         for (int i = 0; i < m.getParameters().size(); i++) {
             GNode param = GNode.create("FormalParameter");
             param.add(null);

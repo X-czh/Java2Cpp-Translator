@@ -5,6 +5,7 @@
 using namespace java::lang;
 
 namespace inputs {
+
   namespace javalang {
 
     struct __A;
@@ -21,43 +22,41 @@ namespace inputs {
 
     typedef __A* A;
 
-
     typedef __B* B;
-
 
     typedef __Input* Input;
 
-    Struct __A{
+    struct __A {
 
       __A_VT* __vptr;
 
       __A();
 
-      int32_t method(A );
+      static int32_t method(A );
 
-      String toString(A );
+      static String toString(A );
 
-      static Class __class(A );
+      static Class __class();
 
       static __A_VT __vtable;
 
     };
 
-    Struct __B{
+    struct __B {
 
       __B_VT* __vptr;
 
       __B();
 
-      String toString(B );
+      static String toString(B );
 
-      static Class __class(B );
+      static Class __class();
 
       static __B_VT __vtable;
 
     };
 
-    Struct __Input{
+    struct __Input {
 
       __Input_VT* __vptr;
 
@@ -75,13 +74,13 @@ namespace inputs {
 
       static void main(Input , String );
 
-      static Class __class(Input );
+      static Class __class();
 
       static __Input_VT __vtable;
 
     };
 
-    Struct __A_VT{
+    struct __A_VT {
 
       Class __is_a;
 
@@ -101,12 +100,12 @@ namespace inputs {
       toString(&__A::toString),
       hashCode((int32_t (*)(A)) &__Object::hashCode),
       getClass((Class (*)(A)) &__Object::getClass),
-      equals((bool (*)(A, Object)) &__Object::equals){
+      equals((bool (*)(A, Object)) &__Object::equals) {
       }
 
     };
 
-    Struct __B_VT{
+    struct __B_VT {
 
       Class __is_a;
 
@@ -126,12 +125,12 @@ namespace inputs {
       method((int32_t (*)(B)) &__A::method),
       hashCode((int32_t (*)(B)) &__Object::hashCode),
       getClass((Class (*)(B)) &__Object::getClass),
-      equals((bool (*)(B, Object)) &__Object::equals){
+      equals((bool (*)(B, Object)) &__Object::equals) {
       }
 
     };
 
-    Struct __Input_VT{
+    struct __Input_VT {
 
       Class __is_a;
 
@@ -148,10 +147,12 @@ namespace inputs {
       toString((String (*)(Input)) &__Object::toString),
       hashCode((int32_t (*)(Input)) &__Object::hashCode),
       getClass((Class (*)(Input)) &__Object::getClass),
-      equals((bool (*)(Input, Object)) &__Object::equals){
+      equals((bool (*)(Input, Object)) &__Object::equals) {
       }
 
     };
 
   }
+
 }
+

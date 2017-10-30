@@ -67,12 +67,12 @@ public class CppPrinter extends Visitor {
 
         String namespace = source.getString(0);
         printer.indent().incr().p("namespace " + namespace);
-        printer.pln(" {");
+        printer.pln(" {").pln();
 
         //continue to visit sub-nodes
         visit(source);
 
-        printer.decr().indent().pln("}");
+        printer.decr().indent().pln("}").pln();
     }
 
     public void visitForwardDeclarations(GNode source){
@@ -82,8 +82,7 @@ public class CppPrinter extends Visitor {
     public void visitForwardDeclaration(GNode source) {
         String type = source.getString(0);
         String name = source.getString(1);
-        printer.pln();
-        printer.indent().p(type).pln(" "+name+";");
+        printer.indent().p(type).pln(" "+name+";").pln();
     }
 
     public void visitTypeSpecifiers(GNode source){
@@ -94,7 +93,6 @@ public class CppPrinter extends Visitor {
         String types = source.getString(0);
         String systemType = source.getString(1);
         String CustomType = source.getString(2);
-        printer.pln();
         printer.indent().pln(types+" "+systemType+" "+CustomType+";").pln();
     }
 
@@ -108,7 +106,7 @@ public class CppPrinter extends Visitor {
         //Node classBody = source.getNode(5);
 
         //print class dec
-        printer.indent().pln("Struct "+className+"{").pln().incr();
+        printer.indent().pln("struct "+className+" {").pln().incr();
 
         //visit source
         visit(source);
@@ -208,7 +206,7 @@ public class CppPrinter extends Visitor {
         Node block = source.getNode(5);
         if (block!=null && block.getName().compareTo("Block") == 0){
             //to be implemented in later phase
-            printer.p("{").pln();
+            printer.p(" {").pln();
             visit(block);
             printer.indent().p("}").pln();
         }
