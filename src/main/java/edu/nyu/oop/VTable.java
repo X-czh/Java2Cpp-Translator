@@ -12,7 +12,7 @@ import java.util.Map;
 
 public class VTable {
 
-    public Node create_field_dec(ArrayList<String> modifiers, String type, String name){
+    public Node create_field_dec(ArrayList<String> modifiers, Node type, String name){
         GNode field = GNode.create("FieldDeclaration");
         GNode modifi_node = GNode.create("Modifiers");
         for (String modify_name:modifiers){
@@ -21,11 +21,7 @@ public class VTable {
             modifi_node.add(temp);
         }
         field.add(modifi_node);
-        GNode t = GNode.create("Type");
-        GNode identifier = GNode.create("QualifiedIdentifier");
-        identifier.add(type);
-        t.add(identifier);
-        field.add(t);
+        field.add(type);
         GNode dec = GNode.create("Declarators");
         GNode sub_dec = GNode.create("Declarator");
         sub_dec.add(name);
@@ -54,16 +50,16 @@ public class VTable {
         init_list.add(createInit("__is_a", "__"+name+"::__class()"));
         for (MethodSignature m : methods){
             if (m.getOwner().compareTo(name)==0) {
-                init_list.add(createInit(m.getMethodName(), "__"+name+"::"+m.getMethodName()));
+                init_list.add(createInit(m.getMethodName(), "&__"+name+"::"+m.getMethodName()));
             }
             else {
                 String first = m.getMethodName();
                 String second = "";
-                second += "(" + m.getReturnType() + " (*)("+name;
-                for (String t:m.getParameterTypes()){
-                    second += ", " + t;
+                second += "(" + ClassSignature.typeToString(m.getReturnType()) + " (*)("+name;
+                for (Node t: m.getParameterTypes()){
+                    second += ", " + ClassSignature.typeToString(t);
                 }
-                second += ") &__" + m.getOwner() + "::" + m.getMethodName();
+                second += ")) &__" + m.getOwner() + "::" + m.getMethodName();
                 init_list.add(createInit(first, second));
             }
         }
@@ -81,12 +77,12 @@ public class VTable {
         Vtable.add(null);
         Vtable.add(null);
         GNode VtableClassBody = GNode.create("ClassBody");
-        VtableClassBody.add(create_field_dec(new ArrayList<String>(), "Class", "__is_a"));
+        VtableClassBody.add(create_field_dec(new ArrayList<String>(), ClassSignature.createType("Class", null), "__is_a"));
         for (MethodSignature m: methods){
             String extended_name;
-            extended_name = "(*" + m.getMethodName() + ")(";
-            for (String param_t : m.getParameterTypes()) {
-                extended_name += param_t + ", ";
+            extended_name = "(*" + m.getMethodName() + ")(" + class_name + ", ";
+            for (Node param_t : m.getParameterTypes()) {
+                extended_name += ClassSignature.typeToString(param_t) + ", ";
             }
             extended_name = extended_name.substring(0, extended_name.length()-2);
             extended_name += ")";
@@ -127,6 +123,11 @@ public class VTable {
                             if (!find) {
                                 m.setOwner(current_class_name);
                                 methods.add(m);
+                                System.out.println(current_class_name + " " + m.getMethodName());
+                                for (Node t: m.getParameterTypes()){
+                                    System.out.println(ClassSignature.typeToString(t));
+                                }
+                                System.out.println("fuck");
                             }
                         }
                     }

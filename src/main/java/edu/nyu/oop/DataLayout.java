@@ -3,6 +3,7 @@ package edu.nyu.oop;
 import java.util.*;
 
 import xtc.tree.GNode;
+import xtc.tree.Node;
 
 public class DataLayout {
     private ClassSignature thisClass;
@@ -58,7 +59,7 @@ public class DataLayout {
     private GNode makePtrToVtableField() {
         FieldSignature f = new FieldSignature(
                 new ArrayList<>(),
-                "__" + thisClass.getClassName() + "_VT*",
+                ClassSignature.createType("__" + thisClass.getClassName() + "_VT*", null),
                 Arrays.asList("__vptr")
         );
         return makeFieldDeclaration(f);
@@ -66,15 +67,15 @@ public class DataLayout {
 
     private GNode makeInitMethod(ConstructorSignature c) {
         List<String> params = new ArrayList<>();
-        List<String> paramTypes = new ArrayList<>();
+        List<Node> paramTypes = new ArrayList<>();
         params.add("__this");
         params.addAll(c.getParameters());
-        paramTypes.add(thisClass.getClassName());
+        paramTypes.add(ClassSignature.createType(thisClass.getClassName(), null));
         paramTypes.addAll(c.getParameterTypes());
 
         MethodSignature m = new MethodSignature(
                 Arrays.asList("static"),
-                thisClass.getClassName(),
+                ClassSignature.createType(thisClass.getClassName(), null),
                 "__init",
                 params,
                 paramTypes
@@ -86,7 +87,7 @@ public class DataLayout {
     private GNode makeReturnClassMethod() {
         MethodSignature m = new MethodSignature(
                 Arrays.asList("static"),
-                "Class",
+                ClassSignature.createType("Class", null),
                 "__class",
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -97,7 +98,7 @@ public class DataLayout {
     private GNode makeVtableField() {
         FieldSignature f = new FieldSignature(
                 Arrays.asList("static"),
-                "__" + thisClass.getClassName() + "_VT",
+                ClassSignature.createType("__" + thisClass.getClassName() + "_VT", null),
                 Arrays.asList("__vtable")
         );
         return makeFieldDeclaration(f);
@@ -137,7 +138,7 @@ public class DataLayout {
         constrDec.add(null);
 
         // name
-        constrDec.add(thisClass.getClassName());
+        constrDec.add("__"+thisClass.getClassName());
 
         // parameters
         constrDec.add(null);
@@ -173,12 +174,19 @@ public class DataLayout {
 
         // parameters
         GNode params = GNode.create("FormalParameters");
+        GNode temp = GNode.create("FormalParameter");
+        temp.add(null);
+        temp.add(ClassSignature.createType(thisClass.getClassName(), null));
+        temp.add(null);
+        temp.add("");
+        temp.add(null);
+        params.add(temp);
         for (int i = 0; i < m.getParameters().size(); i++) {
             GNode param = GNode.create("FormalParameter");
             param.add(null);
             param.add(m.getParameterTypes().get(i));
             param.add(null);
-            param.add(m.getParameters().get(i));
+            param.add("");
             param.add(null);
             params.add(param);
         }

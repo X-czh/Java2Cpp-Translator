@@ -38,14 +38,13 @@ public class ClassTreeVisitor extends Visitor {
 
         String type;
         Node tp = NodeUtil.dfs(n, "Type");
-        type = tp.getNode(0).getString(0);
 
         List<String> declarators = new ArrayList<>();
         Node decs = NodeUtil.dfs(n, "Declarators");
         for (Node dec : NodeUtil.dfsAll(decs, "Declarator"))
             declarators.add(dec.getString(0));
 
-        FieldSignature f = new FieldSignature(modifiers, type, declarators);
+        FieldSignature f = new FieldSignature(modifiers, tp, declarators);
         current_class.addField(f);
 
         visit(n);
@@ -57,12 +56,9 @@ public class ClassTreeVisitor extends Visitor {
         for(Node mod : NodeUtil.dfsAll(mods, "Modifier"))
             modifiers.add(mod.getString(0));
 
-        String return_type;
-        Node rtp = n.getNode(2);
-        if (rtp.size() != 0)
-            return_type = rtp.getNode(0).getString(0);
-        else
-            return_type = "void";
+        Node return_type = n.getNode(2);
+        if (return_type.size() == 0)
+            return_type = ClassSignature.createType("void", null);
 
         String method_name;
         method_name = n.getString(3);
@@ -72,10 +68,10 @@ public class ClassTreeVisitor extends Visitor {
         for(Node param : NodeUtil.dfsAll(params,"FormalParameter"))
             parameters.add(param.getString(3));
 
-        List<String> parameter_types = new ArrayList<>();
+        List<Node> parameter_types = new ArrayList<>();
         Node pts = NodeUtil.dfs(n, "FormalParameters");
         for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
-            parameter_types.add(pt.getNode(1).getNode(1).getString(0));
+            parameter_types.add(pt.getNode(1));
 
         MethodSignature m = new MethodSignature(modifiers, return_type, method_name,parameters,parameter_types);
         current_class.addMethod(m);
@@ -93,10 +89,10 @@ public class ClassTreeVisitor extends Visitor {
         for(Node param : NodeUtil.dfsAll(params, "FormalParameter"))
             parameters.add(param.getString(0));
 
-        List<String> parameter_types = new ArrayList<>();
+        List<Node> parameter_types = new ArrayList<>();
         Node pts = NodeUtil.dfs(n, "FormalParameters");
         for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
-            parameter_types.add(pt.getNode(1).getString(0));
+            parameter_types.add(pt.getNode(1));
 
         ConstructorSignature c = new ConstructorSignature(name,parameters,parameter_types);
         current_class.addConstructor(c);

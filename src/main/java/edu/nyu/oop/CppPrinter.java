@@ -39,7 +39,6 @@ public class CppPrinter extends Visitor {
     public void printHeader(Node source) {
         headOfFile();
         visit(source);
-        namespaceMatch();
         printer.flush(); // important!
     }
 
@@ -62,24 +61,18 @@ public class CppPrinter extends Visitor {
         printer.pln();
     }
 
-    private void namespaceMatch() {
-        printer.pln();
-        while(namespaceNum-- > 0){
-            printer.indent().decr().pln("}");
-        }
-    }
-
     public void visitCompilationUnit(GNode source){visit(source);}
 
     public void visitNamespaceDeclaration(GNode source) {
 
         String namespace = source.getString(0);
-        namespaceNum++;
         printer.indent().incr().p("namespace " + namespace);
         printer.pln(" {");
 
         //continue to visit sub-nodes
         visit(source);
+
+        printer.decr().indent().pln("}");
     }
 
     public void visitForwardDeclarations(GNode source){
@@ -102,7 +95,7 @@ public class CppPrinter extends Visitor {
         String systemType = source.getString(1);
         String CustomType = source.getString(2);
         printer.pln();
-        printer.indent().pln(types+" "+systemType+" "+CustomType+";");
+        printer.indent().pln(types+" "+systemType+" "+CustomType+";").pln();
     }
 
 
@@ -115,13 +108,13 @@ public class CppPrinter extends Visitor {
         //Node classBody = source.getNode(5);
 
         //print class dec
-        printer.indent().pln("Struct "+className+"{").pln();
+        printer.indent().pln("Struct "+className+"{").pln().incr();
 
         //visit source
         visit(source);
 
         //close the parentheses
-        printer.indent().pln("};");
+        printer.decr().indent().pln("};").pln();
     }
 
     public void visitClassBody(GNode source){
@@ -135,24 +128,28 @@ public class CppPrinter extends Visitor {
     public void visitFieldDeclaration(GNode source){
         //get Field info
         Node modifiers = source.getNode(0);
-        String name = source.getString(1);
+        String type = ClassSignature.typeToString(source.getNode(1));
         Node declarators = source.getNode(2);
+
+        printer.indent();
 
         for(int i=0;i<modifiers.size();i++){
             Node modifier = modifiers.getNode(i);
             String modifierName = modifier.getString(0);
-            printer.indent().p(modifierName+" ");
+            printer.p(modifierName+" ");
         }
 
-        printer.p(name+" ");
+        printer.p(type+" ");
 
         for(int i=0;i<declarators.size();i++){
             Node declarator = declarators.getNode(i);
             String declaratorName = declarator.getString(0);
-            printer.p(declaratorName+" ");
+            printer.p(declaratorName);
+            if (i<declarators.size()-1) printer.p(",");
         }
 
         printer.pln(";");
+        printer.pln();
 
         //visit source at the end
         visit(source);
@@ -178,18 +175,14 @@ public class CppPrinter extends Visitor {
                     printer.p("("+formalParameter.getString(0)+") ");
                 }
 
-                printer.p(formalParameter.getString(1)+" "+formalParameter.getString(3));
+                printer.p(ClassSignature.typeToString(formalParameter.getNode(1))+" "+formalParameter.getString(3));
 
-                if(formalParameters.size()>=1){
+                if(formalParameters.size()>=1 && i<formalParameters.size()-1){
                     printer.p(",");
                 }
-                else
-                    printer.p("): ").pln();
-
             }
         }
-
-        else {
+        if (formalParameters==null || formalParameters.size() == 0) {
             //there is no formal parameters
             printer.p(")");
         }
@@ -198,14 +191,14 @@ public class CppPrinter extends Visitor {
 
         Node initializations = source.getNode(4);
         if(initializations!=null && initializations.getName().compareTo("Initializations")==0){
-
+            printer.pln().indent().p(":");
             for (int i=0; i<initializations.size();i++){
                 Node initialization = initializations.getNode(i);
 
                 printer.p(initialization.getString(0)+"("+initialization.getString(1)+")");
 
-                if (initializations.size()>=1){
-                    printer.p(",");
+                if (initializations.size()>=1 && i<initializations.size()-1){
+                    printer.p(",").pln().indent();
                 }
 
             }
@@ -215,34 +208,34 @@ public class CppPrinter extends Visitor {
         Node block = source.getNode(5);
         if (block!=null && block.getName().compareTo("Block") == 0){
             //to be implemented in later phase
-            printer.p("{}");
+            printer.p("{").pln();
+            visit(block);
+            printer.indent().p("}").pln();
         }
 
         else {
             printer.pln(";");
         }
+
+        printer.pln();
     }
 
 
     public void visitMethodDeclaration(GNode source){
         //getting method info
         Node modifiers = source.getNode(0);
-        String returnType = source.getString(2);
+        String returnType = ClassSignature.typeToString(source.getNode(2));
         String methodName = source.getString(3);
         Node formalParameters = source.getNode(4);
         Node block = source.getNode(7);
-
+        printer.indent();
         //printing modifiers
         if(modifiers!=null && modifiers.getName().compareTo("Modifiers")==0) {
             for (int i = 0; i < modifiers.size(); i++) {
                 Node modifier = modifiers.getNode(i);
                 String modifierName = modifier.getString(0);
-                printer.indent().p(modifierName + " ");
+                printer.p(modifierName + " ");
             }
-        }
-        //if modifier is none
-        else{
-            printer.indent();
         }
         //printing returnType and the left parenthesis
         printer.p(returnType+" ");
@@ -263,14 +256,12 @@ public class CppPrinter extends Visitor {
                 }
 
                 //do we need to output the type too?
-                String parameterType = formalParameter.getString(1);
+                String parameterType = ClassSignature.typeToString(formalParameter.getNode(1));
 
                 //printing parameterName
                 String parameterName = formalParameter.getString(3);
-                if(i>0){
-                    printer.p(", ");
-                }
-                printer.p(parameterName);
+                printer.p(parameterType + " " + parameterName);
+                if (i<formalParameters.size()-1) printer.p(", ");
             }
             printer.p(")");
         }
