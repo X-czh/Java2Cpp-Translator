@@ -3,6 +3,7 @@ package edu.nyu.oop;
 import java.util.*;
 
 import xtc.tree.GNode;
+import xtc.tree.Node;
 
 public class DataLayout {
     private ClassSignature thisClass;
@@ -33,7 +34,7 @@ public class DataLayout {
         for (ConstructorSignature c : thisClass.getConstructorList())
             classBody.add(makeInitMethod(c));
         for (MethodSignature m : thisClass.getMethodList())
-            classBody.add(makeMethodDeclaration(m));
+            classBody.add(makeMethodDeclaration(m, true));
         classBody.add(makeReturnClassMethod());
         classBody.add(makeVtableField());
         classDec.add(classBody);
@@ -58,46 +59,39 @@ public class DataLayout {
     private GNode makePtrToVtableField() {
         FieldSignature f = new FieldSignature(
                 new ArrayList<>(),
-                "__" + thisClass.getClassName() + "_VT*",
+                ClassSignature.createType("__" + thisClass.getClassName() + "_VT*", null),
                 Arrays.asList("__vptr")
         );
         return makeFieldDeclaration(f);
     }
 
     private GNode makeInitMethod(ConstructorSignature c) {
-        List<String> params = new ArrayList<>();
-        List<String> paramTypes = new ArrayList<>();
-        params.add("__this");
-        params.addAll(c.getParameters());
-        paramTypes.add(thisClass.getClassName());
-        paramTypes.addAll(c.getParameterTypes());
-
         MethodSignature m = new MethodSignature(
                 Arrays.asList("static"),
-                thisClass.getClassName(),
+                ClassSignature.createType(thisClass.getClassName(), null),
                 "__init",
-                params,
-                paramTypes
+                new ArrayList<>(),
+                new ArrayList<>()
         );
 
-        return makeMethodDeclaration(m);
+        return makeMethodDeclaration(m, true);
     }
 
     private GNode makeReturnClassMethod() {
         MethodSignature m = new MethodSignature(
                 Arrays.asList("static"),
-                "Class",
+                ClassSignature.createType("Class", null),
                 "__class",
                 new ArrayList<>(),
                 new ArrayList<>()
         );
-        return makeMethodDeclaration(m);
+        return makeMethodDeclaration(m, false);
     }
 
     private GNode makeVtableField() {
         FieldSignature f = new FieldSignature(
                 Arrays.asList("static"),
-                "__" + thisClass.getClassName() + "_VT",
+                ClassSignature.createType("__" + thisClass.getClassName() + "_VT", null),
                 Arrays.asList("__vtable")
         );
         return makeFieldDeclaration(f);
@@ -137,7 +131,7 @@ public class DataLayout {
         constrDec.add(null);
 
         // name
-        constrDec.add(thisClass.getClassName());
+        constrDec.add("__" + thisClass.getClassName());
 
         // parameters
         constrDec.add(null);
@@ -151,16 +145,14 @@ public class DataLayout {
         return constrDec;
     }
 
-    private GNode makeMethodDeclaration(MethodSignature m) {
+    private GNode makeMethodDeclaration(MethodSignature m, boolean implicitThisParam) {
         GNode methodDec = GNode.create("MethodDeclaration");
 
         // modifiers
         GNode modifiers = GNode.create("Modifiers");
-        if (m.getModifier().contains("static")) {
-            GNode modifier = GNode.create("Modifier");
-            modifier.add("static");
-            modifiers.add(modifier);
-        }
+        GNode modifier = GNode.create("Modifier");
+        modifier.add("static");
+        modifiers.add(modifier);
         methodDec.add(modifiers);
 
         methodDec.add(null);
@@ -173,12 +165,21 @@ public class DataLayout {
 
         // parameters
         GNode params = GNode.create("FormalParameters");
+        if (implicitThisParam) {
+            GNode temp = GNode.create("FormalParameter");
+            temp.add(null);
+            temp.add(ClassSignature.createType(thisClass.getClassName(), null));
+            temp.add(null);
+            temp.add("");
+            temp.add(null);
+            params.add(temp);
+        }
         for (int i = 0; i < m.getParameters().size(); i++) {
             GNode param = GNode.create("FormalParameter");
             param.add(null);
             param.add(m.getParameterTypes().get(i));
             param.add(null);
-            param.add(m.getParameters().get(i));
+            param.add("");
             param.add(null);
             params.add(param);
         }

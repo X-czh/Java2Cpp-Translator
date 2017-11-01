@@ -3,15 +3,16 @@ package edu.nyu.oop;
 import java.util.List;
 import scala.collection.immutable.Stream;
 import xtc.tree.GNode;
+import xtc.tree.Node;
 
 import java.lang.reflect.Field;
 
 public class FieldSignature {
     private List<String> modifier;
-    private String type;
+    private Node type;
     private List<String> declarators;
 
-    public FieldSignature(List<String> modifier, String type, List<String> declarators) {
+    public FieldSignature(List<String> modifier, Node type, List<String> declarators) {
         this.modifier = modifier;
         this.type = type;
         this.declarators = declarators;
@@ -21,7 +22,7 @@ public class FieldSignature {
         return modifier;
     }
 
-    public String getType() {
+    public Node getType() {
         return type;
     }
 

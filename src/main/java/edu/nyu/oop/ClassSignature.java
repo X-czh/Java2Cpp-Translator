@@ -1,5 +1,8 @@
 package edu.nyu.oop;
 
+import xtc.tree.GNode;
+import xtc.tree.Node;
+
 import java.util.Arrays;
 import java.util.ArrayList;
 
@@ -50,19 +53,36 @@ public class ClassSignature {
         this.constructor_list.add(n);
     }
 
+    public static Node createType(String name, Node dimension){
+        GNode type = GNode.create("Type");
+        GNode temp1 = GNode.create("QualifiedIdentifier");
+        temp1.add(name);
+        type.add(temp1);
+        type.add(null);
+        return type;
+    }
+
+    public static String typeToString(Node type){
+        String typeString = type.getNode(0).getString(0);
+
+        if (typeString.compareTo("boolean") == 0){
+            return "bool";
+        } else if (typeString.compareTo("int") == 0) {
+            return "int32_t";
+        } else if (typeString.compareTo("long") == 0) {
+            return "int64_t";
+        }
+
+        return typeString;
+    }
+
     public static ClassSignature buildObject() {
         ClassSignature object_class = new ClassSignature("Object", "null");
-        ArrayList<String> modifiers = new ArrayList<String>();
-        ArrayList<String> params = new ArrayList<String>();
-        ArrayList<String> param_types = new ArrayList<String>();
 
-        modifiers.add("public");
-        MethodSignature toString = new MethodSignature(modifiers, "String", "toString", params, param_types);
-        MethodSignature hashCode = new MethodSignature(modifiers, "int", "hashCode", params, param_types);
-        MethodSignature getClass = new MethodSignature(modifiers, "Class", "getClass", params, param_types);
-        params.add("other");
-        param_types.add("Object");
-        MethodSignature equals = new MethodSignature(modifiers, "boolean", "equals", params, param_types);
+        MethodSignature toString = new MethodSignature(Arrays.asList("public"), createType("String", null), "toString", new ArrayList<String>(), new ArrayList<Node>());
+        MethodSignature hashCode = new MethodSignature(Arrays.asList("public"), createType("int", null), "hashCode", new ArrayList<String>(), new ArrayList<Node>());
+        MethodSignature getClass = new MethodSignature(Arrays.asList("public"), createType("Class", null), "getClass", new ArrayList<String>(), new ArrayList<Node>());
+        MethodSignature equals = new MethodSignature(Arrays.asList("public"), createType("boolean", null), "equals", Arrays.asList("other"), Arrays.asList(ClassSignature.createType("Object", null)));
 
         object_class.addMethod(toString);
         object_class.addMethod(hashCode);
@@ -74,15 +94,16 @@ public class ClassSignature {
     public static ClassSignature buildString() {
         ClassSignature string_class = new ClassSignature("String","Object");
 
-        FieldSignature data = new FieldSignature(new ArrayList<>(), "String", Arrays.asList("data"));
 
-        ConstructorSignature constr = new ConstructorSignature("String", Arrays.asList("data"), Arrays.asList("String"));
+        FieldSignature data = new FieldSignature(new ArrayList<>(), createType("String", null), Arrays.asList("data"));
 
-        MethodSignature hashCode = new MethodSignature(new ArrayList<>(), "int", "hashCode", null, null);
-        MethodSignature toString = new MethodSignature(new ArrayList<>(), "String", "toString", null, null);
-        MethodSignature length = new MethodSignature(new ArrayList<>(), "int", "length", null, null);
-        MethodSignature equals = new MethodSignature(new ArrayList<>(), "int", "equals", null, Arrays.asList("Object"));
-        MethodSignature charAt = new MethodSignature(new ArrayList<>(), "char", "charAt", null, Arrays.asList("int"));
+        ConstructorSignature constr = new ConstructorSignature("String", Arrays.asList("data"), Arrays.asList(ClassSignature.createType("String", null)));
+
+        MethodSignature hashCode = new MethodSignature(new ArrayList<>(), createType("int", null), "hashCode", null, null);
+        MethodSignature toString = new MethodSignature(new ArrayList<>(), createType("String", null), "toString", null, null);
+        MethodSignature length = new MethodSignature(new ArrayList<>(), createType("int", null), "length", null, null);
+        MethodSignature equals = new MethodSignature(new ArrayList<>(), createType("int", null), "equals", null, Arrays.asList(ClassSignature.createType("Object", null)));
+        MethodSignature charAt = new MethodSignature(new ArrayList<>(), createType("char", null), "charAt", null, Arrays.asList(ClassSignature.createType("int", null)));
 
         string_class.addField(data);
         string_class.addConstructor(constr);
@@ -98,21 +119,27 @@ public class ClassSignature {
     public static ClassSignature buildClass() {
         ClassSignature class_class = new ClassSignature("Class", "Object");
 
-        FieldSignature name = new FieldSignature(new ArrayList<>(), "String", Arrays.asList("name"));
-        FieldSignature parent = new FieldSignature(new ArrayList<>(), "Class", Arrays.asList("parent"));
+        GNode String_type = GNode.create("Type");
+        GNode temp1 = GNode.create("QualifiedIdentifier");
+        temp1.add("String");
+        String_type.add(temp1);
+        String_type.add(null);
+
+        FieldSignature name = new FieldSignature(new ArrayList<>(), createType("String", null), Arrays.asList("name"));
+        FieldSignature parent = new FieldSignature(new ArrayList<>(), createType("Class", null), Arrays.asList("parent"));
 
         ArrayList<String> params = new ArrayList<>();
-        ArrayList<String> param_types = new ArrayList<>();
+        ArrayList<Node> param_types = new ArrayList<>();
         params.add("name");
-        param_types.add("String");
+        param_types.add(ClassSignature.createType("String", null));
         params.add("parent");
-        param_types.add("Class");
+        param_types.add(ClassSignature.createType("Class", null));
         ConstructorSignature constr = new ConstructorSignature("Class", params, param_types);
 
-        MethodSignature toString = new MethodSignature(new ArrayList<>(), "String", "toString", null, null);
-        MethodSignature getName = new MethodSignature(new ArrayList<>(), "Class", "getName", null, null);
-        MethodSignature getSuperclass = new MethodSignature(new ArrayList<>(), "Class", "getSuperclass", null, null);
-        MethodSignature isInstance = new MethodSignature(new ArrayList<>(), "boolean", "isInstance", null, Arrays.asList("Object"));
+        MethodSignature toString = new MethodSignature(new ArrayList<>(), createType("String", null), "toString", null, null);
+        MethodSignature getName = new MethodSignature(new ArrayList<>(), createType("Class", null), "getName", null, null);
+        MethodSignature getSuperclass = new MethodSignature(new ArrayList<>(), createType("Class", null), "getSuperclass", null, null);
+        MethodSignature isInstance = new MethodSignature(new ArrayList<>(), createType("boolean", null), "isInstance", null, Arrays.asList(ClassSignature.createType("Object", null)));
 
         class_class.addField(name);
         class_class.addField(parent);
