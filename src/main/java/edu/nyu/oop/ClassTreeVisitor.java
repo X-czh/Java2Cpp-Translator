@@ -1,9 +1,9 @@
 package edu.nyu.oop;
 
 import edu.nyu.oop.util.NodeUtil;
+import edu.nyu.oop.util.RecursiveVisitor;
 import xtc.tree.GNode;
 import xtc.tree.Node;
-import xtc.tree.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 
-public class ClassTreeVisitor extends Visitor {
+public class ClassTreeVisitor extends RecursiveVisitor {
     private Map<String,  ClassSignature> tree_map;
     private ClassSignature current_class;
     List<String> package_declaration = new ArrayList<>();
@@ -107,10 +107,6 @@ public class ClassTreeVisitor extends Visitor {
 
     public List<String> getPackageInfo(){
         return package_declaration;
-    }
-
-    public void visit(Node n) {
-        for (Object o : n) if (o instanceof Node) dispatch((Node) o);
     }
 
     public Map<String, ClassSignature> getClassTree(List<Node> javaAstList) {

@@ -2,6 +2,7 @@ package edu.nyu.oop;
 
 import java.io.*;
 
+import edu.nyu.oop.util.RecursiveVisitor;
 import edu.nyu.oop.util.XtcProps;
 import org.slf4j.Logger;
 import xtc.tree.*;
@@ -10,7 +11,7 @@ import xtc.tree.*;
  * This class demonstrates a trivial usage of XTC's Printer class.
  * For much more sophisticated printing, see xtc.lang.CPrinter
  */
-public class CppPrinter extends Visitor {
+public class CppPrinter extends RecursiveVisitor {
     private Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
     private Printer printer;
@@ -40,12 +41,6 @@ public class CppPrinter extends Visitor {
         headOfFile();
         visit(source);
         printer.flush(); // important!
-    }
-
-    // Print all the node names in an Ast
-    public void visit(Node n) {
-        //cout(n.getName());//This line is for debugging
-        for (Object o : n) if (o instanceof Node) dispatch((Node) o);
     }
 
     private void cout(String line) {
