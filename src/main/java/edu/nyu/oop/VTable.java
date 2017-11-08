@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * This class generates the virtual class tables for the classes.
+ */
 public class VTable {
 
     public Node create_field_dec(ArrayList<String> modifiers, Node type, String name){
