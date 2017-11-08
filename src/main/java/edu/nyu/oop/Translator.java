@@ -16,13 +16,13 @@ import edu.nyu.oop.CppPrinter;
  * part of the translator. It defines the set of valid methods provided by the translator, and calls them
  * accordingly to fulfill requests made by Boot.java. The delegation pattern is implemented here.
  */
-
 public class Translator {
 
     private Node root;
 
     private List<Node> javaAstList;
     private Node headerAst;
+    private Node mutatedCppAst;
 
     public Translator(Node n) {
         root = n;
@@ -47,10 +47,20 @@ public class Translator {
         cppPrinter.printHeader(headerAst);
     }
 
+    private void makeMutatedCppAst() {
+        return;
+    }
+
+    private void makeImplementationFiles() {
+        return;
+    }
+
     public void run() {
         makeJavaAstList();
         makeHeaderAst();
         makeHeaderFile();
+        makeMutatedCppAst();
+        makeImplementationFiles();
     }
 
     public List<Node> getJavaAstList() {
@@ -68,6 +78,18 @@ public class Translator {
         makeJavaAstList();
         makeHeaderAst();
         makeHeaderFile();
+    }
+
+    public Node getMutatedCppAst() {
+        makeJavaAstList();
+        makeMutatedCppAst();
+        return mutatedCppAst;
+    }
+
+    public void printCppImplementation() {
+        makeJavaAstList();
+        makeMutatedCppAst();
+        makeImplementationFiles();
     }
 
 }
