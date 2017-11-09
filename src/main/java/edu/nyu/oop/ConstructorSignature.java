@@ -7,6 +7,9 @@ import xtc.tree.Node;
 
 import java.lang.reflect.Field;
 
+/**
+ * A ConstructorSignature encapsulates the sufficient info to characterise a constructor.
+ */
 public class ConstructorSignature {
     private String name;
     private List<String> parameters;

@@ -121,7 +121,7 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitFieldDeclaration(GNode source){
         //get Field info
         Node modifiers = source.getNode(0);
-        String type = ClassSignature.typeToString(source.getNode(1));
+        String type = TypeResolver.typeToString(source.getNode(1));
         Node declarators = source.getNode(2);
 
         printer.indent();
@@ -168,7 +168,7 @@ public class CppPrinter extends RecursiveVisitor {
                     printer.p("("+formalParameter.getString(0)+") ");
                 }
 
-                printer.p(ClassSignature.typeToString(formalParameter.getNode(1))+" "+formalParameter.getString(3));
+                printer.p(TypeResolver.typeToString(formalParameter.getNode(1))+" "+formalParameter.getString(3));
 
                 if(formalParameters.size()>=1 && i<formalParameters.size()-1){
                     printer.p(",");
@@ -217,7 +217,7 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitMethodDeclaration(GNode source){
         //getting method info
         Node modifiers = source.getNode(0);
-        String returnType = ClassSignature.typeToString(source.getNode(2));
+        String returnType = TypeResolver.typeToString(source.getNode(2));
         String methodName = source.getString(3);
         Node formalParameters = source.getNode(4);
         Node block = source.getNode(7);
@@ -249,7 +249,7 @@ public class CppPrinter extends RecursiveVisitor {
                 }
 
                 //do we need to output the type too?
-                String parameterType = ClassSignature.typeToString(formalParameter.getNode(1));
+                String parameterType = TypeResolver.typeToString(formalParameter.getNode(1));
 
                 //printing parameterName
                 String parameterName = formalParameter.getString(3);

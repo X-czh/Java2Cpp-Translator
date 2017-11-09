@@ -6,6 +6,9 @@ import xtc.tree.Node;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is for building up a header AST.
+ */
 public class HeaderAstBuilder {
     private Map<String, ClassSignature> classTreeMap;
     private List<String> packageInfo;

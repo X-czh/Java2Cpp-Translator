@@ -5,6 +5,10 @@ import java.util.*;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 
+
+/**
+ * This class generates the data layout for a given class.
+ */
 public class DataLayout {
     private ClassSignature thisClass;
     private Map<String, ClassSignature> classTreeMap;
@@ -34,7 +38,7 @@ public class DataLayout {
         for (ConstructorSignature c : thisClass.getConstructorList())
             classBody.add(makeInitMethod(c));
         for (MethodSignature m : thisClass.getMethodList())
-            classBody.add(makeMethodDeclaration(m, true));
+            classBody.add(makeMethodDeclaration(m));
         classBody.add(makeReturnClassMethod());
         classBody.add(makeVtableField());
         classDec.add(classBody);
@@ -59,7 +63,7 @@ public class DataLayout {
     private GNode makePtrToVtableField() {
         FieldSignature f = new FieldSignature(
                 new ArrayList<>(),
-                ClassSignature.createType("__" + thisClass.getClassName() + "_VT*", null),
+                TypeResolver.createType("__" + thisClass.getClassName() + "_VT*", null),
                 Arrays.asList("__vptr")
         );
         return makeFieldDeclaration(f);
@@ -67,31 +71,31 @@ public class DataLayout {
 
     private GNode makeInitMethod(ConstructorSignature c) {
         MethodSignature m = new MethodSignature(
-                Arrays.asList("static"),
-                ClassSignature.createType(thisClass.getClassName(), null),
+                new ArrayList<>(),
+                TypeResolver.createType(thisClass.getClassName(), null),
                 "__init",
                 new ArrayList<>(),
                 new ArrayList<>()
         );
 
-        return makeMethodDeclaration(m, true);
+        return makeMethodDeclaration(m);
     }
 
     private GNode makeReturnClassMethod() {
         MethodSignature m = new MethodSignature(
                 Arrays.asList("static"),
-                ClassSignature.createType("Class", null),
+                TypeResolver.createType("Class", null),
                 "__class",
                 new ArrayList<>(),
                 new ArrayList<>()
         );
-        return makeMethodDeclaration(m, false);
+        return makeMethodDeclaration(m);
     }
 
     private GNode makeVtableField() {
         FieldSignature f = new FieldSignature(
                 Arrays.asList("static"),
-                ClassSignature.createType("__" + thisClass.getClassName() + "_VT", null),
+                TypeResolver.createType("__" + thisClass.getClassName() + "_VT", null),
                 Arrays.asList("__vtable")
         );
         return makeFieldDeclaration(f);
@@ -145,7 +149,11 @@ public class DataLayout {
         return constrDec;
     }
 
-    private GNode makeMethodDeclaration(MethodSignature m, boolean implicitThisParam) {
+    private GNode makeMethodDeclaration(MethodSignature m) {
+        boolean implicitThisParam = true;
+        if (m.getModifier().contains("static"))
+            implicitThisParam = false; // static methods do not have an explicit __this parameter
+
         GNode methodDec = GNode.create("MethodDeclaration");
 
         // modifiers
@@ -168,7 +176,7 @@ public class DataLayout {
         if (implicitThisParam) {
             GNode temp = GNode.create("FormalParameter");
             temp.add(null);
-            temp.add(ClassSignature.createType(thisClass.getClassName(), null));
+            temp.add(TypeResolver.createType(thisClass.getClassName(), null));
             temp.add(null);
             temp.add("");
             temp.add(null);

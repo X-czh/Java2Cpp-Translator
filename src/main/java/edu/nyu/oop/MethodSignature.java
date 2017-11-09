@@ -3,6 +3,9 @@ package edu.nyu.oop;
 import java.util.List;
 import xtc.tree.Node;
 
+/**
+ * A MethodSignature encapsulates the sufficient info to characterise a method.
+ */
 public class MethodSignature {
 
     private List<String> modifier;
