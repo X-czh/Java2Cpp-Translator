@@ -58,9 +58,9 @@ public class VTable {
             else {
                 String first = m.getMethodName();
                 String second = "";
-                second += "(" + ClassSignature.typeToString(m.getReturnType()) + " (*)("+name;
+                second += "(" + TypeResolver.typeToString(m.getReturnType()) + " (*)("+name;
                 for (Node t: m.getParameterTypes()){
-                    second += ", " + ClassSignature.typeToString(t);
+                    second += ", " + TypeResolver.typeToString(t);
                 }
                 second += ")) &__" + m.getOwner() + "::" + m.getMethodName();
                 init_list.add(createInit(first, second));
@@ -80,12 +80,12 @@ public class VTable {
         Vtable.add(null);
         Vtable.add(null);
         GNode VtableClassBody = GNode.create("ClassBody");
-        VtableClassBody.add(create_field_dec(new ArrayList<String>(), ClassSignature.createType("Class", null), "__is_a"));
+        VtableClassBody.add(create_field_dec(new ArrayList<String>(), TypeResolver.createType("Class", null), "__is_a"));
         for (MethodSignature m: methods){
             String extended_name;
             extended_name = "(*" + m.getMethodName() + ")(" + class_name + ", ";
             for (Node param_t : m.getParameterTypes()) {
-                extended_name += ClassSignature.typeToString(param_t) + ", ";
+                extended_name += TypeResolver.typeToString(param_t) + ", ";
             }
             extended_name = extended_name.substring(0, extended_name.length()-2);
             extended_name += ")";

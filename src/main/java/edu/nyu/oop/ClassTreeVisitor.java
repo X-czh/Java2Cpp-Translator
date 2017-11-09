@@ -45,8 +45,10 @@ public class ClassTreeVisitor extends RecursiveVisitor {
         for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
             modifiers.add(mod.getString(0));
 
-        String type;
         Node tp = NodeUtil.dfs(n, "Type");
+        String typeName = tp.getNode(0).getString(0);
+        Node typeDimension = tp.getNode(1);
+        tp = TypeResolver.createType(typeName, typeDimension);
 
         List<String> declarators = new ArrayList<>();
         Node decs = NodeUtil.dfs(n, "Declarators");
@@ -67,7 +69,12 @@ public class ClassTreeVisitor extends RecursiveVisitor {
 
         Node return_type = n.getNode(2);
         if (return_type.size() == 0)
-            return_type = ClassSignature.createType("void", null);
+            return_type = TypeResolver.createType("void", null);
+        else {
+            String typeName = return_type.getNode(0).getString(0);
+            Node typeDimension = return_type.getNode(1);
+            return_type = TypeResolver.createType(typeName, typeDimension);
+        }
 
         String method_name;
         method_name = n.getString(3);
@@ -79,8 +86,13 @@ public class ClassTreeVisitor extends RecursiveVisitor {
 
         List<Node> parameter_types = new ArrayList<>();
         Node pts = NodeUtil.dfs(n, "FormalParameters");
-        for (Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
-            parameter_types.add(pt.getNode(1));
+        for (Node pt : NodeUtil.dfsAll(pts, "FormalParameter")) {
+            Node tp = pt.getNode(1);
+            String typeName = tp.getNode(0).getString(0);
+            Node typeDimension = tp.getNode(1);
+            tp = TypeResolver.createType(typeName, typeDimension);
+            parameter_types.add(tp);
+        }
 
         MethodSignature m = new MethodSignature(modifiers, return_type, method_name,parameters,parameter_types);
         current_class.addMethod(m);
@@ -88,18 +100,23 @@ public class ClassTreeVisitor extends RecursiveVisitor {
         visit(n);
     }
 
-    public void visitConstructorDeclaration(GNode n){
+    public void visitConstructorDeclaration(GNode n) {
         String name = n.getString(2);
 
         List<String> parameters = new ArrayList<>();
-        Node params = NodeUtil.dfs(n,"FormalParameters");
+        Node params = NodeUtil.dfs(n, "FormalParameters");
         for (Node param : NodeUtil.dfsAll(params, "FormalParameter"))
             parameters.add(param.getString(3));
 
         List<Node> parameter_types = new ArrayList<>();
         Node pts = NodeUtil.dfs(n, "FormalParameters");
-        for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
-            parameter_types.add(pt.getNode(1));
+        for (Node pt : NodeUtil.dfsAll(pts, "FormalParameter")) {
+            Node tp = pt.getNode(1);
+            String typeName = tp.getNode(0).getString(0);
+            Node typeDimension = tp.getNode(1);
+            tp = TypeResolver.createType(typeName, typeDimension);
+            parameter_types.add(tp);
+        }
 
         ConstructorSignature c = new ConstructorSignature(name,parameters,parameter_types);
         current_class.addConstructor(c);

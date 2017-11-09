@@ -7,6 +7,9 @@ import xtc.tree.Node;
 
 import java.lang.reflect.Field;
 
+/**
+ * A FieldSignature encapsulates the sufficient info to characterise a field.
+ */
 public class FieldSignature {
     private List<String> modifier;
     private Node type;

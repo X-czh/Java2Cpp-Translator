@@ -63,7 +63,7 @@ public class DataLayout {
     private GNode makePtrToVtableField() {
         FieldSignature f = new FieldSignature(
                 new ArrayList<>(),
-                ClassSignature.createType("__" + thisClass.getClassName() + "_VT*", null),
+                TypeResolver.createType("__" + thisClass.getClassName() + "_VT*", null),
                 Arrays.asList("__vptr")
         );
         return makeFieldDeclaration(f);
@@ -72,7 +72,7 @@ public class DataLayout {
     private GNode makeInitMethod(ConstructorSignature c) {
         MethodSignature m = new MethodSignature(
                 new ArrayList<>(),
-                ClassSignature.createType(thisClass.getClassName(), null),
+                TypeResolver.createType(thisClass.getClassName(), null),
                 "__init",
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -84,7 +84,7 @@ public class DataLayout {
     private GNode makeReturnClassMethod() {
         MethodSignature m = new MethodSignature(
                 Arrays.asList("static"),
-                ClassSignature.createType("Class", null),
+                TypeResolver.createType("Class", null),
                 "__class",
                 new ArrayList<>(),
                 new ArrayList<>()
@@ -95,7 +95,7 @@ public class DataLayout {
     private GNode makeVtableField() {
         FieldSignature f = new FieldSignature(
                 Arrays.asList("static"),
-                ClassSignature.createType("__" + thisClass.getClassName() + "_VT", null),
+                TypeResolver.createType("__" + thisClass.getClassName() + "_VT", null),
                 Arrays.asList("__vtable")
         );
         return makeFieldDeclaration(f);
@@ -176,7 +176,7 @@ public class DataLayout {
         if (implicitThisParam) {
             GNode temp = GNode.create("FormalParameter");
             temp.add(null);
-            temp.add(ClassSignature.createType(thisClass.getClassName(), null));
+            temp.add(TypeResolver.createType(thisClass.getClassName(), null));
             temp.add(null);
             temp.add("");
             temp.add(null);
