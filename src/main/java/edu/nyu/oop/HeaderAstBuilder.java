@@ -6,6 +6,9 @@ import xtc.tree.Node;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class is for building up a header AST.
+ */
 public class HeaderAstBuilder {
     private Map<String, ClassSignature> classTreeMap;
     private List<String> packageInfo;
@@ -61,8 +64,7 @@ public class HeaderAstBuilder {
         // DataLayouts
         for (String s : classTreeMap.keySet()) {
             ClassSignature c = classTreeMap.get(s);
-            String className = c.getClassName();
-            if (className != "Object" && className != "String" && className != "Class") {
+            if (s.compareTo("Object") != 0 && s.compareTo("String") != 0 && s.compareTo("Class") != 0) {
                 DataLayout dl = new DataLayout(c, classTreeMap);
                 prevHierarchy.add(dl.makeDataLayout());
             }
@@ -70,7 +72,7 @@ public class HeaderAstBuilder {
 
         // VTables
         VTable vt = new VTable();
-        for (Node n : vt.getVTable(classTreeMap))
+        for (Node n: vt.getVTable(classTreeMap))
             prevHierarchy.add(n);
 
         // return full AST

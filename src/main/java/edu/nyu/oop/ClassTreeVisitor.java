@@ -1,16 +1,25 @@
 package edu.nyu.oop;
 
+import edu.nyu.oop.util.ChildToParentMap;
 import edu.nyu.oop.util.NodeUtil;
+import edu.nyu.oop.util.RecursiveVisitor;
 import xtc.tree.GNode;
 import xtc.tree.Node;
-import xtc.tree.Visitor;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
+import java.util.Map;
 
-public class ClassTreeVisitor extends Visitor {
-    private HashMap<String,  ClassSignature> tree_map;
+/**
+ * A ClassTreeVisitor visits a list of Java ASTs, and resolves the inheritance relationship
+ * among the Java classes, with the class hierarchy info stored in a hash table. It also
+ * parses the ASTs to generate the signature of each Java class, as well as the signatures
+ * of each field, method, and constructor of the class.
+ */
+public class ClassTreeVisitor extends RecursiveVisitor {
+    private Map<String,  ClassSignature> tree_map;
+    private ChildToParentMap child_parent_map;
     private ClassSignature current_class;
     List<String> package_declaration = new ArrayList<>();
 
@@ -27,22 +36,26 @@ public class ClassTreeVisitor extends Visitor {
         tree_map.put(class_name, current_class);
     }
 
-    public void visitFieldDeclaration(GNode n){
+    public void visitFieldDeclaration(GNode n) {
+        if (!child_parent_map.fetchParentFor(n).getName().equals("ClassBody"))
+            return;
+
         List<String> modifiers = new ArrayList<>();
         Node mods = NodeUtil.dfs(n, "Modifiers");
         for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
             modifiers.add(mod.getString(0));
 
-        String type;
         Node tp = NodeUtil.dfs(n, "Type");
-        type = tp.getNode(0).getString(0);
+        String typeName = tp.getNode(0).getString(0);
+        Node typeDimension = tp.getNode(1);
+        tp = TypeResolver.createType(typeName, typeDimension);
 
         List<String> declarators = new ArrayList<>();
         Node decs = NodeUtil.dfs(n, "Declarators");
         for (Node dec : NodeUtil.dfsAll(decs, "Declarator"))
             declarators.add(dec.getString(0));
 
-        FieldSignature f = new FieldSignature(modifiers, type, declarators);
+        FieldSignature f = new FieldSignature(modifiers, tp, declarators);
         current_class.addField(f);
 
         visit(n);
@@ -51,25 +64,35 @@ public class ClassTreeVisitor extends Visitor {
     public void visitMethodDeclaration(GNode n){
         List<String> modifiers = new ArrayList<>();
         Node mods = NodeUtil.dfs(n, "Modifiers");
-        for(Node mod : NodeUtil.dfsAll(mods, "Modifier"))
+        for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
             modifiers.add(mod.getString(0));
 
-        String return_type;
-        Node rtp = NodeUtil.dfs(n,"Type");
-        return_type = rtp.getNode(0).getString(0);
+        Node return_type = n.getNode(2);
+        if (return_type.size() == 0)
+            return_type = TypeResolver.createType("void", null);
+        else {
+            String typeName = return_type.getNode(0).getString(0);
+            Node typeDimension = return_type.getNode(1);
+            return_type = TypeResolver.createType(typeName, typeDimension);
+        }
 
         String method_name;
         method_name = n.getString(3);
 
         List<String> parameters = new ArrayList<>();
         Node params = NodeUtil.dfs(n,"FormalParameters");
-        for(Node param : NodeUtil.dfsAll(params,"FormalParameter"))
+        for (Node param : NodeUtil.dfsAll(params,"FormalParameter"))
             parameters.add(param.getString(3));
 
-        List<String> parameter_types = new ArrayList<>();
+        List<Node> parameter_types = new ArrayList<>();
         Node pts = NodeUtil.dfs(n, "FormalParameters");
-        for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
-            parameter_types.add(pt.getNode(1).getNode(1).getString(0));
+        for (Node pt : NodeUtil.dfsAll(pts, "FormalParameter")) {
+            Node tp = pt.getNode(1);
+            String typeName = tp.getNode(0).getString(0);
+            Node typeDimension = tp.getNode(1);
+            tp = TypeResolver.createType(typeName, typeDimension);
+            parameter_types.add(tp);
+        }
 
         MethodSignature m = new MethodSignature(modifiers, return_type, method_name,parameters,parameter_types);
         current_class.addMethod(m);
@@ -77,26 +100,30 @@ public class ClassTreeVisitor extends Visitor {
         visit(n);
     }
 
-    public void visitConstructorDeclaration(GNode n){
-        String name;
-        Node nm = NodeUtil.dfs(n, n.getString(3));
-        name = nm.getNode(0).getString(0);
+    public void visitConstructorDeclaration(GNode n) {
+        String name = n.getString(2);
 
         List<String> parameters = new ArrayList<>();
-        Node params = NodeUtil.dfs(n,"FormalParameters");
-        for(Node param : NodeUtil.dfsAll(params, "FormalParameter"))
-            parameters.add(param.getString(0));
+        Node params = NodeUtil.dfs(n, "FormalParameters");
+        for (Node param : NodeUtil.dfsAll(params, "FormalParameter"))
+            parameters.add(param.getString(3));
 
-        List<String> parameter_types = new ArrayList<>();
+        List<Node> parameter_types = new ArrayList<>();
         Node pts = NodeUtil.dfs(n, "FormalParameters");
-        for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
-            parameter_types.add(pt.getNode(1).getString(0));
+        for (Node pt : NodeUtil.dfsAll(pts, "FormalParameter")) {
+            Node tp = pt.getNode(1);
+            String typeName = tp.getNode(0).getString(0);
+            Node typeDimension = tp.getNode(1);
+            tp = TypeResolver.createType(typeName, typeDimension);
+            parameter_types.add(tp);
+        }
 
         ConstructorSignature c = new ConstructorSignature(name,parameters,parameter_types);
         current_class.addConstructor(c);
 
         visit(n);
     }
+
     public void visitPackageDeclaration(GNode n){
         Node temp = n.getNode(1);
         for (int i=0; i<temp.size(); i++) {
@@ -108,11 +135,7 @@ public class ClassTreeVisitor extends Visitor {
         return package_declaration;
     }
 
-    public void visit(Node n) {
-        for (Object o : n) if (o instanceof Node) dispatch((Node) o);
-    }
-
-    public HashMap<String, ClassSignature> getClassTree(List<Node> javaAstList) {
+    public Map<String, ClassSignature> getClassTree(List<Node> javaAstList) {
         tree_map = new HashMap<>();
 
         // prepopulate Object, String and Class
@@ -121,8 +144,10 @@ public class ClassTreeVisitor extends Visitor {
         tree_map.put("Class", ClassSignature.buildClass());
 
         // traverse the whole AST forest
-        for (Node tree: javaAstList)
+        for (Node tree: javaAstList) {
+            child_parent_map = new ChildToParentMap(tree);
             super.dispatch(tree);
+        }
 
         return tree_map;
     }

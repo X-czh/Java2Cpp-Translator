@@ -102,7 +102,6 @@ public class JavaFiveImportParser {
 
     }.dispatch(primarySrc);
 
-
     // recursively parse dependencies
     List<GNode> tmpImportedSources = new LinkedList<GNode>(importedSources);
     for (GNode s : tmpImportedSources) {

@@ -1,17 +1,21 @@
 package edu.nyu.oop;
 
 import java.util.List;
+import xtc.tree.Node;
 
+/**
+ * A MethodSignature encapsulates the sufficient info to characterise a method.
+ */
 public class MethodSignature {
 
     private List<String> modifier;
-    private String return_type;
+    private Node return_type;
     private String method_name;
     private List<String> parameters;
-    private List<String> parameter_types;
+    private List<Node> parameter_types;
     private String owner;
 
-    public MethodSignature(List<String> modifier, String return_type, String method_name, List<String> parameters, List<String> parameter_types) {
+    public MethodSignature(List<String> modifier, Node return_type, String method_name, List<String> parameters, List<Node> parameter_types) {
         this.modifier = modifier;
         this.return_type = return_type;
         this.method_name = method_name;
@@ -23,7 +27,7 @@ public class MethodSignature {
         return modifier;
     }
 
-    public String getReturnType(){
+    public Node getReturnType(){
         return return_type;
     }
 
@@ -35,7 +39,7 @@ public class MethodSignature {
         return parameters;
     }
 
-    public List<String> getParameterTypes(){
+    public List<Node> getParameterTypes(){
         return parameter_types;
     }
 

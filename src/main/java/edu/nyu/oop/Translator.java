@@ -6,6 +6,7 @@ import xtc.tree.Node;
 import xtc.tree.GNode;
 
 import java.util.*;
+import edu.nyu.oop.CppPrinter;
 
 /**
  * This is the entry point to the translator facilities. While Boot.java implements the user-program
@@ -15,13 +16,13 @@ import java.util.*;
  * part of the translator. It defines the set of valid methods provided by the translator, and calls them
  * accordingly to fulfill requests made by Boot.java. The delegation pattern is implemented here.
  */
-
 public class Translator {
 
     private Node root;
 
     private List<Node> javaAstList;
     private Node headerAst;
+    private Node mutatedCppAst;
 
     public Translator(Node n) {
         root = n;
@@ -42,13 +43,24 @@ public class Translator {
     }
 
     private void makeHeaderFile() {
+        CppPrinter cppPrinter = new CppPrinter("/output.h");
+        cppPrinter.printHeader(headerAst);
+    }
 
+    private void makeMutatedCppAst() {
+        return;
+    }
+
+    private void makeImplementationFiles() {
+        return;
     }
 
     public void run() {
         makeJavaAstList();
         makeHeaderAst();
         makeHeaderFile();
+        makeMutatedCppAst();
+        makeImplementationFiles();
     }
 
     public List<Node> getJavaAstList() {
@@ -60,6 +72,24 @@ public class Translator {
         makeJavaAstList();
         makeHeaderAst();
         return headerAst;
+    }
+
+    public void printCppHeader() {
+        makeJavaAstList();
+        makeHeaderAst();
+        makeHeaderFile();
+    }
+
+    public Node getMutatedCppAst() {
+        makeJavaAstList();
+        makeMutatedCppAst();
+        return mutatedCppAst;
+    }
+
+    public void printCppImplementation() {
+        makeJavaAstList();
+        makeMutatedCppAst();
+        makeImplementationFiles();
     }
 
 }

@@ -3,7 +3,7 @@ import org.junit.*;
 import org.slf4j.Logger;
 import xtc.tree.Node;
 import xtc.tree.GNode;
-import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -25,7 +25,7 @@ public class ClassTreeVisitorTest {
         List<Node> input_ast = new ArrayList<Node>();
         GNode node = (GNode) XtcTestUtils.loadTestFile("src/test/java/inputs/test001/Test001.java");
         input_ast.add(node);
-        HashMap<String,ClassSignature> tree_map = visitor.getClassTree(input_ast);
+        Map<String,ClassSignature> tree_map = visitor.getClassTree(input_ast);
 
         current_class = tree_map.get("A");
         List<MethodSignature> methods = current_class.getMethodList();
@@ -38,7 +38,7 @@ public class ClassTreeVisitorTest {
         assertTrue(allMethods.contains("toString"));
     }
 
-    
+
 
 
 }

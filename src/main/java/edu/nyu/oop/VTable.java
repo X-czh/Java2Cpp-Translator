@@ -10,9 +10,12 @@ import java.util.List;
 import java.util.ArrayList;
 import java.util.Map;
 
+/**
+ * This class generates the virtual class tables for the classes.
+ */
 public class VTable {
 
-    public Node create_field_dec(ArrayList<String> modifiers, String type, String name){
+    public Node create_field_dec(ArrayList<String> modifiers, Node type, String name){
         GNode field = GNode.create("FieldDeclaration");
         GNode modifi_node = GNode.create("Modifiers");
         for (String modify_name:modifiers){
@@ -21,11 +24,7 @@ public class VTable {
             modifi_node.add(temp);
         }
         field.add(modifi_node);
-        GNode t = GNode.create("Type");
-        GNode identifier = GNode.create("QualifiedIdentifier");
-        identifier.add(type);
-        t.add(identifier);
-        field.add(t);
+        field.add(type);
         GNode dec = GNode.create("Declarators");
         GNode sub_dec = GNode.create("Declarator");
         sub_dec.add(name);
@@ -54,16 +53,16 @@ public class VTable {
         init_list.add(createInit("__is_a", "__"+name+"::__class()"));
         for (MethodSignature m : methods){
             if (m.getOwner().compareTo(name)==0) {
-                init_list.add(createInit(m.getMethodName(), "__"+name+"::"+m.getMethodName()));
+                init_list.add(createInit(m.getMethodName(), "&__"+name+"::"+m.getMethodName()));
             }
             else {
                 String first = m.getMethodName();
                 String second = "";
-                second += "(" + m.getReturnType() + " (*)("+name;
-                for (String t:m.getParameterTypes()){
-                    second += ", " + t;
+                second += "(" + TypeResolver.typeToString(m.getReturnType()) + " (*)("+name;
+                for (Node t: m.getParameterTypes()){
+                    second += ", " + TypeResolver.typeToString(t);
                 }
-                second += ") &__" + m.getOwner() + "::" + m.getMethodName();
+                second += ")) &__" + m.getOwner() + "::" + m.getMethodName();
                 init_list.add(createInit(first, second));
             }
         }
@@ -81,16 +80,16 @@ public class VTable {
         Vtable.add(null);
         Vtable.add(null);
         GNode VtableClassBody = GNode.create("ClassBody");
-        VtableClassBody.add(create_field_dec(null, "Class", "__is_a"));
+        VtableClassBody.add(create_field_dec(new ArrayList<String>(), TypeResolver.createType("Class", null), "__is_a"));
         for (MethodSignature m: methods){
             String extended_name;
-            extended_name = "(*" + m.getMethodName() + ")(";
-            for (String param_t : m.getParameterTypes()) {
-                extended_name += param_t + ", ";
+            extended_name = "(*" + m.getMethodName() + ")(" + class_name + ", ";
+            for (Node param_t : m.getParameterTypes()) {
+                extended_name += TypeResolver.typeToString(param_t) + ", ";
             }
             extended_name = extended_name.substring(0, extended_name.length()-2);
             extended_name += ")";
-            VtableClassBody.add(create_field_dec(null, m.getReturnType(), extended_name));
+            VtableClassBody.add(create_field_dec(new ArrayList<String>(), m.getReturnType(), extended_name));
         }
 
         VtableClassBody.add(create_vt_constructor(methods, class_name));
@@ -110,29 +109,29 @@ public class VTable {
 
         ArrayList<Node> VTs= new ArrayList<Node>();
         for (String k: map.keySet()) {
+            if (k.compareTo("Object") != 0 && k.compareTo("String") != 0 && k.compareTo("Class") != 0) {
+                ArrayList<MethodSignature> methods = new ArrayList<MethodSignature>();
 
-            ArrayList<MethodSignature> methods = new ArrayList<MethodSignature>();
-
-            String current_class_name = k;
-            while (current_class_name.compareTo("null") != 0) {
-                ClassSignature current_class = map.get(k);
-                for (MethodSignature m : current_class.getMethodList()) {
-                    if (checkMethod(m)){
-                        boolean find = false;
-                        for (MethodSignature existed : methods) {
-                            if (existed.getMethodName().compareTo(m.getMethodName()) == 0) find = true;
-                        }
-                        if (!find) {
-                            m.setOwner(current_class_name);
-                            methods.add(m);
+                String current_class_name = k;
+                while (current_class_name.compareTo("null") != 0) {
+                    ClassSignature current_class = map.get(current_class_name);
+                    for (MethodSignature m : current_class.getMethodList()) {
+                        if (checkMethod(m)) {
+                            boolean find = false;
+                            for (MethodSignature existed : methods) {
+                                if (existed.getMethodName().compareTo(m.getMethodName()) == 0) find = true;
+                            }
+                            if (!find) {
+                                m.setOwner(current_class_name);
+                                methods.add(m);
+                            }
                         }
                     }
+                    current_class_name = current_class.getParentClassName();
                 }
-                current_class_name = current_class.getParentClassName();
+
+                VTs.add(createVTable(methods, k));
             }
-
-            VTs.add(createVTable(methods, k));
-
         }
         return VTs;
     }
