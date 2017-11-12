@@ -213,51 +213,90 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln();
     }
 
+    public void visitFormalParameters(GNode source){
+        
+    }
+
+    public void visitFormalParameter(GNode source){
+
+    }
+
+    public void visitType(GNode source){
+        String type = source.getNode(0).getString(0);
+        printer.p(type+" ");
+        visit(source);
+    }
+
+    public void visitDimensions(GNode source){
+        for(int i=0;i<source.size();i++){
+            String dimension = source.getString(i);
+            printer.p("[] ");
+        }
+    }
+
+    public void visitModifiers(GNode source){
+        visit(source);
+    }
+
+    public void visitModifier(GNode source){
+        printer.p(source.getString(0)+" ");
+    }
+
 
     public void visitMethodDeclaration(GNode source){
-        //getting method info
+
+        printer.indent();
+
+        //traverse down modifiers node
         Node modifiers = source.getNode(0);
+        if(modifiers!=null && modifiers.getName().compareTo("Modifiers")==0) visit(modifiers);
+
+        //printing modifiers
+        //if(modifiers!=null && modifiers.getName().compareTo("Modifiers")==0) {
+        //for (int i = 0; i < modifiers.size(); i++) {
+        //Node modifier = modifiers.getNode(i);
+        //String modifierName = modifier.getString(0);
+        //printer.p(modifierName + " ");
+        //}
+        //}
+
         String returnType = TypeResolver.typeToString(source.getNode(2));
         String methodName = source.getString(3);
-        Node formalParameters = source.getNode(4);
-        Node block = source.getNode(7);
-        printer.indent();
-        //printing modifiers
-        if(modifiers!=null && modifiers.getName().compareTo("Modifiers")==0) {
-            for (int i = 0; i < modifiers.size(); i++) {
-                Node modifier = modifiers.getNode(i);
-                String modifierName = modifier.getString(0);
-                printer.p(modifierName + " ");
-            }
-        }
+
         //printing returnType and the left parenthesis
         printer.p(returnType+" ");
         printer.p(methodName+"(");
 
+        Node formalParameters = source.getNode(4);
+        Node block = source.getNode(7);
+
+        if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0 ) visit(formalParameters);
+
         //printing parameters
-        if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0 ) {
-            for (int i = 0; i < formalParameters.size(); i++) {
-                Node formalParameter = formalParameters.getNode(i);
-                Node parameterModifiers = formalParameter.getNode(0);
+        //if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0 ) {
+            //for (int i = 0; i < formalParameters.size(); i++) {
+                //Node formalParameter = formalParameters.getNode(i);
+                //Node parameterModifiers = formalParameter.getNode(0);
 
                 //if parameterModifiers is not null
-                if (parameterModifiers!=null && parameterModifiers.getName().compareTo("Modifiers")==0) {
-                    for (int j = 0; j < parameterModifiers.size(); j++) {
-                        String parameterModifierName = parameterModifiers.getString(0);
-                        printer.p(parameterModifierName + " ");
-                    }
-                }
+                //if (parameterModifiers!=null && parameterModifiers.getName().compareTo("Modifiers")==0) {
+                    //for (int j = 0; j < parameterModifiers.size(); j++) {
+                        //String parameterModifierName = parameterModifiers.getString(0);
+                        //printer.p(parameterModifierName + " ");
+                    //}
+                //}
 
                 //do we need to output the type too?
-                String parameterType = TypeResolver.typeToString(formalParameter.getNode(1));
+                //String parameterType = TypeResolver.typeToString(formalParameter.getNode(1));
+                //visit(formalParameter);
 
                 //printing parameterName
-                String parameterName = formalParameter.getString(3);
-                printer.p(parameterType + " " + parameterName);
-                if (i<formalParameters.size()-1) printer.p(", ");
-            }
-            printer.p(")");
-        }
+                //String parameterName = formalParameter.getString(3);
+                //printer.p(parameterType + " " + parameterName);
+                //if (i<formalParameters.size()-1) printer.p(", ");
+            //}
+            //printer.p(")");
+        //}
 
         //else there is no parameter
         else{
