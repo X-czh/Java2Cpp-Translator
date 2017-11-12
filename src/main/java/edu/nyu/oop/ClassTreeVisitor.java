@@ -8,11 +8,9 @@ import xtc.tree.Visitor;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
-import java.util.Map;
-
 
 public class ClassTreeVisitor extends Visitor {
-    private Map<String,  ClassSignature> tree_map;
+    private HashMap<String,  ClassSignature> tree_map;
     private ClassSignature current_class;
     List<String> package_declaration = new ArrayList<>();
 
@@ -61,18 +59,17 @@ public class ClassTreeVisitor extends Visitor {
         return_type = rtp.getNode(0).getString(0);
 
         String method_name;
-        Node mn = NodeUtil.dfs(n, n.getString(3));
-        method_name = mn.getNode(0).getString(0);
+        method_name = n.getString(3);
 
         List<String> parameters = new ArrayList<>();
         Node params = NodeUtil.dfs(n,"FormalParameters");
         for(Node param : NodeUtil.dfsAll(params,"FormalParameter"))
-            parameters.add(param.getString(0));
+            parameters.add(param.getString(3));
 
         List<String> parameter_types = new ArrayList<>();
         Node pts = NodeUtil.dfs(n, "FormalParameters");
         for(Node pt : NodeUtil.dfsAll(pts, "FormalParameter"))
-            parameter_types.add(pt.getNode(1).getString(0));
+            parameter_types.add(pt.getNode(1).getNode(1).getString(0));
 
         MethodSignature m = new MethodSignature(modifiers, return_type, method_name,parameters,parameter_types);
         current_class.addMethod(m);
