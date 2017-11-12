@@ -154,9 +154,14 @@ public class CppPrinter extends RecursiveVisitor {
         printer.indent();
         printer.p(className+"(");
 
-        //Formal parameter
+        //Formal parameters
         Node formalParameters = source.getNode(3);
 
+        if (formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0) dispatch(formalParameters);
+        //there is no Formal parameters
+        else printer.p(" )");
+
+        /*
         if (formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0){
 
             for (int i=0;i<formalParameters.size();++i){
@@ -179,6 +184,7 @@ public class CppPrinter extends RecursiveVisitor {
             //there is no formal parameters
             printer.p(")");
         }
+        */
 
         //Initializations
 
@@ -214,16 +220,24 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitFormalParameters(GNode source){
-        
-    }
 
-    public void visitFormalParameter(GNode source){
+        int parameterSize = source.size();
 
+        for(int i=0;i<parameterSize;i++){
+            Node formalParameter = source.getNode(i);
+            //traverse modifiers and type
+            visit(formalParameter);
+            String parameterName = formalParameter.getString(3);
+            printer.p(parameterName);
+            if(i<parameterSize-1) printer.p(",");
+            else printer.p(")");
+        }
     }
 
     public void visitType(GNode source){
         String type = source.getNode(0).getString(0);
         printer.p(type+" ");
+        //traverse on dimension
         visit(source);
     }
 
@@ -249,7 +263,7 @@ public class CppPrinter extends RecursiveVisitor {
 
         //traverse down modifiers node
         Node modifiers = source.getNode(0);
-        if(modifiers!=null && modifiers.getName().compareTo("Modifiers")==0) visit(modifiers);
+        if(modifiers!=null && modifiers.getName().compareTo("Modifiers")==0) dispatch(modifiers);
 
         //printing modifiers
         //if(modifiers!=null && modifiers.getName().compareTo("Modifiers")==0) {
@@ -270,8 +284,9 @@ public class CppPrinter extends RecursiveVisitor {
         Node formalParameters = source.getNode(4);
         Node block = source.getNode(7);
 
-        if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0 ) visit(formalParameters);
-
+        if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0 ) dispatch(formalParameters);
+        //else there is no parameter
+        else printer.p(" )");
         //printing parameters
         //if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0 ) {
             //for (int i = 0; i < formalParameters.size(); i++) {
@@ -297,11 +312,6 @@ public class CppPrinter extends RecursiveVisitor {
             //}
             //printer.p(")");
         //}
-
-        //else there is no parameter
-        else{
-            printer.p(" )");
-        }
 
         if(block!=null && block.getName().compareTo("Block")==0){
             //print what is inside the block
