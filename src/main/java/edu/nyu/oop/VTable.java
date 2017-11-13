@@ -15,6 +15,9 @@ import java.util.Map;
  */
 public class VTable {
 
+    ArrayList<MethodSignature> methods = new ArrayList<MethodSignature>();
+    ArrayList<Node> VTs= new ArrayList<Node>();
+
     public Node create_field_dec(ArrayList<String> modifiers, Node type, String name){
         GNode field = GNode.create("FieldDeclaration");
         GNode modifi_node = GNode.create("Modifiers");
@@ -105,31 +108,41 @@ public class VTable {
         return true;
     }
 
-    public ArrayList<Node> getVTable(Map<String, ClassSignature> map) {
-
-        ArrayList<Node> VTs= new ArrayList<Node>();
-        for (String k: map.keySet()) {
-            if (k.compareTo("Object") != 0 && k.compareTo("String") != 0 && k.compareTo("Class") != 0) {
-                ArrayList<MethodSignature> methods = new ArrayList<MethodSignature>();
-
-                String current_class_name = k;
-                while (current_class_name.compareTo("null") != 0) {
-                    ClassSignature current_class = map.get(current_class_name);
-                    for (MethodSignature m : current_class.getMethodList()) {
-                        if (checkMethod(m)) {
-                            boolean find = false;
-                            for (MethodSignature existed : methods) {
-                                if (existed.getMethodName().compareTo(m.getMethodName()) == 0) find = true;
-                            }
-                            if (!find) {
-                                m.setOwner(current_class_name);
-                                methods.add(m);
-                            }
+    public void recursive_method_extract(Map<String, ClassSignature> map, String k){
+        String current_class_name = k;
+        if (current_class_name.compareTo("null") != 0) {
+            ClassSignature current_class = map.get(current_class_name);
+            recursive_method_extract(map, current_class.getParentClassName());
+            //System.out.println("doing " + k + " in recursion");
+            for (MethodSignature m : current_class.getMethodList()) {
+                //System.out.println(k+" "+m.getMethodName());
+                if (checkMethod(m)) {
+                    boolean find = false;
+                    for (MethodSignature existed : methods) {
+                        if (existed.getMethodName().compareTo(m.getMethodName()) == 0) {
+                            find = true;
+                            existed.setOwner(k);
                         }
                     }
-                    current_class_name = current_class.getParentClassName();
+                    if (!find) {
+                        m.setOwner(current_class_name);
+                        methods.add(m);
+                    }
                 }
+            }
+        }
+    }
 
+    public ArrayList<Node> getVTable(Map<String, ClassSignature> map) {
+        VTs.clear();
+        for (String k: map.keySet()) {
+            methods.clear();
+            if (k.compareTo("Object") != 0 && k.compareTo("String") != 0 && k.compareTo("Class") != 0) {
+                /*for (MethodSignature m : map.get(k).getMethodList()) {
+                    System.out.println(k + " " + m.getMethodName());
+                }
+                System.out.println(k+"----------- end");*/
+                recursive_method_extract(map, k);
                 VTs.add(createVTable(methods, k));
             }
         }

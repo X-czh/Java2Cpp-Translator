@@ -60,15 +60,15 @@ public class ClassSignature {
     public static ClassSignature buildObject() {
         ClassSignature object_class = new ClassSignature("Object", "null");
 
-        MethodSignature toString = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("String", null), "toString", new ArrayList<String>(), new ArrayList<Node>());
         MethodSignature hashCode = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("int", null), "hashCode", new ArrayList<String>(), new ArrayList<Node>());
-        MethodSignature getClass = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("Class", null), "getClass", new ArrayList<String>(), new ArrayList<Node>());
         MethodSignature equals = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("boolean", null), "equals", Arrays.asList("other"), Arrays.asList(TypeResolver.createType("Object", null)));
+        MethodSignature getClass = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("Class", null), "getClass", new ArrayList<String>(), new ArrayList<Node>());
+        MethodSignature toString = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("String", null), "toString", new ArrayList<String>(), new ArrayList<Node>());
 
-        object_class.addMethod(toString);
         object_class.addMethod(hashCode);
-        object_class.addMethod(getClass);
         object_class.addMethod(equals);
+        object_class.addMethod(getClass);
+        object_class.addMethod(toString);
         return object_class;
     }
 
