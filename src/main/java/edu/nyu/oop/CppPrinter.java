@@ -94,7 +94,7 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitClassDeclaration(GNode source){
         //get class name and class modifiers
-        String classModifiers = source.getString(0);
+        Node classModifiers = source.getNode(0);
         String className = source.getString(1);
 
         //get class body info
@@ -204,18 +204,20 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitType(GNode source){
-        String type = source.getNode(0).getString(0);
+        String type = TypeResolver.typeToString(source.getNode(0).getNode(0));
         printer.p(type+" ");
         //traverse on dimension
-        visit(source);
+        //visit(source);
     }
 
+    /*
     public void visitDimensions(GNode source){
         for(int i=0;i<source.size();i++){
             String dimension = source.getString(i);
             printer.p("[] ");
         }
     }
+    */
 
     public void visitModifiers(GNode source){
         visit(source);
