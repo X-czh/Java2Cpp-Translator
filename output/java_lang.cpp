@@ -2,6 +2,7 @@
 
 #include <stdexcept>
 #include <sstream>
+#include <iostream>
 
 namespace java {
   namespace lang {
@@ -164,7 +165,18 @@ namespace java {
         if (__this->__vptr->equals(__this, (Object)k)) return true;
 
         // FIXME: handle covariance of arrays
-
+        // If both __this and k represent array types, then we have to check
+        // whether the component type of k is a subtype of the component
+        // type of __this.
+        if (__this->__vptr->isArray(__this) && k->__vptr->isArray(k)) {
+          // k != __this implies that the component type of k cannot
+          // be equal to the component type of __this. So it is OK to
+          // go directly to the superclass of k's component type and
+          // continue the traversal of the type hierarchy from there.
+          k = k->__vptr->getComponentType(k);
+          __this = __this->__vptr->getComponentType(__this);
+        }
+        
         k = k->__vptr->getSuperclass(k);
       } while ((Class)__rt::null() != k);
 

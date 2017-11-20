@@ -334,11 +334,41 @@ namespace __rt {
     }
   };
 
+  // The data layout for arrays.
+  template <typename T>
+  struct __Array<Array<T>> {
+      __Array_VT<Array<T>>* __vptr;
+      const int32_t length;
+      Array<T>* __data;
+
+      // The constructor (defined inline).
+      __Array(const int32_t length)
+        : __vptr(&__vtable), length(length), __data(new __Array<T>*[length]()) {
+      }
+
+      // The function returning the class object representing the array.
+      static java::lang::Class __class() {
+        static java::lang::Class k =
+          new java::lang::__Class(new java::lang::__String("[" + __Array<T>::__class()->name->data),
+                                  java::lang::__Object::__class(),
+                                  __Array<T>::__class());
+        return k;
+       }
+
+      // The vtable for the array.
+      static __Array_VT<Array<T>> __vtable;
+    };
+
   // The vtable for arrays.  Note that this definition uses the default
   // no-arg constructor.
   template <typename T>
   __Array_VT<T> __Array<T>::__vtable;
 
+
+  // The vtable for arrays of arrays.  Note that this definition uses the default
+  // no-arg constructor.
+  template <typename T>
+  __Array_VT<Array<T>> __Array<Array<T>>::__vtable;
 
   // ========================================================================
 
