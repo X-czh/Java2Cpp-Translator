@@ -11,7 +11,7 @@ namespace java {
 
     // java.lang.Object.hashCode()
     int32_t __Object::hashCode(Object __this) {
-      return (int32_t)(intptr_t) __this;
+      return (int32_t)(intptr_t) __this.raw();
     }
 
     // java.lang.Object.equals(Object)
@@ -31,7 +31,7 @@ namespace java {
 
       std::ostringstream sout;
       sout << k->__vptr->getName(k)->data
-           << '@' << std::hex << (uintptr_t) __this;
+           << '@' << std::hex << (uintptr_t) __this.raw();
       return new __String(sout.str());
     }
 
@@ -53,7 +53,7 @@ namespace java {
       : __vptr(&__vtable), 
         data(data) {
     }
-
+    
     // java.lang.String.hashCode()
     int32_t __String::hashCode(String __this) {
       int32_t hash = 0;
@@ -76,7 +76,7 @@ namespace java {
       if (! k->__vptr->isInstance(k, o)) return false;
 
       // Do the actual comparison.
-      String other = (String) o; // Downcast.
+      String other = o; // Implicit downcast.
       return __this->data.compare(other->data) == 0;
     }
 
@@ -111,6 +111,22 @@ namespace java {
     // The vtable for java.lang.String.  Note that this definition
     // invokes the default no-arg constructor for __String_VT.
     __String_VT __String::__vtable;
+
+    // Overload << operator for convenient printing of String objects
+    std::ostream& operator<<(std::ostream& out, String s) {
+      out << s->data;
+      return out;
+    }
+
+    // Overload + operator to enable convenient translation of Java string concatenations
+    String operator+(String s, char t) {
+      return new __String(safeToString(s)->data + t);
+    }
+
+    String operator+(char s, String t) {
+      return new __String(s + safeToString(t)->data);
+    }
+
 
     // =======================================================================
 
@@ -163,7 +179,18 @@ namespace java {
       do {
         if (__this->__vptr->equals(__this, (Object)k)) return true;
 
-        // FIXME: handle covariance of arrays
+        // handle covariance of arrays
+        // If both __this and k represent array types, then we have to check
+        // whether the component type of k is a subtype of the component
+        // type of __this.
+        if (__this->__vptr->isArray(__this) && k->__vptr->isArray(k)) {
+          // k != __this implies that the component type of k cannot
+          // be equal to the component type of __this. So it is OK to
+          // go directly to the superclass of k's component type and
+          // continue the traversal of the type hierarchy from there.
+          k = k->__vptr->getComponentType(k);
+          __this = __this->__vptr->getComponentType(__this);
+        }
 
         k = k->__vptr->getSuperclass(k);
       } while ((Class)__rt::null() != k);
@@ -195,6 +222,74 @@ namespace __rt {
     return value;
   }
 
+  // Template specialization for arrays of booleans.
+  template<>
+  java::lang::Class __Array<bool>::__class() {
+    // The Class object representing boolean.class
+    static java::lang::Class bk =
+        new java::lang::__Class(__rt::literal("boolean"),
+                                (java::lang::Class) __rt::null(),
+                                (java::lang::Class) __rt::null(),
+                                true);
+    // The Class object representing boolean[].class
+    static java::lang::Class k =
+      new java::lang::__Class(literal("[B"),
+                              java::lang::__Object::__class(),
+                              bk);
+    return k;
+  }
+
+  // Template specialization for arrays of bytes.
+  template<>
+  java::lang::Class __Array<signed char>::__class() {
+    // The Class object representing byte.class
+    static java::lang::Class byk =
+        new java::lang::__Class(__rt::literal("byte"),
+                                (java::lang::Class) __rt::null(),
+                                (java::lang::Class) __rt::null(),
+                                true);
+    // The Class object representing byte[].class
+    static java::lang::Class k =
+      new java::lang::__Class(literal("[BY"),
+                              java::lang::__Object::__class(),
+                              byk);
+    return k;
+  }
+
+  // Template specialization for arrays of chars.
+  template<>
+  java::lang::Class __Array<char>::__class() {
+    // The Class object representing char.class
+    static java::lang::Class ck =
+        new java::lang::__Class(__rt::literal("char"),
+                                (java::lang::Class) __rt::null(),
+                                (java::lang::Class) __rt::null(),
+                                true);
+    // The Class object representing char[].class
+    static java::lang::Class k =
+      new java::lang::__Class(literal("[C"),
+                              java::lang::__Object::__class(),
+                              ck);
+    return k;
+  }
+
+  // Template specialization for arrays of shorts.
+  template<>
+  java::lang::Class __Array<int16_t>::__class() {
+    // The Class object representing short.class
+    static java::lang::Class sk =
+        new java::lang::__Class(__rt::literal("short"),
+                                (java::lang::Class) __rt::null(),
+                                (java::lang::Class) __rt::null(),
+                                true);
+    // The Class object representing short[].class
+    static java::lang::Class k =
+      new java::lang::__Class(literal("[S"),
+                              java::lang::__Object::__class(),
+                              sk);
+    return k;
+  }
+
   // Template specialization for arrays of ints.
   template<>
   java::lang::Class __Array<int32_t>::__class() {
@@ -212,23 +307,54 @@ namespace __rt {
     return k;
   }
 
-  // Template specialization for arrays of objects.
+  // Template specialization for arrays of longs.
   template<>
-  java::lang::Class __Array<java::lang::Object>::__class() {
-      static java::lang::Class k =
-      new java::lang::__Class(literal("[Ljava.lang.Object;"),
+  java::lang::Class __Array<int64_t>::__class() {
+    // The Class object representing long.class
+    static java::lang::Class lk =
+        new java::lang::__Class(__rt::literal("long"),
+                                (java::lang::Class) __rt::null(),
+                                (java::lang::Class) __rt::null(),
+                                true);
+    // The Class object representing long[].class
+    static java::lang::Class k =
+      new java::lang::__Class(literal("[L"),
                               java::lang::__Object::__class(),
-                              java::lang::__Object::__class());
+                              lk);
     return k;
   }
 
-  // Template specialization for arrays of strings.
+  // Template specialization for arrays of floats.
   template<>
-  java::lang::Class __Array<java::lang::String>::__class() {
+  java::lang::Class __Array<float>::__class() {
+    // The Class object representing float.class
+    static java::lang::Class fk =
+        new java::lang::__Class(__rt::literal("float"),
+                                (java::lang::Class) __rt::null(),
+                                (java::lang::Class) __rt::null(),
+                                true);
+    // The Class object representing float[].class
     static java::lang::Class k =
-      new java::lang::__Class(literal("[Ljava.lang.String;"),
+      new java::lang::__Class(literal("[F"),
                               java::lang::__Object::__class(),
-                              java::lang::__String::__class());
+                              fk);
+    return k;
+  }
+
+  // Template specialization for arrays of doubles.
+  template<>
+  java::lang::Class __Array<double>::__class() {
+    // The Class object representing double.class
+    static java::lang::Class dk =
+        new java::lang::__Class(__rt::literal("int"),
+                                (java::lang::Class) __rt::null(),
+                                (java::lang::Class) __rt::null(),
+                                true);
+    // The Class object representing double[].class
+    static java::lang::Class k =
+      new java::lang::__Class(literal("[D"),
+                              java::lang::__Object::__class(),
+                              dk);
     return k;
   }
 

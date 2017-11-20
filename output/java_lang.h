@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <string>
 
+#include "ptr.h"
+
 // ==========================================================================
 
 // To avoid the "static initialization order fiasco", we use functions
@@ -30,9 +32,9 @@ namespace java {
 
     // Definition of types that are equivalent to Java semantics,
     // i.e., an instance is the address of the object's data layout.
-    typedef __Object* Object;
-    typedef __Class* Class;
-    typedef __String* String;
+    typedef __rt::Ptr<__Object> Object;
+    typedef __rt::Ptr<__Class> Class;
+    typedef __rt::Ptr<__String> String;
 
   }
 }
@@ -42,6 +44,8 @@ namespace __rt {
   // The function returning the canonical null value.
   java::lang::Object null();
 
+  java::lang::String literal(const char*);
+  
 }
 
 
@@ -55,10 +59,10 @@ namespace java {
       // reference we have to the Object vtable below. main.cc will demonstrate this.
       __Object_VT* __vptr;
 
-      // The constructor for the data layout.
+      // The constructor.
       __Object();
 
-      // The init method implementing the Java constructor Object()
+      // The init method for the default constructor Object()
       static Object __init(Object __this) { return __this; }
       
       // The methods implemented by java.lang.Object.
@@ -105,6 +109,8 @@ namespace java {
 
     // ======================================================================
 
+    std::ostream& operator<<(std::ostream& os, String s);
+
     // The data layout for java.lang.String.
     struct __String {
       __String_VT* __vptr;
@@ -114,13 +120,13 @@ namespace java {
 
       // The constructor
       __String(std::string data);
+      
+      // The init method for the constructor String()
+      static String __init(String __this) { return __this; }
 
-      // The init method implementing the Java constructor String()
-      static String __init(String __this) { __this->data = ""; return __this; }
-
-      // The init method implementing the Java constructor String(String)
+      // The init method for the constructor String(String)
       static String __init(String __this, std::string data) { __this->data = data; return __this; }
-
+      
       // The methods implemented by java.lang.String.
       static int32_t hashCode(String);
       static bool equals(String, Object);
@@ -134,6 +140,20 @@ namespace java {
       // The vtable for java.lang.String.
       static __String_VT __vtable;
     };
+
+    template<typename T>
+    String safeToString(T t) {
+      return __rt::null() == t ? __rt::literal("null") : t->__vptr->toString(t);
+    }
+
+    template<typename S, typename T>
+    String operator+(__rt::Ptr<S> s, __rt::Ptr<T> t) {
+      return new __String(safeToString(s)->data + safeToString(t)->data);
+    }
+
+    String operator+(String s, char t); 
+
+    String operator+(char s, String t); 
 
     // The vtable layout for java.lang.String.
     struct __String_VT {
@@ -178,7 +198,7 @@ namespace java {
               Class component = (Class)__rt::null(),
               bool primitive = false);
 
-      // The init method implementing the Java constructor Class()
+      // The init method for the constructor Class()
       static Class __init(Class __this) { return __this; }
       
       // The instance methods of java.lang.Class.
@@ -287,7 +307,7 @@ namespace __rt {
   // generic C++ 'typedef' for representing Java array types,
   // i.e., Array<T> corresponds to Java's T[].
   template <typename T>
-  using Array = __Array<T>*;
+  using Array = __rt::Ptr<__Array<T> >;
 
   // The data layout for arrays.
   template <typename T>
@@ -301,6 +321,19 @@ namespace __rt {
       : __vptr(&__vtable), length(length), __data(new T[length]()) {
     }
 
+    // overload array subscript operators for convenient bounds-checked array access
+    T& operator[](int32_t index)  {
+      if (0 > index || index >= length)
+        throw java::lang::ArrayIndexOutOfBoundsException();
+      return __data[index];
+    }
+
+    const T& operator[](int32_t index) const {
+      if (0 > index || index >= length)
+        throw java::lang::ArrayIndexOutOfBoundsException();
+      return __data[index];
+    }
+
     // The function returning the class object representing the array.
     static java::lang::Class __class();
 
@@ -308,7 +341,32 @@ namespace __rt {
     static __Array_VT<T> __vtable;
   };
 
-  // But where is the definition of __Array::__class()???
+  // Generic partial specialization of __Array for arrays of object types.
+  // This saves us the extra work of manually specializing the __class()
+  // method for arrays of object types.
+  template <typename T>
+  struct __Array<Ptr<T>> {
+    __Array_VT<Ptr<T>>* __vptr;
+    const int32_t length;
+    Ptr<T>* __data;
+
+    // The constructor (defined inline).
+    __Array(const int32_t length)
+        : __vptr(&__vtable), length(length), __data(new Ptr<T>[length]()) {
+    }
+
+    // The function returning the class object representing the array.
+    static java::lang::Class __class() {
+      static java::lang::Class k =
+          new java::lang::__Class(new java::lang::__String("[L" + T::__class()->name->data + ";"),
+                                  java::lang::__Object::__class(),
+                                  T::__class());
+      return k;
+    }
+
+    // The vtable for the array.
+    static __Array_VT<Ptr<T>> __vtable;
+  };
 
   // The vtable for arrays.
   template <typename T>
@@ -339,6 +397,9 @@ namespace __rt {
   template <typename T>
   __Array_VT<T> __Array<T>::__vtable;
 
+  template <typename T>
+  __Array_VT<Ptr<T>> __Array<Ptr<T>>::__vtable;
+
 
   // ========================================================================
 
@@ -347,7 +408,7 @@ namespace __rt {
   // Template function to check against null values.
   template <typename T>
   void checkNotNull(T object) {
-    if (null() == (java::lang::Object) object) {
+    if (null() == object) {
       throw java::lang::NullPointerException();
     }
   }
