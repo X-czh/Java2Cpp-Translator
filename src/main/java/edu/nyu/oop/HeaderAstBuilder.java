@@ -52,7 +52,7 @@ public class HeaderAstBuilder {
                 // type specifier
                 typespec = GNode.create("TypeSpecifier");
                 typespec.add("typedef");
-                typespec.add("__" + className + "*");
+                typespec.add("__rt::Ptr<" + "__" + className + ">");
                 typespec.add(className);
                 typespecs.add(typespec);
             }
