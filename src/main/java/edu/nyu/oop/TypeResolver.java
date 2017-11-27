@@ -43,9 +43,22 @@ public class TypeResolver {
     }
 
     public static String typeToString(Node type) {
-        String s = type.getNode(0).getString(0);
-        if (type.getNode(1) != null)
-            s += "[]";
-        return s;
+        String typeStr;
+        Node dimension = type.getNode(1);
+
+        if (dimension == null)
+            typeStr = type.getNode(0).getString(0);
+        else {
+            String componentType = type.getNode(0).getString(0);
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < type.getNode(1).size(); i++)
+                sb.append("__rt::Array<");
+            sb.append(componentType);
+            for (int i = 0; i < type.getNode(1).size(); i++)
+                sb.append(">");
+            typeStr = sb.toString();
+        }
+
+        return typeStr;
     }
 }
