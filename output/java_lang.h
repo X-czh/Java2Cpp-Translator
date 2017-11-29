@@ -45,7 +45,13 @@ namespace __rt {
   java::lang::Object null();
 
   java::lang::String literal(const char*);
-  
+
+  // The template function for the virtual destructor
+  template <typename T>
+  void __delete(T* addr){
+    delete addr;
+  }
+
 }
 
 
@@ -89,6 +95,7 @@ namespace java {
       // ex:   int32_t     (*sum)          (int32_t, int32_t);
       //       return_type (*function_name)(arg_type_list);
       // See http://www.learncpp.com/cpp-tutorial/78-function-pointers/
+      void (*__delete)(__Object*);
       int32_t (*hashCode)(Object);
       bool (*equals)(Object, Object);
       Class (*getClass)(Object);
@@ -100,6 +107,7 @@ namespace java {
       // This is how "subclasses" will "inherit" from "superclasses"
       __Object_VT()
       : __is_a(__Object::__class()),
+        __delete(&__rt::__delete<__Object>),
         hashCode(&__Object::hashCode),
         equals(&__Object::equals),
         getClass(&__Object::getClass),
@@ -160,6 +168,7 @@ namespace java {
       // The dynamic type.
       Class __is_a;
 
+      void (*__delete)(__String*);
       int32_t (*hashCode)(String);
       bool (*equals)(String, Object);
       Class (*getClass)(String);
@@ -169,6 +178,7 @@ namespace java {
 
       __String_VT()
       : __is_a(__String::__class()),
+        __delete(&__rt::__delete<__String>),
         hashCode(&__String::hashCode),
         equals(&__String::equals),
         getClass((Class(*)(String)) &__Object::getClass), // "inheriting" getClass from Object
@@ -222,6 +232,7 @@ namespace java {
       // The dynamic type.
       Class __is_a;
 
+      void (*__delete)(__Class*);
       int32_t (*hashCode)(Class);
       bool (*equals)(Class, Object);
       Class (*getClass)(Class);
@@ -235,6 +246,7 @@ namespace java {
 
       __Class_VT()
       : __is_a(__Class::__class()),
+        __delete(&__rt::__delete<__Class>),
         hashCode((int32_t(*)(Class)) &__Object::hashCode),
         equals((bool(*)(Class,Object)) &__Object::equals),
         getClass((Class(*)(Class)) &__Object::getClass),
@@ -321,6 +333,12 @@ namespace __rt {
       : __vptr(&__vtable), length(length), __data(new T[length]()) {
     }
 
+    // The destructor
+    static void __delete(__Array<T>* addr){
+        delete[] addr->__data;
+        delete addr;
+    }
+
     // overload array subscript operators for convenient bounds-checked array access
     T& operator[](int32_t index)  {
       if (0 > index || index >= length)
@@ -355,6 +373,25 @@ namespace __rt {
         : __vptr(&__vtable), length(length), __data(new Ptr<T>[length]()) {
     }
 
+    // The destructor
+    static void __delete(__Array<Ptr<T>>* addr){
+        delete[] addr->__data;
+        delete addr;
+    }
+
+    // overload array subscript operators for convenient bounds-checked array access
+    Ptr<T>& operator[](int32_t index)  {
+      if (0 > index || index >= length)
+        throw java::lang::ArrayIndexOutOfBoundsException();
+      return __data[index];
+    }
+
+    const Ptr<T>& operator[](int32_t index) const {
+      if (0 > index || index >= length)
+        throw java::lang::ArrayIndexOutOfBoundsException();
+      return __data[index];
+    }
+
     // The function returning the class object representing the array.
     static java::lang::Class __class() {
       static java::lang::Class k =
@@ -374,6 +411,7 @@ namespace __rt {
     typedef Array<T> Reference;
 
     java::lang::Class __is_a;
+    void (*__delete)(__Array<T>*);
     int32_t (*hashCode)(Reference);
     bool (*equals)(Reference, java::lang::Object);
     java::lang::Class (*getClass)(Reference);
@@ -381,6 +419,7 @@ namespace __rt {
 
     __Array_VT()
       : __is_a(__Array<T>::__class()),
+        __delete(&__Array<T>::__delete),
         hashCode((int32_t(*)(Reference))
                  &java::lang::__Object::hashCode),
         equals((bool(*)(Reference,java::lang::Object))
@@ -434,5 +473,14 @@ namespace __rt {
     }
   }
 
+  template<typename T, typename U>
+  T java_cast(U object) {
+    java::lang::Class c = T::value_type::__class();
+
+    if (!c->__vptr->isInstance(c, object))
+      throw java::lang::ClassCastException();
+
+    return T(object);
+  }
   
 }
