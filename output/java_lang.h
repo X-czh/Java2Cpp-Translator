@@ -46,9 +46,9 @@ namespace __rt {
 
   java::lang::String literal(const char*);
 
-  // The template function for the virtual destructor
+  // The template function for the virtual destructor.
   template <typename T>
-  void __delete(T* addr){
+  void __delete(T* addr) {
     delete addr;
   }
 
@@ -205,7 +205,7 @@ namespace java {
       // The constructor.
       __Class(String name,
               Class parent,
-              Class component = (Class)__rt::null(),
+              Class component = __rt::null(),
               bool primitive = false);
 
       // The init method for the constructor Class()
@@ -333,12 +333,12 @@ namespace __rt {
       : __vptr(&__vtable), length(length), __data(new T[length]()) {
     }
 
-    // The destructor
-    static void __delete(__Array<T>* addr){
-        delete[] addr->__data;
-        delete addr;
+    // The destructor.
+    static void __delete(__Array<T>* addr) {
+      delete[] addr->__data;
+      delete addr;
     }
-
+    
     // overload array subscript operators for convenient bounds-checked array access
     T& operator[](int32_t index)  {
       if (0 > index || index >= length)
@@ -359,6 +359,8 @@ namespace __rt {
     static __Array_VT<T> __vtable;
   };
 
+  // But where is the definition of __Array::__class()???
+
   // Generic partial specialization of __Array for arrays of object types.
   // This saves us the extra work of manually specializing the __class()
   // method for arrays of object types.
@@ -373,10 +375,10 @@ namespace __rt {
         : __vptr(&__vtable), length(length), __data(new Ptr<T>[length]()) {
     }
 
-    // The destructor
-    static void __delete(__Array<Ptr<T>>* addr){
-        delete[] addr->__data;
-        delete addr;
+    // The destructor.
+    static void __delete(__Array<Ptr<T>>* addr) {
+      delete[] addr->__data;
+      delete addr;
     }
 
     // overload array subscript operators for convenient bounds-checked array access
@@ -438,7 +440,6 @@ namespace __rt {
 
   template <typename T>
   __Array_VT<Ptr<T>> __Array<Ptr<T>>::__vtable;
-
 
   // ========================================================================
 

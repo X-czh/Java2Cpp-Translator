@@ -37,8 +37,7 @@ namespace java {
 
     // Internal accessor for java.lang.Object's class.
     Class __Object::__class() {
-      static Class k =
-        new __Class(__rt::literal("java.lang.Object"), (Class) __rt::null());
+      static Class k = new __Class(__rt::literal("java.lang.Object"), __rt::null());
       return k;
     }
 
@@ -103,8 +102,7 @@ namespace java {
 
     // Internal accessor for java.lang.String's class.
     Class __String::__class() {
-      static Class k =
-        new __Class(__rt::literal("java.lang.String"), __Object::__class());
+      static Class k = new __Class(__rt::literal("java.lang.String"), __Object::__class());
       return k;
     }
 
@@ -118,7 +116,6 @@ namespace java {
       return out;
     }
 
-    // Overload + operator to enable convenient translation of Java string concatenations
     String operator+(String s, char t) {
       return new __String(safeToString(s)->data + t);
     }
@@ -179,15 +176,9 @@ namespace java {
       do {
         if (__this->__vptr->equals(__this, (Object)k)) return true;
 
-        // handle covariance of arrays
-        // If both __this and k represent array types, then we have to check
-        // whether the component type of k is a subtype of the component
-        // type of __this.
+        // Array covariance test
         if (__this->__vptr->isArray(__this) && k->__vptr->isArray(k)) {
-          // k != __this implies that the component type of k cannot
-          // be equal to the component type of __this. So it is OK to
-          // go directly to the superclass of k's component type and
-          // continue the traversal of the type hierarchy from there.
+          // k != __this implies component type of k must not be equal to component type of __this
           k = k->__vptr->getComponentType(k);
           __this = __this->__vptr->getComponentType(__this);
         }
@@ -200,8 +191,7 @@ namespace java {
 
     // Internal accessor for java.lang.Class' class.
     Class __Class::__class() {
-      static Class k = 
-        new __Class(__rt::literal("java.lang.Class"), __Object::__class());
+      static Class k = new __Class(__rt::literal("java.lang.Class"), __Object::__class());
       return k;
     }
 
