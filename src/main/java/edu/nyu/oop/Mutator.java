@@ -74,9 +74,23 @@ public class Mutator extends Visitor {
         GNode initMethod = GNode.create("MethodDeclaration");
         initMethod.add(null); // modifiers
         initMethod.add(null);
-        initMethod.add(GNode.create("VoidType")); // return type
-        initMethod.add("__init"); // method name
-        initMethod.add(n.getNode(3)); // parameters
+
+        GNode type = GNode.create("Type");
+        GNode temp_type = GNode.create("QualifiedIdentifier");
+        temp_type.add(currentClassName);
+        type.add(temp_type); // type name
+        type.add(null); // dimension
+        initMethod.add(type); // return type
+
+        initMethod.add("__" + currentClassName + "::__init"); // method name
+
+        GNode temp_param = GNode.create("FormalParameters");
+        temp_param.add(makeExplicitThisParameter()); // add explicit this parameter
+        for (Object o : n.getNode(3))
+            temp_param.add(o);
+        n.set(3, temp_param);
+        initMethod.add(temp_param); // parameters
+
         initMethod.add(null);
         initMethod.add(null);
         initMethod.add(block); // block
@@ -92,10 +106,19 @@ public class Mutator extends Visitor {
         for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
             modifiers.add(mod.getString(0));
 
+        // mutate parameter list
         if (!modifiers.contains("static") && !modifiers.contains("private")) {
-            n.getNode(4).add(0, makeExplicitThisParameter()); // add explicit this parameter
+            GNode temp = GNode.create("FormalParameters");
+            temp.add(makeExplicitThisParameter()); // add explicit this parameter
+            for (Object o : n.getNode(4))
+                temp.add(o);
+            n.set(4, temp);
         }
 
+        // mutate method name
+        n.set(3, "__" + currentClassName + "::" + n.getString(3));
+
+        // identify main method
         if (modifiers.contains("static") && modifiers.contains("public") && n.getString(3).equals("main")) {
             mainMethodClassName = currentClassName;
         }
