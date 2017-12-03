@@ -48,7 +48,7 @@ public class Mutator extends Visitor {
         String temp = "";
         for (String s : packageInfo)
             temp = temp + s + "::";
-        temp += mainMethodClassName;
+        temp = temp + "__" + mainMethodClassName;
         mainMethod.add(temp);
         mainAst.add(mainMethod);
 
