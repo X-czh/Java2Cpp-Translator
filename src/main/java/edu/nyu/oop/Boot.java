@@ -63,6 +63,7 @@ public class Boot extends Tool {
             bool("printHeaderAst", "printHeaderAst", false, "print C++ header AST").
             bool("printCppHeader", "printCppHeader", false, "print C++ header").
             bool("printMutatedCppAst", "printMutatedCppAst", false, "print mutated C++ AST").
+            bool("printMainAst", "printMainAst", false, "print C++ main AST").
             bool("printCppImplementation", "printCppImplementation", false, "print C++ implementation files").
             bool("runTranslator", "runTranslator", false, "run translator");
   }
@@ -152,6 +153,12 @@ public class Boot extends Tool {
     if (runtime.test("printMutatedCppAst")) {
       Translator t = new Translator(n);
       Node root = t.getMutatedCppAst();
+      runtime.console().format(root).pln().flush();
+    }
+
+    if (runtime.test("printMainAst")) {
+      Translator t = new Translator(n);
+      Node root = t.getMainAst();
       runtime.console().format(root).pln().flush();
     }
 

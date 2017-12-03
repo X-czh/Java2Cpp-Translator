@@ -19,10 +19,12 @@ import edu.nyu.oop.CppPrinter;
 public class Translator {
 
     private Node root;
-
+    private Map<String, ClassSignature> classTreeMap;
+    private List<String> packageInfo;
     private List<Node> javaAstList;
     private Node headerAst;
     private Node mutatedCppAst;
+    private Node mainAst;
 
     public Translator(Node n) {
         root = n;
@@ -36,8 +38,8 @@ public class Translator {
 
     private void makeHeaderAst() {
         ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor();
-        Map<String, ClassSignature> classTreeMap = classTreeVisitor.getClassTree(javaAstList);
-        List<String> packageInfo = classTreeVisitor.getPackageInfo();
+        classTreeMap = classTreeVisitor.getClassTree(javaAstList);
+        packageInfo = classTreeVisitor.getPackageInfo();
         HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder(classTreeMap, packageInfo);
         headerAst = headerAstBuilder.buildHeaderAst();
     }
@@ -48,11 +50,14 @@ public class Translator {
     }
 
     private void makeMutatedCppAst() {
-        return;
+        Mutator mutator = new Mutator(classTreeMap, packageInfo);
+        mutatedCppAst = mutator.mutate(javaAstList);
+        mainAst = mutator.makeMainAst();
     }
 
     private void makeImplementationFiles() {
-        return;
+        CppPrinter cppOutputPrinter = new CppPrinter("/output.cpp");
+        CppPrinter cppMainPrinter = new CppPrinter("/main.cpp");
     }
 
     public void run() {
@@ -82,12 +87,21 @@ public class Translator {
 
     public Node getMutatedCppAst() {
         makeJavaAstList();
+        makeHeaderAst();
         makeMutatedCppAst();
         return mutatedCppAst;
     }
 
+    public Node getMainAst() {
+        makeJavaAstList();
+        makeHeaderAst();
+        makeMutatedCppAst();
+        return mainAst;
+    }
+
     public void printCppImplementation() {
         makeJavaAstList();
+        makeHeaderAst();
         makeMutatedCppAst();
         makeImplementationFiles();
     }
