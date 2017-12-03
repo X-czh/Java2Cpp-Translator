@@ -108,6 +108,8 @@ public class ClassSignature {
 
         FieldSignature name = new FieldSignature(new ArrayList<>(), TypeResolver.createType("String", null), Arrays.asList("name"));
         FieldSignature parent = new FieldSignature(new ArrayList<>(), TypeResolver.createType("Class", null), Arrays.asList("parent"));
+        FieldSignature component = new FieldSignature(new ArrayList<>(), TypeResolver.createType("Class", null), Arrays.asList("component"));
+        FieldSignature primitive = new FieldSignature(new ArrayList<>(), TypeResolver.createType("boolean", null), Arrays.asList("primitive"));
 
         ArrayList<String> params = new ArrayList<>();
         ArrayList<Node> param_types = new ArrayList<>();
@@ -120,14 +122,22 @@ public class ClassSignature {
         MethodSignature toString = new MethodSignature(new ArrayList<>(), TypeResolver.createType("String", null), "toString", null, null);
         MethodSignature getName = new MethodSignature(new ArrayList<>(), TypeResolver.createType("Class", null), "getName", null, null);
         MethodSignature getSuperclass = new MethodSignature(new ArrayList<>(), TypeResolver.createType("Class", null), "getSuperclass", null, null);
+        MethodSignature isPrimitive = new MethodSignature(new ArrayList<>(), TypeResolver.createType("boolean", null), "isPrimitive", null, null);
+        MethodSignature isArray = new MethodSignature(new ArrayList<>(), TypeResolver.createType("boolean", null), "isArray", null, null);
+        MethodSignature getComponentType = new MethodSignature(new ArrayList<>(), TypeResolver.createType("Class", null), "getComponentType", null, null);
         MethodSignature isInstance = new MethodSignature(new ArrayList<>(), TypeResolver.createType("boolean", null), "isInstance", null, Arrays.asList(TypeResolver.createType("Object", null)));
 
         class_class.addField(name);
         class_class.addField(parent);
+        class_class.addField(component);
+        class_class.addField(primitive);
         class_class.addConstructor(constr);
         class_class.addMethod(toString);
         class_class.addMethod(getName);
         class_class.addMethod(getSuperclass);
+        class_class.addMethod(isPrimitive);
+        class_class.addMethod(isArray);
+        class_class.addMethod(getComponentType);
         class_class.addMethod(isInstance);
 
         return class_class;
