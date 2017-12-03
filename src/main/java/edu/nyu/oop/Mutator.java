@@ -11,37 +11,21 @@ import java.util.List;
 import java.util.Map;
 
 public class Mutator extends Visitor {
-    private List<Node> mutatedCppAstList;
-    private GNode currentCppAst;
     private GNode prevHierarchy;
     private String currentClassName;
-    private List<String> packageInfo;
+    private String mainMethodClassName;
     private Map<String, ClassSignature> classTreeMap;
+    private List<String> packageInfo;
     private ChildToParentMap child_parent_map;
 
-    public Mutator(Map<String, ClassSignature> map) {
-        classTreeMap = map;
-        currentClassName = "";
-        mutatedCppAstList = new ArrayList<>();
+    public Mutator(Map<String, ClassSignature> class_tree_map, List<String> package_lst) {
+        classTreeMap = class_tree_map;
+        packageInfo = package_lst;
     }
 
-    public List<Node> mutate(List<Node> javaAstList) {
-        for (Node tree: javaAstList) {
-            currentCppAst = GNode.create("CompilationUnit()");
-            mutatedCppAstList.add(currentCppAst);
-            prevHierarchy = currentCppAst;
-            child_parent_map = new ChildToParentMap(tree);
-            super.dispatch(tree);
-        }
-        return javaAstList;
-    }
-
-    public void visitPackageDeclaration(GNode n){
-        packageInfo = new ArrayList<>();
-        Node temp = n.getNode(1);
-        for (int i=0; i<temp.size(); i++) {
-            packageInfo.add(temp.getString(i));
-        }
+    public Node mutate(List<Node> javaAstList) {
+        GNode mutatedCppAst = GNode.create("CompilationUnit");
+        prevHierarchy = mutatedCppAst;
 
         for (String s : packageInfo) {
             GNode namespace = GNode.create("NamespaceDeclaration");
@@ -50,13 +34,35 @@ public class Mutator extends Visitor {
             prevHierarchy = namespace;
         }
 
+        for (Node tree : javaAstList) {
+            child_parent_map = new ChildToParentMap(tree);
+            super.dispatch(tree);
+        }
+
+        return mutatedCppAst;
+    }
+
+    public Node makeMainAst() {
+        GNode mainAst = GNode.create("CompilationUnit");
+        GNode mainMethod = GNode.create("MainMethodDefinition");
+        String temp = "";
+        for (String s : packageInfo)
+            temp = temp + s + "::";
+        temp += mainMethodClassName;
+        mainMethod.add(temp);
+        mainAst.add(mainMethod);
+
+        return mainAst;
+    }
+
+    public void visitClassDeclaration(GNode n) {
+        currentClassName = n.getString(1);
+
         prevHierarchy.add(makeDefaultConstructor());
         prevHierarchy.add(make__classMethod());
         prevHierarchy.add(makeVTableInitialization());
-    }
 
-    public void visitClassDecalaration(GNode n) {
-        currentClassName = n.getString(1);
+        visit(n);
     }
 
     public void visitConstructorDeclaration(GNode n) {
@@ -76,6 +82,8 @@ public class Mutator extends Visitor {
         initMethod.add(block); // block
 
         prevHierarchy.add(initMethod);
+
+        visit(n);
     }
 
     public void visitMethodDeclaration(GNode n) {
@@ -88,7 +96,13 @@ public class Mutator extends Visitor {
             n.getNode(4).add(0, makeExplicitThisParameter()); // add explicit this parameter
         }
 
+        if (modifiers.contains("static") && modifiers.contains("public") && n.getString(3).equals("main")) {
+            mainMethodClassName = currentClassName;
+        }
+
         prevHierarchy.add(n);
+
+        visit(n);
     }
 
     public Node visitCallExpression(GNode n) {
