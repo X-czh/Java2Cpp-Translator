@@ -121,6 +121,8 @@ public class DataLayout {
         for (String s : f.getDeclarators()) {
             GNode declarator = GNode.create("Declarator");
             declarator.add(s);
+            declarator.add(null);
+            declarator.add(null);
             declarators.add(declarator);
         }
         fieldDec.add(declarators);

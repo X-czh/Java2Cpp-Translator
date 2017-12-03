@@ -151,8 +151,8 @@ public class Boot extends Tool {
 
     if (runtime.test("printMutatedCppAst")) {
       Translator t = new Translator(n);
-      Node root = t.getMutatedCppAst();
-      runtime.console().format(root).pln().flush();
+      //Node root = t.getMutatedCppAst();
+      //runtime.console().format(root).pln().flush();
     }
 
     if (runtime.test("printCppImplementation")) {
