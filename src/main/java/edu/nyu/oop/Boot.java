@@ -132,7 +132,7 @@ public class Boot extends Tool {
     }
 
     if (runtime.test("printJavaAstList")) {
-      Translator t = new Translator(n);
+      Translator t = new Translator(runtime, n);
       List<Node> nodes = t.getJavaAstList();
       for (Node node : nodes) {
         runtime.console().format(node).pln().flush();
@@ -140,35 +140,35 @@ public class Boot extends Tool {
     }
 
     if (runtime.test("printHeaderAst")) {
-      Translator t = new Translator(n);
+      Translator t = new Translator(runtime, n);
       Node root = t.getHeaderAst();
       runtime.console().format(root).pln().flush();
     }
 
     if (runtime.test("printCppHeader")) {
-      Translator t = new Translator(n);
+      Translator t = new Translator(runtime, n);
       t.printCppHeader();
     }
 
     if (runtime.test("printMutatedCppAst")) {
-      Translator t = new Translator(n);
+      Translator t = new Translator(runtime, n);
       Node root = t.getMutatedCppAst();
       runtime.console().format(root).pln().flush();
     }
 
     if (runtime.test("printMainAst")) {
-      Translator t = new Translator(n);
+      Translator t = new Translator(runtime, n);
       Node root = t.getMainAst();
       runtime.console().format(root).pln().flush();
     }
 
     if (runtime.test("printCppImplementation")) {
-      Translator t = new Translator(n);
+      Translator t = new Translator(runtime, n);
       t.printCppImplementation();
     }
 
     if (runtime.test("runTranslator")) {
-      Translator t = new Translator(n);
+      Translator t = new Translator(runtime, n);
       t.run();
     }
   }

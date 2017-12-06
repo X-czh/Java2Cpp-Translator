@@ -6,7 +6,9 @@ import xtc.tree.Node;
 import xtc.tree.GNode;
 
 import java.util.*;
-import edu.nyu.oop.CppPrinter;
+
+import xtc.util.Runtime;
+import xtc.util.SymbolTable;
 
 /**
  * This is the entry point to the translator facilities. While Boot.java implements the user-program
@@ -17,7 +19,7 @@ import edu.nyu.oop.CppPrinter;
  * accordingly to fulfill requests made by Boot.java. The delegation pattern is implemented here.
  */
 public class Translator {
-
+    private Runtime runtime;
     private Node root;
     private Map<String, ClassSignature> classTreeMap;
     private List<String> packageInfo;
@@ -26,7 +28,8 @@ public class Translator {
     private Node mutatedCppAst;
     private Node mainAst;
 
-    public Translator(Node n) {
+    public Translator(Runtime rt, Node n) {
+        runtime = rt;
         root = n;
     }
 
@@ -50,8 +53,13 @@ public class Translator {
     }
 
     private void makeMutatedCppAst() {
+        SymbolTable table = new SymbolTable();
+        for (Node n : javaAstList)
+            table = new SymbolTableBuilder(runtime, table).getTable(n);
+        ContextMutator t = new ContextMutator(runtime, table);
+        List<Node> cppAst = t.mutate(javaAstList);
         Mutator mutator = new Mutator(classTreeMap, packageInfo);
-        mutatedCppAst = mutator.mutate(javaAstList);
+        mutatedCppAst = mutator.mutate(cppAst);
         mainAst = mutator.makeMainAst();
     }
 
