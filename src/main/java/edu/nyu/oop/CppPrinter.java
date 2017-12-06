@@ -265,6 +265,7 @@ public class CppPrinter extends RecursiveVisitor {
         if(block!=null && block.getName().compareTo("Block")==0){
             //print what is inside the block
             //not yet to be implemented in headerfile printing
+            visit(block);
         }
 
         else {
@@ -293,6 +294,10 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitExpressionStatement(GNode source){
+
+    }
+
+    public void visitMainMethodDefinition(GNode source){
 
     }
 }
