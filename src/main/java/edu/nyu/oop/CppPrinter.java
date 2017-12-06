@@ -44,11 +44,15 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void printCpp(Node source){
-
+        headOfFile();
+        visit(source);
+        printer.flush();
     }
 
     public void printMain(Node source){
-
+        headOfFile();
+        visit(source);
+        printer.flush();
     }
 
     private void cout(String line) {
@@ -266,6 +270,30 @@ public class CppPrinter extends RecursiveVisitor {
         else {
             printer.pln(";").pln();
         }
+    }
+
+    //post midterm stuffs
+    public void visitConditionalStatement(GNode source){
+
+    }
+
+    public void visitForStatement(GNode source){
+
+    }
+
+    public void visitWhileStatement(GNode source){
+
+    }
+
+    public void visitSelectionExpression(GNode source){
+        Node primaryIdentifier = source.getNode(0);
+        String caller = primaryIdentifier.getString(0);
+        String field = source.getString(1);
+        printer.p(caller+"."+field);
+    }
+
+    public void visitExpressionStatement(GNode source){
+
     }
 }
 
