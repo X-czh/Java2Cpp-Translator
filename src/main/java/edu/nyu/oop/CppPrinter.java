@@ -43,6 +43,14 @@ public class CppPrinter extends RecursiveVisitor {
         printer.flush(); // important!
     }
 
+    public void printCpp(Node source){
+
+    }
+
+    public void printMain(Node source){
+
+    }
+
     private void cout(String line) {
         printer.incr().indent().pln("cout << \"" + line + "\" << endl;").decr();
     }
