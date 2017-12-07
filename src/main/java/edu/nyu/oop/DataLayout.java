@@ -3,8 +3,6 @@ package edu.nyu.oop;
 import java.util.*;
 
 import xtc.tree.GNode;
-import xtc.tree.Node;
-
 
 /**
  * This class generates the data layout for a given class.
@@ -22,6 +20,7 @@ public class DataLayout {
     }
 
     public GNode makeDataLayout() {
+        // class declaration
         GNode classDec = GNode.create("ClassDeclaration");
         classDec.add(null);
         classDec.add("__" + thisClass.getClassName());
@@ -31,16 +30,37 @@ public class DataLayout {
 
         // class body
         GNode classBody = GNode.create("ClassBody");
+
+        // pointer to vtable
         classBody.add(makePtrToVtableField());
+
+        // class fields
         for (FieldSignature f : fieldMap)
             classBody.add(makeFieldDeclaration(f));
+
+        // default C++ constructor for default field initialization
         classBody.add(makeConstructorDeclaration());
-        for (ConstructorSignature c : thisClass.getConstructorList())
-            classBody.add(makeInitMethod(c));
+
+        // __init methods for constructors
+        if (thisClass.getConstructorList().size() == 0) {
+            // no explicitly defined constructor, make the __init method for the generated default constructor
+            classBody.add(makeInitMethod(new ConstructorSignature("", new ArrayList<>(), new ArrayList<>())));
+        } else {
+            // make __init methods for constructors
+            for (ConstructorSignature c : thisClass.getConstructorList())
+                classBody.add(makeInitMethod(c));
+        }
+
+        // class methods
         for (MethodSignature m : thisClass.getMethodList())
             classBody.add(makeMethodDeclaration(m));
+
+        // __class method
         classBody.add(makeReturnClassMethod());
+
+        // __vtable
         classBody.add(makeVtableField());
+
         classDec.add(classBody);
 
         return classDec;
@@ -71,11 +91,11 @@ public class DataLayout {
 
     private GNode makeInitMethod(ConstructorSignature c) {
         MethodSignature m = new MethodSignature(
-                new ArrayList<>(),
+                Arrays.asList("static"),
                 TypeResolver.createType(thisClass.getClassName(), null),
                 "__init",
-                new ArrayList<>(),
-                new ArrayList<>()
+                c.getParameters(),
+                c.getParameterTypes()
         );
 
         return makeMethodDeclaration(m);

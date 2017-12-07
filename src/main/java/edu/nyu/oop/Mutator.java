@@ -2,6 +2,8 @@ package edu.nyu.oop;
 
 import edu.nyu.oop.util.ChildToParentMap;
 import edu.nyu.oop.util.NodeUtil;
+import edu.nyu.oop.util.TypeUtil;
+import xtc.lang.JavaEntities;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
@@ -14,13 +16,14 @@ public class Mutator extends Visitor {
     private GNode prevHierarchy;
     private String currentClassName;
     private String mainMethodClassName;
+    private List<Node> classInitialization;
     private Map<String, ClassSignature> classTreeMap;
     private List<String> packageInfo;
-    private ChildToParentMap child_parent_map;
+    private ChildToParentMap childParentMap;
 
-    public Mutator(Map<String, ClassSignature> class_tree_map, List<String> package_lst) {
-        classTreeMap = class_tree_map;
-        packageInfo = package_lst;
+    public Mutator(Map<String, ClassSignature> classTreeMap, List<String> packageInfo) {
+        this.classTreeMap = classTreeMap;
+        this.packageInfo = packageInfo;
     }
 
     public Node mutate(List<Node> javaAstList) {
@@ -35,7 +38,8 @@ public class Mutator extends Visitor {
         }
 
         for (Node tree : javaAstList) {
-            child_parent_map = new ChildToParentMap(tree);
+            classInitialization = new ArrayList<>();
+            childParentMap = new ChildToParentMap(tree);
             super.dispatch(tree);
         }
 
@@ -65,10 +69,72 @@ public class Mutator extends Visitor {
         visit(n);
     }
 
-    public void visitConstructorDeclaration(GNode n) {
+    public void visitFieldDeclaration(GNode n) {
+        visit(n);
+
+        // check whether it take part in the class initializing process
+        if (!childParentMap.fetchParentFor(n).getName().equals("ClassBody"))
+            return;
+
+        for (Object declarator : n.getNode(2)) {
+            if (((Node) declarator).getNode(2) != null) {
+                String var = ((Node) declarator).getString(0);
+                Node value = ((Node) declarator).getNode(2);
+                GNode n1 = GNode.create("SelectionExpression", makeThisExpression(), var);
+                GNode n2 = GNode.create("Expression", n1, "=", value);
+                GNode n3 = GNode.create("ExpressionStatement", n2);
+                classInitialization.add(n3);
+            }
+        }
+    }
+
+    public void visitBlockDeclaration(GNode n) {
+        visit(n);
+
+        // part of the class initializing process, add to classInitialization
+        for (int i = 0; i < n.size(); ++i)
+            classInitialization.add(n.getNode(i));
+    }
+
+    public void mutateConstructorDeclaration(GNode n) {
         // mutate block
-        Node block = n.getNode(5);
-        //TODO
+        boolean flagSuperThis =false;
+        Node block = n.getNode(7);
+        if (block.size() > 0) {
+            Object o = block.get(0);
+            if (o instanceof Node) {
+                if (((Node) o).getName().equals("ExpressionStatement") &&
+                        ((Node) o).getNode(0).getName().equals("CallExpression")) {
+                    // mutate super/this call expression (must be the first expression)
+                    Node callExpression = ((Node) o).getNode(0);
+                    String callExpressionName = callExpression.getString(2);
+                    if (callExpressionName.equals("super")) {
+                        flagSuperThis = true;
+                        callExpression.set(2,
+                                "__" + classTreeMap.get(currentClassName).getParentClassName() + "::__init");
+                        callExpression.set(3, addExplicitThisArgument(callExpression.getNode(3)));
+                    } else if (callExpressionName.equals("this")) {
+                        flagSuperThis = true;
+                        callExpression.set(2,
+                                "__" + currentClassName + "::__init");
+                        callExpression.set(3, addExplicitThisArgument(callExpression.getNode(3)));
+                    }
+                }
+            }
+        }
+        GNode mutatedBlock = GNode.create("Block");
+        if (flagSuperThis) {
+            mutatedBlock.add(block.getNode(0));
+            for (Node t : classInitialization)
+                mutatedBlock.add(t);
+            for (int i = 1; i < block.size(); ++i)
+                mutatedBlock.add(block.get(i));
+        } else {
+            for (Node t : classInitialization)
+                mutatedBlock.add(t);
+            for (Object o : block)
+                mutatedBlock.add(o);
+        }
 
         // create initMethod GNode
         GNode initMethod = GNode.create("MethodDeclaration");
@@ -84,39 +150,39 @@ public class Mutator extends Visitor {
 
         initMethod.add("__" + currentClassName + "::__init"); // method name
 
-        GNode temp_param = GNode.create("FormalParameters");
-        temp_param.add(makeExplicitThisParameter()); // add explicit this parameter
-        for (Object o : n.getNode(3))
-            temp_param.add(o);
-        n.set(3, temp_param);
-        initMethod.add(temp_param); // parameters
+        initMethod.add(addExplicitThisParameter(n.getNode(4))); // parameters
 
         initMethod.add(null);
         initMethod.add(null);
-        initMethod.add(block); // block
+        initMethod.add(mutatedBlock); // block
 
         prevHierarchy.add(initMethod);
-
-        visit(n);
     }
 
     public void visitMethodDeclaration(GNode n) {
+        Object returnType = n.getNode(2);
+        String methodName = n.getString(3);
+
+        // check whether it is a constructor
+        // ConstructorDeclaration get converted to MethodDeclaration automatically when building up the symbol table
+        if (methodName.equals(currentClassName) && returnType == null) {
+            mutateConstructorDeclaration(n);
+            visit(n);
+            return;
+        }
+
+        // mutate method starts
         List<String> modifiers = new ArrayList<>();
         Node mods = NodeUtil.dfs(n, "Modifiers");
         for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
             modifiers.add(mod.getString(0));
 
         // mutate parameter list
-        if (!modifiers.contains("static") && !modifiers.contains("private")) {
-            GNode temp = GNode.create("FormalParameters");
-            temp.add(makeExplicitThisParameter()); // add explicit this parameter
-            for (Object o : n.getNode(4))
-                temp.add(o);
-            n.set(4, temp);
-        }
+        if (!modifiers.contains("static") && !modifiers.contains("private"))
+            n.set(4, addExplicitThisParameter(n.getNode(4))); // add explicit this parameter
 
         // mutate method name
-        n.set(3, "__" + currentClassName + "::" + n.getString(3));
+        n.set(3, "__" + currentClassName + "::" + methodName);
 
         // identify main method
         if (modifiers.contains("static") && modifiers.contains("public") && n.getString(3).equals("main")) {
@@ -126,23 +192,6 @@ public class Mutator extends Visitor {
         prevHierarchy.add(n);
 
         visit(n);
-    }
-
-    public Node visitCallExpression(GNode n) {
-        // check whether it is System.out.print/println ()
-        if (n.getNode(0).getName().equals("SelectionExpression")) {
-            if (n.getNode(0).getNode(0).getName().equals("PrimaryIdentifier")) {
-                if (n.getNode(0).getNode(0).getString(0).equals("System")) {
-                    if (n.getNode(0).getString(1).equals("out")) {
-                        GNode printingExpression = GNode.create("PrintingExpression");
-                        printingExpression.add(n.getNode(3).getNode(0));
-                        printingExpression.add(n.getString(2));
-                        return printingExpression;
-                    }
-                }
-            }
-        }
-        return n;
     }
 
     public void visit(GNode n) {
@@ -155,6 +204,50 @@ public class Mutator extends Visitor {
                 }
             }
         }
+    }
+
+    private GNode makeThisExpression() {
+        GNode _this = GNode.create("ThisExpression", null);
+        return _this;
+    }
+
+    private GNode addExplicitThisParameter(Node n) {
+        GNode formalParameters = GNode.create("FormalParameters");
+
+        GNode explicitThisParam = GNode.create("FormalParameter");
+
+        explicitThisParam.add(null); // modifiers
+
+        GNode type = GNode.create("Type");
+        GNode temp = GNode.create("QualifiedIdentifier");
+        temp.add(currentClassName);
+        type.add(temp); // type name
+        type.add(null); // dimension
+        explicitThisParam.add(type);
+
+        explicitThisParam.add(null);
+        explicitThisParam.add("__this"); // parameter name
+        explicitThisParam.add(null);
+
+        formalParameters.add(explicitThisParam);
+
+        for (Object o : n)
+            formalParameters.add(o);
+
+        return formalParameters;
+    }
+
+    private GNode addExplicitThisArgument(Node n) {
+        GNode arguments = GNode.create("Arguments");
+
+        GNode explicitThisArg = GNode.create("Argument");
+        explicitThisArg.add(GNode.create("PrimaryIdentifier", "__this"));
+        arguments.add(explicitThisArg);
+
+        for (Object o : n)
+            arguments.add(o);
+
+        return arguments;
     }
 
     private GNode makeDefaultConstructor() {
@@ -210,25 +303,6 @@ public class Mutator extends Visitor {
         vtableInit.add(declarators);
 
         return vtableInit;
-    }
-
-    private GNode makeExplicitThisParameter() {
-        GNode explicitThisParam = GNode.create("FormalParameter");
-
-        explicitThisParam.add(null); // modifiers
-
-        GNode type = GNode.create("Type");
-        GNode temp = GNode.create("QualifiedIdentifier");
-        temp.add(currentClassName);
-        type.add(temp); // type name
-        type.add(null); // dimension
-        explicitThisParam.add(type);
-
-        explicitThisParam.add(null);
-        explicitThisParam.add("__this"); // parameter name
-        explicitThisParam.add(null);
-
-        return explicitThisParam;
     }
 
 }

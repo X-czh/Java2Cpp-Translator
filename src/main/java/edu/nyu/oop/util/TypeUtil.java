@@ -13,6 +13,12 @@ public class TypeUtil {
         return "static".equals(attr == null ? null : attr.getValue());
     }
 
+    public static boolean isPrivateType(Type type) {
+        if (type == null) return false;
+        Attribute attr  = type.getAttribute(Constants.NAME_VISIBILITY);
+        return "private".equals(attr == null ? null : attr.getValue());
+    }
+
     public static Type getType(Node n) {
         return (Type) n.getProperty(Constants.TYPE);
     }
