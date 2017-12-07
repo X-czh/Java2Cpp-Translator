@@ -56,10 +56,10 @@ public class Translator {
         SymbolTable table = new SymbolTable();
         for (Node n : javaAstList)
             table = new SymbolTableBuilder(runtime, table).getTable(n);
-        ContextMutator t = new ContextMutator(runtime, table);
-        List<Node> cppAst = t.mutate(javaAstList);
+        ContextualMutator contextualMutator = new ContextualMutator(runtime, table);
+        contextualMutator.mutate(javaAstList);
         Mutator mutator = new Mutator(classTreeMap, packageInfo);
-        mutatedCppAst = mutator.mutate(cppAst);
+        mutatedCppAst = mutator.mutate(javaAstList);
         mainAst = mutator.makeMainAst();
     }
 
