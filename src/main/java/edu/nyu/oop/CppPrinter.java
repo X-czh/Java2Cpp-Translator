@@ -237,6 +237,7 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitType(GNode source){
         String type = TypeResolver.typeToString(source.getNode(0).getNode(0));
+        //String type = source.getNode(0).getString(0);
         printer.p(type+" ");
         //traverse on dimension
         //visit(source);
