@@ -58,7 +58,7 @@ public class VTable {
             if (m.getOwner().compareTo(name)==0) {
                 init_list.add(createInit(m.getMethodName(), "&__"+name+"::"+m.getMethodName()));
             }
-            else {
+            else if (m.getMethodName().compareTo("__delete")!=0){
                 String first = m.getMethodName();
                 String second = "";
                 second += "(" + TypeResolver.typeToString(m.getReturnType()) + " (*)("+name;
@@ -67,6 +67,9 @@ public class VTable {
                 }
                 second += ")) &__" + m.getOwner() + "::" + m.getMethodName();
                 init_list.add(createInit(first, second));
+            }
+            else {
+                init_list.add(createInit("__delete", "&__rt::__delete<__"+name+">"));
             }
         }
 
@@ -85,14 +88,26 @@ public class VTable {
         GNode VtableClassBody = GNode.create("ClassBody");
         VtableClassBody.add(create_field_dec(new ArrayList<String>(), TypeResolver.createType("Class", null), "__is_a"));
         for (MethodSignature m: methods){
-            String extended_name;
-            extended_name = "(*" + m.getMethodName() + ")(" + class_name + ", ";
-            for (Node param_t : m.getParameterTypes()) {
-                extended_name += TypeResolver.typeToString(param_t) + ", ";
+            if (m.getMethodName().compareTo("__delete")!=0) {
+                String extended_name;
+                extended_name = "(*" + m.getMethodName() + ")(" + class_name + ", ";
+                for (Node param_t : m.getParameterTypes()) {
+                    extended_name += TypeResolver.typeToString(param_t) + ", ";
+                }
+                extended_name = extended_name.substring(0, extended_name.length() - 2);
+                extended_name += ")";
+                VtableClassBody.add(create_field_dec(new ArrayList<String>(), m.getReturnType(), extended_name));
             }
-            extended_name = extended_name.substring(0, extended_name.length()-2);
-            extended_name += ")";
-            VtableClassBody.add(create_field_dec(new ArrayList<String>(), m.getReturnType(), extended_name));
+            else {
+                String extended_name;
+                extended_name = "(*" + m.getMethodName() + ")(__" + class_name + "*, ";
+                for (Node param_t : m.getParameterTypes()) {
+                    extended_name += TypeResolver.typeToString(param_t) + ", ";
+                }
+                extended_name = extended_name.substring(0, extended_name.length() - 2);
+                extended_name += ")";
+                VtableClassBody.add(create_field_dec(new ArrayList<String>(), m.getReturnType(), extended_name));
+            }
         }
 
         VtableClassBody.add(create_vt_constructor(methods, class_name));

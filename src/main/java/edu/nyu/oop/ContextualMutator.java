@@ -4,6 +4,7 @@ import edu.nyu.oop.util.ContextualVisitor;
 import edu.nyu.oop.util.TypeUtil;
 import xtc.Constants;
 import xtc.lang.JavaEntities;
+import xtc.tree.Attribute;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.type.ClassOrInterfaceT;
@@ -33,6 +34,7 @@ public class ContextualMutator extends ContextualVisitor {
         Node receiver = n.getNode(0);
         String methodName = n.getString(2);
 
+        System.out.println("find method "+methodName+":");
         // check whether it is System.out.print()/println()
         if (receiver != null &&
                 n.getNode(0).getName().equals("SelectionExpression") &&
@@ -44,6 +46,7 @@ public class ContextualMutator extends ContextualVisitor {
             printingExpression.add(n.getString(2));
             return printingExpression;
         }
+
 
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
