@@ -2,8 +2,6 @@ package edu.nyu.oop;
 
 import edu.nyu.oop.util.ChildToParentMap;
 import edu.nyu.oop.util.NodeUtil;
-import edu.nyu.oop.util.TypeUtil;
-import xtc.lang.JavaEntities;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
