@@ -98,7 +98,8 @@ public class Mutator extends Visitor {
 
     public void mutateConstructorDeclaration(GNode n) {
         // mutate block
-        boolean flagSuperThis =false;
+        boolean superFlag =false;
+        boolean thisFlag =false;
         Node block = n.getNode(7);
         if (block.size() > 0) {
             Object o = block.get(0);
@@ -109,12 +110,12 @@ public class Mutator extends Visitor {
                     Node callExpression = ((Node) o).getNode(0);
                     String callExpressionName = callExpression.getString(2);
                     if (callExpressionName.equals("super")) {
-                        flagSuperThis = true;
+                        superFlag = true;
                         callExpression.set(2,
                                 "__" + classTreeMap.get(currentClassName).getParentClassName() + "::__init");
                         callExpression.set(3, addExplicitThisArgument(callExpression.getNode(3)));
                     } else if (callExpressionName.equals("this")) {
-                        flagSuperThis = true;
+                        thisFlag = true;
                         callExpression.set(2,
                                 "__" + currentClassName + "::__init");
                         callExpression.set(3, addExplicitThisArgument(callExpression.getNode(3)));
@@ -123,13 +124,18 @@ public class Mutator extends Visitor {
             }
         }
         GNode mutatedBlock = GNode.create("Block");
-        if (flagSuperThis) {
+        if (superFlag || thisFlag) {
+            // has call to other constructors either of this class or of the super class
             mutatedBlock.add(block.getNode(0));
-            for (Node t : classInitialization)
-                mutatedBlock.add(t);
+            if (!thisFlag) {
+                // no call to other constructors of this class
+                for (Node t : classInitialization)
+                    mutatedBlock.add(t);
+            }
             for (int i = 1; i < block.size(); ++i)
                 mutatedBlock.add(block.get(i));
         } else {
+            // no call to other constructors either of this class or of the super class
             for (Node t : classInitialization)
                 mutatedBlock.add(t);
             for (Object o : block)
