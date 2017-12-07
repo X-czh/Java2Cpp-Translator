@@ -77,7 +77,15 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     private void mainHeadOfFile(){
-
+        printer.pln("#include <iostream>");
+        printer.pln();
+        printer.pln("#include \"ptr.h\"");
+        printer.pln("#include \"java_lang.h\"");
+        printer.pln("#include \"output.h\"");
+        printer.pln();
+        printer.pln("using namespace inputs::javalang");
+        printer.pln("using namespace java::lang");
+        printer.pln("using namespace std");
     }
 
     public void visitCompilationUnit(GNode source){visit(source);}
