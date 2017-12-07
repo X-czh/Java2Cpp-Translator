@@ -2,6 +2,7 @@ package edu.nyu.oop;
 
 import edu.nyu.oop.util.ContextualVisitor;
 import edu.nyu.oop.util.TypeUtil;
+//import sun.nio.fs.GnomeFileTypeDetector;
 import xtc.Constants;
 import xtc.lang.JavaEntities;
 import xtc.tree.Attribute;
@@ -13,7 +14,6 @@ import xtc.type.Type;
 import xtc.type.VariableT;
 import xtc.util.Runtime;
 import xtc.util.SymbolTable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +33,8 @@ public class ContextualMutator extends ContextualVisitor {
     public Node visitCallExpression(GNode n) {
         Node receiver = n.getNode(0);
         String methodName = n.getString(2);
+        dispatch(n.getNode(0));
+        dispatch(n.getNode(3));
 
         System.out.println("find method "+methodName+":");
         // check whether it is System.out.print()/println()
@@ -47,7 +49,7 @@ public class ContextualMutator extends ContextualVisitor {
             return printingExpression;
         }
 
-
+        //add explicit this
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
             Type typeToSearch = JavaEntities.currentType(table);
@@ -57,15 +59,61 @@ public class ContextualMutator extends ContextualVisitor {
             MethodT method =
                     JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
 
-            if (method == null) return n;
+            if (method != null) {
 
-            if (!TypeUtil.isStaticType(method)) {
-                n.set(3, addExplicitThisArgument(n.getNode(3)));
-                if (receiver == null)
-                    n.set(0, makeThisExpression()); // make 'this' access explicit
-                if (!TypeUtil.isPrivateType(method)) {
-                    GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
-                    n.set(0, n1);
+                if (!TypeUtil.isStaticType(method)) {
+                    n.set(3, addExplicitThisArgument(n.getNode(3)));
+                    if (receiver == null)
+                        n.set(0, makeThisExpression()); // make 'this' access explicit
+                    if (!TypeUtil.isPrivateType(method)) {
+                        GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
+                        n.set(0, n1);
+                    }
+                }
+
+            }
+        }
+
+        //method mangle
+        if (!"super".equals(methodName) && !"this".equals(methodName)) {
+            // find type to search for relevant methods
+            if (n.getNode(0) == null || n.getNode(0).getName().compareTo("ThisExpression")==0){//no receiver
+                Type typeToSearch = JavaEntities.currentType(table);
+                // find type of called method
+                List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
+                MethodT method =
+                        JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
+
+                if (method != null) {
+                    System.out.println("resolve method " + methodName + ":");
+
+                    List<Type> param_use = method.getParameters();
+                    String new_name = methodName;
+                    for (int i = 0; i < param_use.size(); i++) {
+                        System.out.println(param_use.get(i).toAlias().getName());
+                        new_name = new_name + "_" + param_use.get(i).toAlias().getName();
+                    }
+                    n.set(2, new_name);
+                }
+            }
+            else {
+                Type typeToSearch = TypeUtil.getType(receiver).toAlias();
+                System.out.println(typeToSearch);
+
+                List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
+                MethodT method =
+                        JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
+
+                if (method != null) {
+                    System.out.println("resolve method " + methodName + ":");
+
+                    List<Type> param_use = method.getParameters();
+                    String new_name = methodName;
+                    for (int i = 0; i < param_use.size(); i++) {
+                        System.out.println(param_use.get(i).toAlias().getName());
+                        new_name = new_name + "_" + param_use.get(i).toAlias().getName();
+                    }
+                    n.set(2, new_name);
                 }
             }
         }
