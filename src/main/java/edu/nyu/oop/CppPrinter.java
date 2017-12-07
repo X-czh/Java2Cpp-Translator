@@ -38,19 +38,19 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void printHeader(Node source) {
-        headOfFile();
+        headerHeadOfFile();
         visit(source);
         printer.flush(); // important!
     }
 
     public void printCpp(Node source){
-        headOfFile();
+        cppHeadOfFile();
         visit(source);
         printer.flush();
     }
 
     public void printMain(Node source){
-        headOfFile();
+        mainHeadOfFile();
         visit(source);
         printer.flush();
     }
@@ -59,13 +59,25 @@ public class CppPrinter extends RecursiveVisitor {
         printer.incr().indent().pln("cout << \"" + line + "\" << endl;").decr();
     }
 
-    private void headOfFile() {
+    private void headerHeadOfFile() {
         printer.pln("#pragma once");
         printer.pln();
         printer.pln("#include \"java_lang.h\"");
         printer.pln();
         printer.pln("using namespace java::lang;");
         printer.pln();
+    }
+
+    private void cppHeadOfFile(){
+        printer.pln("#include \"output.h\"");
+        printer.pln("#include <iostream>");
+        printer.pln();
+        printer.pln("using namespace java::lang;");
+        printer.pln("using namespace std;");
+    }
+
+    private void mainHeadOfFile(){
+
     }
 
     public void visitCompilationUnit(GNode source){visit(source);}
