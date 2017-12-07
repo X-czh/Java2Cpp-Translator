@@ -54,6 +54,7 @@ public class VTable {
         GNode init_list = GNode.create("Initializations");
 
         init_list.add(createInit("__is_a", "__"+name+"::__class()"));
+        init_list.add(createInit("__delete", "&__rt::__delete<__"+name+">"));
         for (MethodSignature m : methods){
             if (m.getOwner().compareTo(name)==0) {
                 init_list.add(createInit(m.getMethodName(), "&__"+name+"::"+m.getMethodName()));
