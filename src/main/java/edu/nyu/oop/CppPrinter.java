@@ -300,7 +300,9 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitForStatement(GNode source){
-
+    Node basic = source.getNode(0);
+    visit(basic);
+    Node block = source.getNode(1);
     }
 
     public void visitWhileStatement(GNode source){
@@ -332,5 +334,21 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("return k;");
         printer.pln("}");
     }
+
+    public void visitDeclarator(GNode source){
+        Node declarator = source.getNode(0);
+        String string_i = declarator.getString(0);
+        String string_integer = declarator.getNode(2).getString(0);
+        printer.p(string_i+" = "+string_integer+"; ");
+    }
+    public void RelationalExpression(GNode source){
+        Node primaryIndentifier = source.getNode(0);
+        String string_i = primaryIndentifier.getString(0);
+
+        String compare = primaryIndentifier.getString(1);
+        printer.p(string_i+" = "+string_integer+"; ");
+    }
+
+
 }
 
