@@ -60,6 +60,7 @@ public class Boot extends Tool {
             bool("printSymbolTable", "printSymbolTable", false, "Print symbol table for Java Ast.").
             bool("printConfig", "printConfig", false, "Output application configuration to screen.").
             bool("printJavaAstList", "printJavaAstList", false, "Print list of Java Ast.").
+            bool("printMutatedJavaAstList", "printMutatedJavaAstList", false, "Print list of mutated Java Ast.").
             bool("printHeaderAst", "printHeaderAst", false, "print C++ header AST").
             bool("printCppHeader", "printCppHeader", false, "print C++ header").
             bool("printMutatedCppAst", "printMutatedCppAst", false, "print mutated C++ AST").
@@ -134,6 +135,14 @@ public class Boot extends Tool {
     if (runtime.test("printJavaAstList")) {
       Translator t = new Translator(runtime, n);
       List<Node> nodes = t.getJavaAstList();
+      for (Node node : nodes) {
+        runtime.console().format(node).pln().flush();
+      }
+    }
+
+    if (runtime.test("printMutatedJavaAstList")) {
+      Translator t = new Translator(runtime, n);
+      List<Node> nodes = t.getMutatedJavaAstList();
       for (Node node : nodes) {
         runtime.console().format(node).pln().flush();
       }
