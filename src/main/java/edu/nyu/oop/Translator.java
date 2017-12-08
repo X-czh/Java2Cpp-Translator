@@ -39,6 +39,14 @@ public class Translator {
         javaAstList.addAll(new JavaFiveImportParser().parse((GNode) root));
     }
 
+    private void mutateJavaAstList() {
+        SymbolTable table = new SymbolTable();
+        for (Node n : javaAstList)
+            table = new SymbolTableBuilder(runtime, table).getTable(n);
+        ContextualMutator contextualMutator = new ContextualMutator(runtime, table);
+        contextualMutator.mutate(javaAstList);
+    }
+
     private void makeHeaderAst() {
         ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor();
         classTreeMap = classTreeVisitor.getClassTree(javaAstList);
@@ -53,11 +61,6 @@ public class Translator {
     }
 
     private void makeMutatedCppAst() {
-        SymbolTable table = new SymbolTable();
-        for (Node n : javaAstList)
-            table = new SymbolTableBuilder(runtime, table).getTable(n);
-        ContextualMutator contextualMutator = new ContextualMutator(runtime, table);
-        contextualMutator.mutate(javaAstList);
         Mutator mutator = new Mutator(classTreeMap, packageInfo);
         mutatedCppAst = mutator.mutate(javaAstList);
         mainAst = mutator.makeMainAst();
@@ -70,6 +73,7 @@ public class Translator {
 
     public void run() {
         makeJavaAstList();
+        mutateJavaAstList();
         makeHeaderAst();
         makeHeaderFile();
         makeMutatedCppAst();
@@ -81,20 +85,29 @@ public class Translator {
         return javaAstList;
     }
 
+    public List<Node> getMutatedJavaAstList() {
+        makeJavaAstList();
+        mutateJavaAstList();
+        return javaAstList;
+    }
+
     public Node getHeaderAst() {
         makeJavaAstList();
+        mutateJavaAstList();
         makeHeaderAst();
         return headerAst;
     }
 
     public void printCppHeader() {
         makeJavaAstList();
+        mutateJavaAstList();
         makeHeaderAst();
         makeHeaderFile();
     }
 
     public Node getMutatedCppAst() {
         makeJavaAstList();
+        mutateJavaAstList();
         makeHeaderAst();
         makeMutatedCppAst();
         return mutatedCppAst;
@@ -102,6 +115,7 @@ public class Translator {
 
     public Node getMainAst() {
         makeJavaAstList();
+        mutateJavaAstList();
         makeHeaderAst();
         makeMutatedCppAst();
         return mainAst;
@@ -109,6 +123,7 @@ public class Translator {
 
     public void printCppImplementation() {
         makeJavaAstList();
+        mutateJavaAstList();
         makeHeaderAst();
         makeMutatedCppAst();
         makeImplementationFiles();

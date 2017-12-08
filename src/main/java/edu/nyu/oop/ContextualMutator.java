@@ -48,37 +48,13 @@ public class ContextualMutator extends ContextualVisitor {
             printingExpression.add(n.getString(2));
             return printingExpression;
         }
-
+        //TODO
         //add explicit this
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
-            // find type to search for relevant methods
-            Type typeToSearch = JavaEntities.currentType(table);
-
-            // find type of called method
-            List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
-            MethodT method =
-                    JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
-
-            if (method != null) {
-
-                if (!TypeUtil.isStaticType(method)) {
-                    n.set(3, addExplicitThisArgument(n.getNode(3)));
-                    if (receiver == null)
-                        n.set(0, makeThisExpression()); // make 'this' access explicit
-                    if (!TypeUtil.isPrivateType(method)) {
-                        GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
-                        n.set(0, n1);
-                    }
-                }
-
-            }
-        }
-
-        //method mangle
-        if (!"super".equals(methodName) && !"this".equals(methodName)) {
-            // find type to search for relevant methods
-            if (n.getNode(0) == null || n.getNode(0).getName().compareTo("ThisExpression")==0){//no receiver
+            if (receiver == null || "ThisExpression".equals(receiver.getName())) {
+                // find type to search for relevant methods
                 Type typeToSearch = JavaEntities.currentType(table);
+
                 // find type of called method
                 List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
                 MethodT method =
@@ -95,8 +71,17 @@ public class ContextualMutator extends ContextualVisitor {
                     }
                     n.set(2, new_name);
                 }
-            }
-            else {
+
+                if (!TypeUtil.isStaticType(method)) {
+                    n.set(3, addExplicitThisArgument(n.getNode(3)));
+                    if (receiver == null)
+                        n.set(0, makeThisExpression()); // make 'this' access explicit
+                    if (!TypeUtil.isPrivateType(method)) {
+                        GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
+                        n.set(0, n1);
+                    }
+                }
+            } else {
                 Type typeToSearch = TypeUtil.getType(receiver).toAlias();
                 System.out.println(typeToSearch);
 
@@ -114,6 +99,16 @@ public class ContextualMutator extends ContextualVisitor {
                         new_name = new_name + "_" + param_use.get(i).toAlias().getName();
                     }
                     n.set(2, new_name);
+                }
+
+                if (!TypeUtil.isStaticType(method)) {
+                    n.set(3, addExplicitThisArgument(n.getNode(3)));
+                    if (receiver == null)
+                        n.set(0, makeThisExpression()); // make 'this' access explicit
+                    if (!TypeUtil.isPrivateType(method)) {
+                        GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
+                        n.set(0, n1);
+                    }
                 }
             }
         }
