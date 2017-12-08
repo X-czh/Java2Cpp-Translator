@@ -62,12 +62,22 @@ public class ClassTreeVisitor extends RecursiveVisitor {
     }
 
     public void visitMethodDeclaration(GNode n){
+        String method_name = n.getString(3);
+        Node return_type = n.getNode(2);
+
+        // check whether it is a constructor
+        // ConstructorDeclaration get converted to MethodDeclaration automatically when building up the symbol table
+        if (method_name.equals(current_class.getClassName()) && return_type == null) {
+            extractConstructorSignature(n);
+            visit(n);
+            return;
+        }
+
         List<String> modifiers = new ArrayList<>();
         Node mods = NodeUtil.dfs(n, "Modifiers");
         for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
             modifiers.add(mod.getString(0));
 
-        Node return_type = n.getNode(2);
         if (return_type.size() == 0)
             return_type = TypeResolver.createType("void", null);
         else {
@@ -75,9 +85,6 @@ public class ClassTreeVisitor extends RecursiveVisitor {
             Node typeDimension = return_type.getNode(1);
             return_type = TypeResolver.createType(typeName, typeDimension);
         }
-
-        String method_name;
-        method_name = n.getString(3);
 
         List<String> parameters = new ArrayList<>();
         Node params = NodeUtil.dfs(n,"FormalParameters");
@@ -94,14 +101,14 @@ public class ClassTreeVisitor extends RecursiveVisitor {
             parameter_types.add(tp);
         }
 
-        MethodSignature m = new MethodSignature(modifiers, return_type, method_name,parameters,parameter_types);
+        MethodSignature m = new MethodSignature(modifiers, return_type, method_name, parameters, parameter_types);
         current_class.addMethod(m);
 
         visit(n);
     }
 
-    public void visitConstructorDeclaration(GNode n) {
-        String name = n.getString(2);
+    public void extractConstructorSignature(GNode n) {
+        String name = n.getString(3);
 
         List<String> parameters = new ArrayList<>();
         Node params = NodeUtil.dfs(n, "FormalParameters");
@@ -118,7 +125,7 @@ public class ClassTreeVisitor extends RecursiveVisitor {
             parameter_types.add(tp);
         }
 
-        ConstructorSignature c = new ConstructorSignature(name,parameters,parameter_types);
+        ConstructorSignature c = new ConstructorSignature(name, parameters, parameter_types);
         current_class.addConstructor(c);
 
         visit(n);

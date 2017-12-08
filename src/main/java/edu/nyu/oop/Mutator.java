@@ -166,7 +166,7 @@ public class Mutator extends Visitor {
     }
 
     public void visitMethodDeclaration(GNode n) {
-        Object returnType = n.getNode(2);
+        Node returnType = n.getNode(2);
         String methodName = n.getString(3);
         Type methodType = TypeUtil.getType(n);
 

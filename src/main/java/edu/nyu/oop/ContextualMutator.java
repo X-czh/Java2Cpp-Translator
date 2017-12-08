@@ -31,80 +31,53 @@ public class ContextualMutator extends ContextualVisitor {
     }
 
     public Node visitCallExpression(GNode n) {
+        visit(n);
+
         Node receiver = n.getNode(0);
         String methodName = n.getString(2);
-        dispatch(n.getNode(0));
-        dispatch(n.getNode(3));
 
-        System.out.println("find method "+methodName+":");
         // check whether it is System.out.print()/println()
         if (receiver != null &&
-                n.getNode(0).getName().equals("SelectionExpression") &&
-                n.getNode(0).getNode(0).getName().equals("PrimaryIdentifier") &&
-                n.getNode(0).getNode(0).getString(0).equals("System") &&
-                n.getNode(0).getString(1).equals("out")) {
+                receiver.getName().equals("SelectionExpression") &&
+                receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
+                receiver.getNode(0).getString(0).equals("System") &&
+                receiver.getString(1).equals("out")) {
             GNode printingExpression = GNode.create("PrintingExpression");
             printingExpression.add(n.getNode(3).getNode(0));
             printingExpression.add(n.getString(2));
             return printingExpression;
         }
-        //TODO
-        //add explicit this
+
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
-            if (receiver == null || "ThisExpression".equals(receiver.getName())) {
-                // find type to search for relevant methods
-                Type typeToSearch = JavaEntities.currentType(table);
+            // find type to search for relevant methods
+            Type typeToSearch;
+            if (receiver == null || "ThisExpression".equals(receiver.getName()))
+                typeToSearch = JavaEntities.currentType(table);
+            else
+                typeToSearch = TypeUtil.getType(receiver).toAlias();
 
-                // find type of called method
-                List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
-                MethodT method =
+            // find type of called method
+            List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
+            MethodT method =
                         JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
 
-                if (method != null) {
-                    System.out.println("resolve method " + methodName + ":");
-
-                    List<Type> param_use = method.getParameters();
-                    String new_name = methodName;
-                    for (int i = 0; i < param_use.size(); i++) {
-                        System.out.println(param_use.get(i).toAlias().getName());
-                        new_name = new_name + "_" + param_use.get(i).toAlias().getName();
-                    }
-                    n.set(2, new_name);
+            if (method != null) {
+                List<Type> param_use = method.getParameters();
+                StringBuilder new_name = new StringBuilder(methodName);
+                for (int i = 0; i < param_use.size(); i++) {
+                    String temp;
+                    if (param_use.get(i).hasAlias())
+                        temp = param_use.get(i).toAlias().getName();
+                    else
+                        temp = param_use.get(i).toVariable().getType().toString();
+                    new_name.append("_" + temp);
+                    n.set(2, new_name.toString());
                 }
 
                 if (!TypeUtil.isStaticType(method)) {
-                    n.set(3, addExplicitThisArgument(n.getNode(3)));
+                    //n.set(3, addExplicitThisArgument(n.getNode(3)));
                     if (receiver == null)
-                        n.set(0, makeThisExpression()); // make 'this' access explicit
-                    if (!TypeUtil.isPrivateType(method)) {
-                        GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
-                        n.set(0, n1);
-                    }
-                }
-            } else {
-                Type typeToSearch = TypeUtil.getType(receiver).toAlias();
-                System.out.println(typeToSearch);
-
-                List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
-                MethodT method =
-                        JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
-
-                if (method != null) {
-                    System.out.println("resolve method " + methodName + ":");
-
-                    List<Type> param_use = method.getParameters();
-                    String new_name = methodName;
-                    for (int i = 0; i < param_use.size(); i++) {
-                        System.out.println(param_use.get(i).toAlias().getName());
-                        new_name = new_name + "_" + param_use.get(i).toAlias().getName();
-                    }
-                    n.set(2, new_name);
-                }
-
-                if (!TypeUtil.isStaticType(method)) {
-                    n.set(3, addExplicitThisArgument(n.getNode(3)));
-                    if (receiver == null)
-                        n.set(0, makeThisExpression()); // make 'this' access explicit
+                        //n.set(0, makeThisExpression()); // make 'this' access explicit
                     if (!TypeUtil.isPrivateType(method)) {
                         GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
                         n.set(0, n1);
@@ -185,19 +158,6 @@ public class ContextualMutator extends ContextualVisitor {
         GNode _this = GNode.create("ThisExpression", null);
         TypeUtil.setType(_this, JavaEntities.currentType(table));
         return _this;
-    }
-
-    private GNode addExplicitThisArgument(Node n) {
-        GNode arguments = GNode.create("Arguments");
-
-        GNode explicitThisArg = GNode.create("Argument");
-        explicitThisArg.add(GNode.create("PrimaryIdentifier", "__this"));
-        arguments.add(explicitThisArg);
-
-        for (Object o : n)
-            arguments.add(o);
-
-        return arguments;
     }
 
 }
