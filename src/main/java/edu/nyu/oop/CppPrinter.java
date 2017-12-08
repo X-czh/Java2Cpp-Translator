@@ -321,5 +321,16 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitMainMethodDefinition(GNode source){
 
     }
+
+    public void visitClassMethodDefinition(GNode source){
+        String name = source.getString(0);
+        String parent = source.getString(1);
+
+        printer.pln("Class __A::__class() {");
+        printer.pln("static Class k =");
+        printer.pln("new __Class(__rt::literal(\""+name+"\"), java::lang::__Object::__class())");
+        printer.pln("return k;");
+        printer.pln("}");
+    }
 }
 
