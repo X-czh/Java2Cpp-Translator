@@ -458,7 +458,7 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p("({ ");
         String temp_name = generate_temp_name(counter++);
         boolean is_virtual = "SelectionExpression".equals(n.getNode(0).getName()) &&
-                "__vptr".equals(n.getNode(0).get(1));
+                "__vptr".equals(n.getNode(0).getString(1));
         printer.p("auto " + temp_name + " = ");
         if (is_virtual) {
             visit(n.getNode(0).getNode(0));
