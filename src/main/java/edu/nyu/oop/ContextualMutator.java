@@ -59,7 +59,7 @@ public class ContextualMutator extends ContextualVisitor {
             // find type of called method
             List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
             MethodT method =
-                        JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
+                    JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
 
             if (method != null) {
                 List<Type> param_use = method.getParameters();
