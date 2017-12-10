@@ -21,10 +21,10 @@ namespace inputs {
       __Test000( ){}
 
       static Test000 __init()
-{}
-      static void main(__rt::Array<String> ){}
+;
+      static void main(__rt::Array<String> );
       static Class __class()
-{}
+;
       static __Test000_VT __vtable;
 
     };
