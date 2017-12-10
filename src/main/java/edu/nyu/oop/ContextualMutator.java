@@ -2,8 +2,10 @@ package edu.nyu.oop;
 
 import edu.nyu.oop.util.ContextualVisitor;
 import edu.nyu.oop.util.TypeUtil;
+//import sun.nio.fs.GnomeFileTypeDetector;
 import xtc.Constants;
 import xtc.lang.JavaEntities;
+import xtc.tree.Attribute;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.type.ClassOrInterfaceT;
@@ -12,7 +14,6 @@ import xtc.type.Type;
 import xtc.type.VariableT;
 import xtc.util.Runtime;
 import xtc.util.SymbolTable;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -30,15 +31,17 @@ public class ContextualMutator extends ContextualVisitor {
     }
 
     public Node visitCallExpression(GNode n) {
+        visit(n);
+
         Node receiver = n.getNode(0);
         String methodName = n.getString(2);
 
         // check whether it is System.out.print()/println()
         if (receiver != null &&
-                n.getNode(0).getName().equals("SelectionExpression") &&
-                n.getNode(0).getNode(0).getName().equals("PrimaryIdentifier") &&
-                n.getNode(0).getNode(0).getString(0).equals("System") &&
-                n.getNode(0).getString(1).equals("out")) {
+                receiver.getName().equals("SelectionExpression") &&
+                receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
+                receiver.getNode(0).getString(0).equals("System") &&
+                receiver.getString(1).equals("out")) {
             GNode printingExpression = GNode.create("PrintingExpression");
             printingExpression.add(n.getNode(3).getNode(0));
             printingExpression.add(n.getString(2));
@@ -47,22 +50,38 @@ public class ContextualMutator extends ContextualVisitor {
 
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
-            Type typeToSearch = JavaEntities.currentType(table);
+            Type typeToSearch;
+            if (receiver == null || "ThisExpression".equals(receiver.getName()))
+                typeToSearch = JavaEntities.currentType(table);
+            else
+                typeToSearch = TypeUtil.getType(receiver).toAlias();
 
             // find type of called method
             List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
             MethodT method =
-                    JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
+                        JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
 
-            if (method == null) return n;
+            if (method != null) {
+                List<Type> param_use = method.getParameters();
+                StringBuilder new_name = new StringBuilder(methodName);
+                for (int i = 0; i < param_use.size(); i++) {
+                    String temp;
+                    if (param_use.get(i).hasAlias())
+                        temp = param_use.get(i).toAlias().getName();
+                    else
+                        temp = param_use.get(i).toVariable().getType().toString();
+                    new_name.append("_" + temp);
+                    n.set(2, new_name.toString());
+                }
 
-            if (!TypeUtil.isStaticType(method)) {
-                n.set(3, addExplicitThisArgument(n.getNode(3)));
-                if (receiver == null)
-                    n.set(0, makeThisExpression()); // make 'this' access explicit
-                if (!TypeUtil.isPrivateType(method)) {
-                    GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
-                    n.set(0, n1);
+                if (!TypeUtil.isStaticType(method)) {
+                    //n.set(3, addExplicitThisArgument(n.getNode(3)));
+                    if (receiver == null)
+                        //n.set(0, makeThisExpression()); // make 'this' access explicit
+                    if (!TypeUtil.isPrivateType(method)) {
+                        GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
+                        n.set(0, n1);
+                    }
                 }
             }
         }
@@ -139,19 +158,6 @@ public class ContextualMutator extends ContextualVisitor {
         GNode _this = GNode.create("ThisExpression", null);
         TypeUtil.setType(_this, JavaEntities.currentType(table));
         return _this;
-    }
-
-    private GNode addExplicitThisArgument(Node n) {
-        GNode arguments = GNode.create("Arguments");
-
-        GNode explicitThisArg = GNode.create("Argument");
-        explicitThisArg.add(GNode.create("PrimaryIdentifier", "__this"));
-        arguments.add(explicitThisArg);
-
-        for (Object o : n)
-            arguments.add(o);
-
-        return arguments;
     }
 
 }
