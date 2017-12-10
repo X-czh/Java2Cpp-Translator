@@ -14,6 +14,8 @@ import xtc.tree.*;
 public class CppPrinter extends RecursiveVisitor {
     private Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
 
+    static int counter = 0;
+
     private Printer printer;
 
     private static int namespaceNum=0;
@@ -410,6 +412,38 @@ public class CppPrinter extends RecursiveVisitor {
         String string_i = source.getNode(0).getString(0);
         String operation = source.getString(1);
         printer.pln(operation+string_i+")");
+    }
+
+    
+    public String generate_temp_name(int x){
+        String temp = "temp";
+        temp = temp + Integer.toString(x);
+        return temp;
+    }
+
+    public void visitCallExpression(Node n){
+        printer.indent();
+        printer.p("({ ");
+        String temp_name = generate_temp_name(counter++);
+        boolean is_virtual = "VptrSelectionExpression".equals(n.getNode(0).getName());
+        printer.p("auto " + temp_name + " = ");
+        if (is_virtual) {
+            visit(n.getNode(0).getNode(0));
+        }
+        else {
+            visit(n.getNode(0));
+        }
+        printer.pln(";");
+        printer.incr().indent().pln("__rt::checkNotNull(" + temp_name + ");");
+        printer.indent().p(temp_name);
+        if (is_virtual) printer.p("->__vptr");
+        printer.p("->"+n.getString(2)+"(" + temp_name);
+        for (int i=0; i<n.getNode(3).size(); i++) {
+            printer.p(",");
+            visit(n.getNode(3).getNode(i));
+        }
+        printer.pln(");");
+        printer.decr().indent().pln("})");
     }
 
 }
