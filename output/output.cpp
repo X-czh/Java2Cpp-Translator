@@ -8,8 +8,8 @@ namespace inputs {
   namespace test000 {
 
     __Test000::__Test000()
-
-    :__vptr(&__vtable){}
+    :__vptr(&__vtable) {
+    }
 
 Class __Test000::__class() {
     static Class k = new __Class(__rt::literal("inputs.test000.Test000"), java::lang::__Object::__class());
@@ -19,6 +19,8 @@ Class __Test000::__class() {
 
     void __Test000::main(__rt::Array<String> args){
 cout<< __rt::literal("Hello.")<<endl;
+}
+
   }
 
 }

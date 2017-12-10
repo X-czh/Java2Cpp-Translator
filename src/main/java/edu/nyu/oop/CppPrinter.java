@@ -211,15 +211,14 @@ public class CppPrinter extends RecursiveVisitor {
 
         // last node block
         Node block = source.getNode(5);
-        if (block!=null && block.getName().compareTo("Block") == 0 && block.size()!=0){
+        if (block != null){
             //to be implemented in later phase
             printer.p(" {").pln();
             visit(block);
             printer.indent().p("}").pln();
         }
-
         else {
-            printer.pln("{}");
+            printer.pln(";");
         }
 
         printer.pln();
@@ -229,7 +228,7 @@ public class CppPrinter extends RecursiveVisitor {
 
         int parameterSize = source.size();
 
-        if(parameterSize==0) printer.pln(")");
+        if(parameterSize==0) printer.p(")");
 
         for(int i=0;i<parameterSize;i++){
             Node formalParameter = source.getNode(i);
@@ -288,21 +287,21 @@ public class CppPrinter extends RecursiveVisitor {
         Node formalParameters = source.getNode(4);
         Node block = source.getNode(7);
 
-        if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0 ) dispatch(formalParameters);
+        if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0) dispatch(formalParameters);
         //else there is no parameter
         else printer.p(" )");
 
-        if(block!=null && block.getName().compareTo("Block")==0 && block.size()!=0){
+        if(block != null){
             //print what is inside the block
             //not yet to be implemented in headerfile printing
             printer.pln("{");
             visit(block);
+            printer.pln("}");
         }
-
         else {
-            if(flag==0) printer.pln(";");
-            else printer.pln("{}");
+            printer.pln(";");
         }
+        printer.pln();
     }
 
     //post midterm stuffs
