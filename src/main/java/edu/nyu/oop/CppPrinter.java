@@ -451,7 +451,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitCallExpression(GNode n){
-        System.out.println("asd");
+        //System.out.println("asd");
         printer.indent();
         printer.p("({ ");
         String temp_name = generate_temp_name(counter++);
@@ -477,5 +477,9 @@ public class CppPrinter extends RecursiveVisitor {
         printer.decr().indent().pln("})");
     }
 
+
+    public void visitPrimaryIdentifier(GNode n){
+        printer.p(n.getString(0));
+    }
 }
 
