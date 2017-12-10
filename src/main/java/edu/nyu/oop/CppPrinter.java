@@ -76,22 +76,18 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     private void cppHeadOfFile(){
-        printer.pln("#include \"output.h\"");
         printer.pln("#include <iostream>");
+        printer.pln("#include \"output.h\"");
         printer.pln();
-        printer.pln("using namespace java::lang;");
         printer.pln("using namespace std;");
+        printer.pln("using namespace java::lang;");
     }
 
     private void mainHeadOfFile(){
-        printer.pln("#include <iostream>");
-        printer.pln();
-        printer.pln("#include \"ptr.h\"");
-        printer.pln("#include \"java_lang.h\"");
         printer.pln("#include \"output.h\"");
         printer.pln();
         printer.pln("using namespace java::lang;");
-        printer.pln("using namespace std;");
+        printer.pln();
     }
 
     public void visitCompilationUnit(GNode source){visit(source);}
@@ -310,7 +306,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitReturnStatement(GNode source){
-        printer.p("Return ");
+        printer.p("return ");
         visit(source);
         printer.p(";");
     }
@@ -407,7 +403,7 @@ public class CppPrinter extends RecursiveVisitor {
 
         printer.pln("Class "+__name+"::__class() {");
         printer.indent().p("static Class k = ");
-        printer.pln("new __Class(__rt::literal(\""+name+"\"), java::lang::"+__parent+"::__class());");
+        printer.pln("new __Class(__rt::literal(\""+name+"\")," + __parent + "::__class());");
         printer.indent().pln("return k;");
         printer.pln("}");
     }
