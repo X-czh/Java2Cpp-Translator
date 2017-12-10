@@ -238,7 +238,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitType(GNode source){
-        String type = TypeResolver.typeToString(source.getNode(0).getNode(0));
+        String type = TypeResolver.typeToString(source);
         //String type = source.getNode(0).getString(0);
         printer.p(type+" ");
         //traverse on dimension
@@ -414,7 +414,7 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln(operation+string_i+")");
     }
 
-    
+
     public String generate_temp_name(int x){
         String temp = "temp";
         temp = temp + Integer.toString(x);
