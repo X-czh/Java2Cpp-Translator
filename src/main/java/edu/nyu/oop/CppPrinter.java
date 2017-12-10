@@ -335,6 +335,19 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitMainMethodDefinition(GNode source){
+        String mainMethodLocation = source.getString(0);
+        printer.pln("int main(int argc, char* argv[]) {");
+            // Implement generic interface between C++'s main function and Java's main function
+        printer.pln("__rt::Array<String> args = new __rt::__Array<String>(argc - 1);");
+        printer.pln();
+        printer.pln("for (int32_t i = 1; i < argc; i++) {");
+        printer.pln("(*args)[i] = __rt::literal(argv[i]);");
+        printer.pln("}");
+        printer.pln();
+        printer.pln(mainMethodLocation+"::main(args);");
+        printer.pln();
+        printer.pln("return 0;");
+        printer.pln("}");
 
     }
 
