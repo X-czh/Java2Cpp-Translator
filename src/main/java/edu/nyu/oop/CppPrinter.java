@@ -219,8 +219,7 @@ public class CppPrinter extends RecursiveVisitor {
         }
 
         else {
-            if(flag==0) printer.pln(";");
-            else printer.pln("{}");
+            printer.pln("{}");
         }
 
         printer.pln();
@@ -296,12 +295,12 @@ public class CppPrinter extends RecursiveVisitor {
         if(block!=null && block.getName().compareTo("Block")==0 && block.size()!=0){
             //print what is inside the block
             //not yet to be implemented in headerfile printing
+            printer.pln("{");
             visit(block);
         }
 
         else {
-            if(flag==0) printer.pln(";").pln();
-            else printer.pln("{}");
+            printer.pln("{}");
         }
     }
 
@@ -317,19 +316,19 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitStringLiteral(GNode source){
         String literal=source.getString(0);
-        literal="__rt::literal(\""+literal+"\")";
+        literal="__rt::literal("+literal+")";
         printer.pln(literal+";");
     }
 
     public void visitIntegerLiteral(GNode source){
         String literal=source.getString(0);
-        literal="__rt::literal(\""+literal+"\")";
+        literal="__rt::literal("+literal+")";
         printer.pln(literal+";");
     }
 
     public void visitFloatLiteral(GNode source){
         String literal=source.getString(0);
-        literal="__rt::literal(\""+literal+"\")";
+        literal="__rt::literal("+literal+")";
         printer.pln(literal+";");
     }
 
@@ -374,7 +373,7 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitPrintingExpression(GNode source){
         String printType = source.getString(1);
-        printer.p("cout << ");
+        printer.p("cout<< ");
         visit(source);
         if(printType.equals("println")){
             printer.pln("<<endl;");
