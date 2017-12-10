@@ -346,10 +346,9 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitSelectionExpression(GNode source){
-        Node primaryIdentifier = source.getNode(0);
-        String caller = primaryIdentifier.getString(0);
+        visit(source.getNode(0));
         String field = source.getString(1);
-        printer.p(caller+"->"+field);
+        printer.p("->"+field);
     }
 
     //to be completed
@@ -358,14 +357,17 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitExpression(GNode source){
-        String k = source.getNode(0).getString(0);
-        String equal = source.getString(1);
+        //System.out.println(source);
+        visit(source.getNode(0));
+        printer.p(source.getString(1));
+        visit(source.getNode(2));
+        printer.pln(";");
+        /*String k = source.getNode(0).getString(0);
         Node operation = source.getNode(2);
         String K = operation.getNode(0).getString(0);
         String operator = operation.getString(1);
         String literal = operation.getNode(2).getString(0);
-
-        printer.pln(k+" "+equal+" "+K +" "+operator+" "+literal+" ;");
+        printer.pln(k+" "+equal+" "+K +" "+operator+" "+literal+" ;");*/
     }
 
     public void visitPrintingExpression(GNode source){
