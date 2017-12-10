@@ -80,7 +80,7 @@ public class ContextualMutator extends ContextualVisitor {
 
                 if (!TypeUtil.isStaticType(method)) {
                     //n.set(3, addExplicitThisArgument(n.getNode(3)));
-                    if (receiver == null)
+                    if (receiver == null) {}
                         //n.set(0, makeThisExpression()); // make 'this' access explicit
                     if (!TypeUtil.isPrivateType(method)) {
                         GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");

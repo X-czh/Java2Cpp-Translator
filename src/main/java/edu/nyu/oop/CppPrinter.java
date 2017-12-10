@@ -349,7 +349,7 @@ public class CppPrinter extends RecursiveVisitor {
         Node primaryIdentifier = source.getNode(0);
         String caller = primaryIdentifier.getString(0);
         String field = source.getString(1);
-        printer.p(caller+"."+field);
+        printer.p(caller+"->"+field);
     }
 
     //to be completed
@@ -454,7 +454,8 @@ public class CppPrinter extends RecursiveVisitor {
         printer.indent();
         printer.p("({ ");
         String temp_name = generate_temp_name(counter++);
-        boolean is_virtual = "VptrSelectionExpression".equals(n.getNode(0).getName());
+        boolean is_virtual = "SelectionExpression".equals(n.getNode(0).getName()) &&
+                "__vptr".equals(n.getNode(0).get(1));
         printer.p("auto " + temp_name + " = ");
         if (is_virtual) {
             visit(n.getNode(0).getNode(0));
