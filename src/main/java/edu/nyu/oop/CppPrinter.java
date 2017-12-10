@@ -16,6 +16,8 @@ public class CppPrinter extends RecursiveVisitor {
 
     static int counter = 0;
 
+    private static int flag = -1;
+
     private Printer printer;
 
     private static int namespaceNum=0;
@@ -40,18 +42,21 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void printHeader(Node source) {
+        flag=0;
         headerHeadOfFile();
         visit(source);
         printer.flush(); // important!
     }
 
     public void printCpp(Node source){
+        flag=1;
         cppHeadOfFile();
         visit(source);
         printer.flush();
     }
 
     public void printMain(Node source){
+        flag=2;
         mainHeadOfFile();
         visit(source);
         printer.flush();
@@ -85,9 +90,8 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("#include \"java_lang.h\"");
         printer.pln("#include \"output.h\"");
         printer.pln();
-        printer.pln("using namespace inputs::javalang");
-        printer.pln("using namespace java::lang");
-        printer.pln("using namespace std");
+        printer.pln("using namespace java::lang;");
+        printer.pln("using namespace std;");
     }
 
     public void visitCompilationUnit(GNode source){visit(source);}
@@ -207,7 +211,7 @@ public class CppPrinter extends RecursiveVisitor {
 
         // last node block
         Node block = source.getNode(5);
-        if (block!=null && block.getName().compareTo("Block") == 0){
+        if (block!=null && block.getName().compareTo("Block") == 0 && block.size()!=0){
             //to be implemented in later phase
             printer.p(" {").pln();
             visit(block);
@@ -224,6 +228,8 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitFormalParameters(GNode source){
 
         int parameterSize = source.size();
+
+        if(parameterSize==0) printer.pln(")");
 
         for(int i=0;i<parameterSize;i++){
             Node formalParameter = source.getNode(i);
@@ -254,12 +260,13 @@ public class CppPrinter extends RecursiveVisitor {
     }
     */
 
+
     public void visitModifiers(GNode source){
-        visit(source);
+        if(flag==0) visit(source);
     }
 
     public void visitModifier(GNode source){
-        printer.p(source.getString(0)+" ");
+        if(source.getString(0).equals("static")) printer.p(source.getString(0)+" ");
     }
 
 
@@ -301,6 +308,21 @@ public class CppPrinter extends RecursiveVisitor {
 
     }
 
+    public void visitReturnStatement(GNode source){
+
+    }
+
+    public void visitStringLiteral(GNode source){
+
+    }
+
+    public void visitIntegerLiteral(GNode source){
+
+    }
+
+    public void visitFloatLiteral(GNode source){
+        
+    }
 
     public void visitForStatement(GNode source){
     Node basic = source.getNode(0);
@@ -369,13 +391,14 @@ public class CppPrinter extends RecursiveVisitor {
 
     }
 
+    //fix
     public void visitClassMethodDefinition(GNode source){
         String name = source.getString(0);
         String parent = source.getString(1);
 
-        printer.pln("Class __A::__class() {");
+        printer.pln("Class "+name+"::__class() {");
         printer.pln("static Class k =");
-        printer.pln("new __Class(__rt::literal(\""+name+"\"), java::lang::__Object::__class())");
+        printer.pln("new __Class(__rt::literal(\""+name+"\"), java::lang::__Object::__class());");
         printer.pln("return k;");
         printer.pln("}");
     }
