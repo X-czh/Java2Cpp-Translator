@@ -395,7 +395,7 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitClassMethodDefinition(GNode source){
         String name = source.getString(0);
         String parent = source.getString(1);
-        String __name = "__"+name.substring(name.lastIndexOf(":")+1,-1);
+        String __name = "__"+name.substring(name.lastIndexOf(".") + 1, name.length());
         String __parent = "__"+parent;
 
         printer.pln("Class "+__name+"::__class() {");
