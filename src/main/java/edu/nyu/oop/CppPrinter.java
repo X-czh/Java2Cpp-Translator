@@ -450,7 +450,8 @@ public class CppPrinter extends RecursiveVisitor {
         return temp;
     }
 
-    public void visitCallExpression(Node n){
+    public void visitCallExpression(GNode n){
+        System.out.println("asd");
         printer.indent();
         printer.p("({ ");
         String temp_name = generate_temp_name(counter++);
