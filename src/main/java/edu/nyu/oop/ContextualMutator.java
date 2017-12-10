@@ -2,10 +2,8 @@ package edu.nyu.oop;
 
 import edu.nyu.oop.util.ContextualVisitor;
 import edu.nyu.oop.util.TypeUtil;
-//import sun.nio.fs.GnomeFileTypeDetector;
 import xtc.Constants;
 import xtc.lang.JavaEntities;
-import xtc.tree.Attribute;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.type.ClassOrInterfaceT;
@@ -17,6 +15,12 @@ import xtc.util.SymbolTable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class mutates the input list of Java ASTs and outputs the modified Java ASTs
+ * with method overloading resolved statically by method name mangling and dynamic
+ * dispatch through virtual tables supported via identifying statically whether a
+ * called method is virtual or not.
+ */
 public class ContextualMutator extends ContextualVisitor {
     private SymbolTable table;
 
