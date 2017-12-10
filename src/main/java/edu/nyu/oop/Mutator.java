@@ -12,6 +12,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This class mutates the input list of Java ASTs and outputs the C++ AST for output.cpp.
+ * As a side product, it provides all the necessary information to generate main.cpp.
+ * It scans through the Java ASTs, adjusts the GNodes to its C++ version, and adds necessary
+ * auxiliary GNodes. The mutation also involves the translation of constructors to corresponding
+ * __init methods, with super/this calls translated accordingly to appropriate __init methods,
+ * followed by initializations of class fields and class initialization blocks in the order
+ * they appear in the class, and finally the body of the constructors.
+ */
 public class Mutator extends Visitor {
     private GNode prevHierarchy;
     private String currentClassName;

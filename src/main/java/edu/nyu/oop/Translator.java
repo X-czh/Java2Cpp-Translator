@@ -69,6 +69,8 @@ public class Translator {
     private void makeImplementationFiles() {
         CppPrinter cppOutputPrinter = new CppPrinter("/output.cpp");
         CppPrinter cppMainPrinter = new CppPrinter("/main.cpp");
+        cppOutputPrinter.printCpp(mutatedCppAst);
+        cppMainPrinter.printMain(mainAst);
     }
 
     public void run() {

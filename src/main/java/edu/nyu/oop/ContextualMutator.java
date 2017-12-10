@@ -2,10 +2,8 @@ package edu.nyu.oop;
 
 import edu.nyu.oop.util.ContextualVisitor;
 import edu.nyu.oop.util.TypeUtil;
-//import sun.nio.fs.GnomeFileTypeDetector;
 import xtc.Constants;
 import xtc.lang.JavaEntities;
-import xtc.tree.Attribute;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.type.ClassOrInterfaceT;
@@ -17,6 +15,12 @@ import xtc.util.SymbolTable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class mutates the input list of Java ASTs and outputs the modified Java ASTs
+ * with method overloading resolved statically by method name mangling and dynamic
+ * dispatch through virtual tables supported via identifying statically whether a
+ * called method is virtual or not.
+ */
 public class ContextualMutator extends ContextualVisitor {
     private SymbolTable table;
 
@@ -59,7 +63,7 @@ public class ContextualMutator extends ContextualVisitor {
             // find type of called method
             List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
             MethodT method =
-                        JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
+                    JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
 
             if (method != null) {
                 List<Type> param_use = method.getParameters();
@@ -76,7 +80,7 @@ public class ContextualMutator extends ContextualVisitor {
 
                 if (!TypeUtil.isStaticType(method)) {
                     //n.set(3, addExplicitThisArgument(n.getNode(3)));
-                    if (receiver == null)
+                    if (receiver == null) {}
                         //n.set(0, makeThisExpression()); // make 'this' access explicit
                     if (!TypeUtil.isPrivateType(method)) {
                         GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");

@@ -2,4 +2,7 @@
 logs
 project
 target
-.DS_Store
+output/cmake-build-debug
+output/*.o
+output/main
+*.DS_Store

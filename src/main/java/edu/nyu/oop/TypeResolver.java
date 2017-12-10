@@ -43,6 +43,10 @@ public class TypeResolver {
     }
 
     public static String typeToString(Node type) {
+        // check whether it is void type
+        if ("VoidType".equals(type.getName()))
+            return "void";
+
         String typeStr;
         Node dimension = type.getNode(1);
 
