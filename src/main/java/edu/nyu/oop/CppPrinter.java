@@ -219,7 +219,8 @@ public class CppPrinter extends RecursiveVisitor {
         }
 
         else {
-            printer.pln(";");
+            if(flag==0) printer.pln(";");
+            else printer.pln("{}");
         }
 
         printer.pln();
@@ -309,7 +310,8 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitReturnStatement(GNode source){
-
+        printer.p("Return ");
+        visit(source);
     }
 
     public void visitStringLiteral(GNode source){
@@ -321,7 +323,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitFloatLiteral(GNode source){
-        
+
     }
 
     public void visitForStatement(GNode source){
@@ -350,7 +352,6 @@ public class CppPrinter extends RecursiveVisitor {
     //to be completed
     public void visitExpressionStatement(GNode source){
         visit(source);
-
     }
 
     public void visitExpression(GNode source){
@@ -360,7 +361,6 @@ public class CppPrinter extends RecursiveVisitor {
         String K = operation.getNode(0).getString(0);
         String operator = operation.getString(1);
         String literal = operation.getNode(2).getString(0);
-
 
         printer.pln(k+" "+equal+" "+K +" "+operator+" "+literal+" ;");
     }
@@ -395,10 +395,12 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitClassMethodDefinition(GNode source){
         String name = source.getString(0);
         String parent = source.getString(1);
+        String __name = "__"+name.substring(name.lastIndexOf(":")+1,-1);
+        String __parent = "__"+parent;
 
-        printer.pln("Class "+name+"::__class() {");
+        printer.pln("Class "+__name+"::__class() {");
         printer.pln("static Class k =");
-        printer.pln("new __Class(__rt::literal(\""+name+"\"), java::lang::__Object::__class());");
+        printer.pln("new __Class(__rt::literal(\""+name+"\"), java::lang::"+__parent+"::__class());");
         printer.pln("return k;");
         printer.pln("}");
     }
