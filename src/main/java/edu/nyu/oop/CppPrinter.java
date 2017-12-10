@@ -346,7 +346,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitSelectionExpression(GNode source){
-        visit(source.getNode(0));
+        dispatch(source.getNode(0));
         String field = source.getString(1);
         printer.p("->"+field);
     }
@@ -358,9 +358,9 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitExpression(GNode source){
         //System.out.println(source);
-        visit(source.getNode(0));
+        dispatch(source.getNode(0));
         printer.p(source.getString(1));
-        visit(source.getNode(2));
+        dispatch(source.getNode(2));
         printer.pln(";");
         /*String k = source.getNode(0).getString(0);
         Node operation = source.getNode(2);
@@ -453,18 +453,18 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitCallExpression(GNode n){
-        //System.out.println("asd");
+        System.out.println(n);
         printer.indent();
         printer.p("({ ");
         String temp_name = generate_temp_name(counter++);
-        boolean is_virtual = "SelectionExpression".equals(n.getNode(0).getName()) &&
-                "__vptr".equals(n.getNode(0).get(1));
+        boolean is_virtual = ("SelectionExpression".equals(n.getNode(0).getName()) &&
+                "__vptr".equals(n.getNode(0).get(1)));
         printer.p("auto " + temp_name + " = ");
         if (is_virtual) {
-            visit(n.getNode(0).getNode(0));
+            dispatch(n.getNode(0).getNode(0));
         }
         else {
-            visit(n.getNode(0));
+            dispatch(n.getNode(0));
         }
         printer.pln(";");
         printer.incr().indent().pln("__rt::checkNotNull(" + temp_name + ");");
@@ -473,7 +473,7 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p("->"+n.getString(2)+"(" + temp_name);
         for (int i=0; i<n.getNode(3).size(); i++) {
             printer.p(",");
-            visit(n.getNode(3).getNode(i));
+            dispatch(n.getNode(3).getNode(i));
         }
         printer.pln(");");
         printer.decr().indent().pln("})");
@@ -481,7 +481,12 @@ public class CppPrinter extends RecursiveVisitor {
 
 
     public void visitPrimaryIdentifier(GNode n){
+        System.out.println("printing Primary Identifier:");
         printer.p(n.getString(0));
+    }
+
+    public void visitThisExpression(GNode n){
+        printer.p("this");
     }
 }
 

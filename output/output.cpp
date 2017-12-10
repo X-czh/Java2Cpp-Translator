@@ -18,21 +18,21 @@ Class __A::__class() {
     __A_VT __A::__vtable;
 
     A __A::__init(A __this){
-=;
+this->fld=__rt::literal("A");
 }
 
     void __A::setFld(A __this,String f){
-=;
+this->fld=f;
 }
 
     void __A::almostSetFld(A __this,String f){
     String fld;
 
-=;
+fld=f;
 }
 
     String __A::getFld(A __this){
-return ->fld;}
+return this->fld;}
 
     __Test006::__Test006()
     :__vptr(&__vtable) {
@@ -47,20 +47,20 @@ Class __Test006::__class() {
     void __Test006::main(__rt::Array<String> args){
     A a;
 
-    ({ auto temp0 = ;
+    ({ auto temp0 = a;
       __rt::checkNotNull(temp0);
-      temp0->__vptr->almostSetFld_String(temp0,);
+      temp0->__vptr->almostSetFld_String(temp0,__rt::literal("B"));
     })
-cout <<     ({ auto temp1 = ;
+cout <<     ({ auto temp1 = a;
       __rt::checkNotNull(temp1);
       temp1->__vptr->getFld(temp1);
     })
  << endl;
-    ({ auto temp2 = ;
+    ({ auto temp2 = a;
       __rt::checkNotNull(temp2);
-      temp2->__vptr->setFld_String(temp2,);
+      temp2->__vptr->setFld_String(temp2,__rt::literal("B"));
     })
-cout <<     ({ auto temp3 = ;
+cout <<     ({ auto temp3 = a;
       __rt::checkNotNull(temp3);
       temp3->__vptr->getFld(temp3);
     })
