@@ -370,11 +370,12 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitPrintingExpression(GNode source){
         String printType = source.getString(1);
-        printer.p("cout<< ");
+        printer.p("cout << ");
         visit(source);
-        if(printType.equals("println")){
-            printer.pln("<<endl;");
-        }
+        if (printType.equals("println"))
+            printer.pln(" << endl;");
+        else
+            printer.pln(";");
     }
 
     public void visitMainMethodDefinition(GNode source){
