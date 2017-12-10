@@ -1,12 +1,12 @@
 package edu.nyu.oop;
 
 import edu.nyu.oop.util.ChildToParentMap;
-import edu.nyu.oop.util.NodeUtil;
 import edu.nyu.oop.util.TypeUtil;
 import xtc.lang.JavaEntities;
 import xtc.tree.GNode;
 import xtc.tree.Node;
 import xtc.tree.Visitor;
+import xtc.type.Type;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -98,7 +98,8 @@ public class Mutator extends Visitor {
 
     public void mutateConstructorDeclaration(GNode n) {
         // mutate block
-        boolean flagSuperThis =false;
+        boolean superFlag =false;
+        boolean thisFlag =false;
         Node block = n.getNode(7);
         if (block.size() > 0) {
             Object o = block.get(0);
@@ -109,12 +110,12 @@ public class Mutator extends Visitor {
                     Node callExpression = ((Node) o).getNode(0);
                     String callExpressionName = callExpression.getString(2);
                     if (callExpressionName.equals("super")) {
-                        flagSuperThis = true;
+                        superFlag = true;
                         callExpression.set(2,
                                 "__" + classTreeMap.get(currentClassName).getParentClassName() + "::__init");
                         callExpression.set(3, addExplicitThisArgument(callExpression.getNode(3)));
                     } else if (callExpressionName.equals("this")) {
-                        flagSuperThis = true;
+                        thisFlag = true;
                         callExpression.set(2,
                                 "__" + currentClassName + "::__init");
                         callExpression.set(3, addExplicitThisArgument(callExpression.getNode(3)));
@@ -123,13 +124,18 @@ public class Mutator extends Visitor {
             }
         }
         GNode mutatedBlock = GNode.create("Block");
-        if (flagSuperThis) {
+        if (superFlag || thisFlag) {
+            // has call to other constructors either of this class or of the super class
             mutatedBlock.add(block.getNode(0));
-            for (Node t : classInitialization)
-                mutatedBlock.add(t);
+            if (!thisFlag) {
+                // no call to other constructors of this class
+                for (Node t : classInitialization)
+                    mutatedBlock.add(t);
+            }
             for (int i = 1; i < block.size(); ++i)
                 mutatedBlock.add(block.get(i));
         } else {
+            // no call to other constructors either of this class or of the super class
             for (Node t : classInitialization)
                 mutatedBlock.add(t);
             for (Object o : block)
@@ -160,8 +166,9 @@ public class Mutator extends Visitor {
     }
 
     public void visitMethodDeclaration(GNode n) {
-        Object returnType = n.getNode(2);
+        Node returnType = n.getNode(2);
         String methodName = n.getString(3);
+        Type methodType = TypeUtil.getType(n);
 
         // check whether it is a constructor
         // ConstructorDeclaration get converted to MethodDeclaration automatically when building up the symbol table
@@ -172,22 +179,19 @@ public class Mutator extends Visitor {
         }
 
         // mutate method starts
-        List<String> modifiers = new ArrayList<>();
-        Node mods = NodeUtil.dfs(n, "Modifiers");
-        for (Node mod : NodeUtil.dfsAll(mods, "Modifier"))
-            modifiers.add(mod.getString(0));
-
         // mutate parameter list
-        if (!modifiers.contains("static") && !modifiers.contains("private"))
+        if (!JavaEntities.hasModifier(methodType, "static") &&
+                !JavaEntities.hasModifier(methodType, "private"))
             n.set(4, addExplicitThisParameter(n.getNode(4))); // add explicit this parameter
 
         // mutate method name
         n.set(3, "__" + currentClassName + "::" + methodName);
 
         // identify main method
-        if (modifiers.contains("static") && modifiers.contains("public") && n.getString(3).equals("main")) {
+        if ("main".equals(methodName) &&
+                JavaEntities.hasModifier(methodType, "static") &&
+                JavaEntities.hasModifier(methodType, "public"))
             mainMethodClassName = currentClassName;
-        }
 
         prevHierarchy.add(n);
 

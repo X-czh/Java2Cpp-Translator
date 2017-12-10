@@ -321,7 +321,17 @@ public class CppPrinter extends RecursiveVisitor {
 
     //to be completed
     public void visitExpressionStatement(GNode source){
+        visit(source);
 
+    }
+
+    public void visitExpression(GNode source){
+
+    }
+
+    public void visitPrintingExpression(GNode source){
+        Node callExpression = source.getNode(0);
+        String printType = source.getString(1);
     }
 
     public void visitMainMethodDefinition(GNode source){

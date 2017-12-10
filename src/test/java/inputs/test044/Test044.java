@@ -1,6 +1,6 @@
 package inputs.test044;
 
-class A {
+class   A {
   void m() { System.out.println("A.m()"); }
   A m(A a) { System.out.println("A.m(A)"); return a; }
 }
