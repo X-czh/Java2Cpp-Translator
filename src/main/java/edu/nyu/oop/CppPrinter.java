@@ -38,30 +38,54 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void printHeader(Node source) {
-        headOfFile();
+        headerHeadOfFile();
         visit(source);
         printer.flush(); // important!
     }
 
     public void printCpp(Node source){
-
+        cppHeadOfFile();
+        visit(source);
+        printer.flush();
     }
 
     public void printMain(Node source){
-
+        mainHeadOfFile();
+        visit(source);
+        printer.flush();
     }
 
     private void cout(String line) {
         printer.incr().indent().pln("cout << \"" + line + "\" << endl;").decr();
     }
 
-    private void headOfFile() {
+    private void headerHeadOfFile() {
         printer.pln("#pragma once");
         printer.pln();
         printer.pln("#include \"java_lang.h\"");
         printer.pln();
         printer.pln("using namespace java::lang;");
         printer.pln();
+    }
+
+    private void cppHeadOfFile(){
+        printer.pln("#include \"output.h\"");
+        printer.pln("#include <iostream>");
+        printer.pln();
+        printer.pln("using namespace java::lang;");
+        printer.pln("using namespace std;");
+    }
+
+    private void mainHeadOfFile(){
+        printer.pln("#include <iostream>");
+        printer.pln();
+        printer.pln("#include \"ptr.h\"");
+        printer.pln("#include \"java_lang.h\"");
+        printer.pln("#include \"output.h\"");
+        printer.pln();
+        printer.pln("using namespace inputs::javalang");
+        printer.pln("using namespace java::lang");
+        printer.pln("using namespace std");
     }
 
     public void visitCompilationUnit(GNode source){visit(source);}
@@ -213,6 +237,7 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitType(GNode source){
         String type = TypeResolver.typeToString(source.getNode(0).getNode(0));
+        //String type = source.getNode(0).getString(0);
         printer.p(type+" ");
         //traverse on dimension
         //visit(source);
@@ -261,11 +286,115 @@ public class CppPrinter extends RecursiveVisitor {
         if(block!=null && block.getName().compareTo("Block")==0){
             //print what is inside the block
             //not yet to be implemented in headerfile printing
+            visit(block);
         }
 
         else {
             printer.pln(";").pln();
         }
     }
+
+    //post midterm stuffs
+    public void visitConditionalStatement(GNode source){
+
+    }
+
+
+    public void visitForStatement(GNode source){
+    Node basic = source.getNode(0);
+    printer.p("for(");
+    visit(basic);
+    Node block = source.getNode(1);
+    visit(block);
+    }
+
+    public void visitWhileStatement(GNode source){
+
+    }
+
+    public void visitSelectionExpression(GNode source){
+        Node primaryIdentifier = source.getNode(0);
+        String caller = primaryIdentifier.getString(0);
+        String field = source.getString(1);
+        printer.p(caller+"."+field);
+    }
+
+    //to be completed
+    public void visitExpressionStatement(GNode source){
+        visit(source);
+
+    }
+
+    public void visitExpression(GNode source){
+
+    }
+
+    public void visitPrintingExpression(GNode source){
+        Node callExpression = source.getNode(0);
+        String printType = source.getString(1);
+    }
+
+    public void visitMainMethodDefinition(GNode source){
+        String mainMethodLocation = source.getString(0);
+        printer.pln("int main(int argc, char* argv[]) {");
+            // Implement generic interface between C++'s main function and Java's main function
+        printer.pln("__rt::Array<String> args = new __rt::__Array<String>(argc - 1);");
+        printer.pln();
+        printer.pln("for (int32_t i = 1; i < argc; i++) {");
+        printer.pln("(*args)[i] = __rt::literal(argv[i]);");
+        printer.pln("}");
+        printer.pln();
+        printer.pln(mainMethodLocation+"::main(args);");
+        printer.pln();
+        printer.pln("return 0;");
+        printer.pln("}");
+
+    }
+
+    public void visitClassMethodDefinition(GNode source){
+        String name = source.getString(0);
+        String parent = source.getString(1);
+
+        printer.pln("Class __A::__class() {");
+        printer.pln("static Class k =");
+        printer.pln("new __Class(__rt::literal(\""+name+"\"), java::lang::__Object::__class())");
+        printer.pln("return k;");
+        printer.pln("}");
+    }
+
+    public void visitDeclarator(GNode source){
+        Node declarator = source.getNode(0);
+        String string_i = declarator.getString(0);
+        String string_integer = declarator.getNode(2).getString(0);
+        printer.p(string_i+" = "+string_integer+"; ");
+    }
+
+    public void visitRelationalExpression(GNode source){
+        Node primaryIndentifier = source.getNode(0);
+        String string_i = primaryIndentifier.getString(0);
+
+        String compare = primaryIndentifier.getString(1);
+        Node selectionExpression = source.getNode(2);
+        String s = selectionExpression.getNode(0).getString(0);
+        String l = selectionExpression.getString(1);
+        printer.p(string_i+" "+compare+" "+s+"."+l+"; ");
+    }
+
+    public void visitExpressionList(GNode source){
+        visit(source);
+    }
+
+    public void visitPostfixExpression(GNode source){
+        String string_i = source.getNode(0).getString(0);
+        String operation = source.getString(1);
+        printer.pln(string_i+operation+")");
+    }
+
+    public void visitPrefixExpression(GNode source){
+        String string_i = source.getNode(0).getString(0);
+        String operation = source.getString(1);
+        printer.pln(operation+string_i+")");
+    }
+
 }
 
