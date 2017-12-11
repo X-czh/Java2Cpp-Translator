@@ -39,6 +39,8 @@ public class ContextualMutator extends ContextualVisitor {
 
         Node receiver = n.getNode(0);
         String methodName = n.getString(2);
+        if ("VptrSelectionExpression".equals(receiver.getName()))
+            receiver = receiver.getNode(0);
 
         // check whether it is System.out.print()/println()
         if (receiver != null &&
@@ -51,6 +53,7 @@ public class ContextualMutator extends ContextualVisitor {
             printingExpression.add(n.getString(2));
             return printingExpression;
         }
+
 
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
@@ -80,10 +83,10 @@ public class ContextualMutator extends ContextualVisitor {
 
                 if (!TypeUtil.isStaticType(method)) {
                     //n.set(3, addExplicitThisArgument(n.getNode(3)));
-                    if (receiver == null) {}
-                        //n.set(0, makeThisExpression()); // make 'this' access explicit
+                    if (receiver == null)
+                        n.set(0, makeThisExpression()); // make 'this' access explicit
                     if (!TypeUtil.isPrivateType(method)) {
-                        GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
+                        GNode n1 = GNode.create("VptrSelectionExpression", n.getNode(0), "__vptr");
                         n.set(0, n1);
                     }
                 }
