@@ -54,14 +54,16 @@ public class ContextualMutator extends ContextualVisitor {
             return printingExpression;
         }
 
-
+        //TODO method name mangling
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
             Type typeToSearch;
             if (receiver == null || "ThisExpression".equals(receiver.getName()))
                 typeToSearch = JavaEntities.currentType(table);
-            else
+            else if (TypeUtil.getType(receiver).hasAlias())
                 typeToSearch = TypeUtil.getType(receiver).toAlias();
+            else// TODO Yiqin: unable to work for static methods, do not know how to tackle it
+                typeToSearch = TypeUtil.getType(receiver);
 
             // find type of called method
             List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
@@ -74,7 +76,7 @@ public class ContextualMutator extends ContextualVisitor {
                 for (int i = 0; i < param_use.size(); i++) {
                     String temp;
                     if (param_use.get(i).hasAlias())
-                        temp = param_use.get(i).toAlias().getName();
+                        temp = param_use.get(i).toAlias().getType().toString();
                     else
                         temp = param_use.get(i).toVariable().getType().toString();
                     new_name.append("_" + temp);
