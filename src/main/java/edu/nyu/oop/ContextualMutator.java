@@ -47,12 +47,8 @@ public class ContextualMutator extends ContextualVisitor {
                 receiver.getName().equals("SelectionExpression") &&
                 receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
                 receiver.getNode(0).getString(0).equals("System") &&
-                receiver.getString(1).equals("out")) {
-            GNode printingExpression = GNode.create("PrintingExpression");
-            printingExpression.add(n.getNode(3).getNode(0));
-            printingExpression.add(n.getString(2));
-            return printingExpression;
-        }
+                receiver.getString(1).equals("out"))
+            return n;
 
         //TODO method name mangling
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
@@ -84,7 +80,6 @@ public class ContextualMutator extends ContextualVisitor {
                 }
 
                 if (!TypeUtil.isStaticType(method)) {
-                    //n.set(3, addExplicitThisArgument(n.getNode(3)));
                     if (receiver == null)
                         n.set(0, makeThisExpression()); // make 'this' access explicit
                     if (!TypeUtil.isPrivateType(method)) {
