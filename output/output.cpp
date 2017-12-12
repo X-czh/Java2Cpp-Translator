@@ -15,18 +15,18 @@ Class __TestPrimitive::__class() {
     static Class k = new __Class(__rt::literal("inputs.testPrimitive.TestPrimitive"),__Object::__class());
     return k;
 }
-__TestPrimitive_VT __TestPrimitive::__vtable = ;
+__TestPrimitive_VT __TestPrimitive::__vtable;
     void __TestPrimitive::main(__rt::Array<String> args){
-int a = 0;
-for(int i = 0;
-i<10;
-i++)
-int b = i;
+int a=0;
+for(int i=0;i<10;i++)
+{
+int b=i;
 a=i;
 cout << b << endl;
-}
-
+    }
   }
+
+}
 
 }
 
