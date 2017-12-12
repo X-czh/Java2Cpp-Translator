@@ -374,8 +374,19 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitNewClassExpression(GNode source){
         printer.p("new ");
         visit(source);
+        printer.pln(";");
     }
-    
+
+    public void visitQualifiedIdentifier(GNode source){
+        printer.p(source.getString(0));
+    }
+
+    public void visitArguments(GNode source){
+        printer.p("(");
+        visit(source);
+        printer.p(")");
+    }
+
     public void visitExpression(GNode source){
         //System.out.println(source);
         dispatch(source.getNode(0));
@@ -479,13 +490,13 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitPostfixExpression(GNode source){
         String string_i = source.getNode(0).getString(0);
         String operation = source.getString(1);
-        printer.pln(string_i+operation+")");
+        printer.p(string_i+operation+")");
     }
 
     public void visitPrefixExpression(GNode source){
         String string_i = source.getNode(0).getString(0);
         String operation = source.getString(1);
-        printer.pln(operation+string_i+")");
+        printer.p(operation+string_i+")");
     }
 
 
