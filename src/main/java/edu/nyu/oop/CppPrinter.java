@@ -370,6 +370,11 @@ public class CppPrinter extends RecursiveVisitor {
         dispatch(second);
         printer.p("]");
     }
+
+    public void visitNewClassExpression(GNode source){
+        printer.p("new ");
+        visit(source);
+    }
     
     public void visitExpression(GNode source){
         //System.out.println(source);
