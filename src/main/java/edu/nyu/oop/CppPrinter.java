@@ -20,6 +20,8 @@ public class CppPrinter extends RecursiveVisitor {
 
     private static boolean noLineBreak=false;
 
+    private static boolean newClassExpression=false;
+
     private Printer printer;
 
     private static int namespaceNum=0;
@@ -247,7 +249,6 @@ public class CppPrinter extends RecursiveVisitor {
         //String type = source.getNode(0).getString(0);
         printer.p(type+" ");
         //traverse on dimension
-        visit(source);
     }
 
     /*
@@ -372,18 +373,33 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitNewClassExpression(GNode source){
-        printer.p("new ");
-        visit(source);
+        newClassExpression=true;
+        Node args=source.getNode(3);
+        dispatch(source.getNode(2));
+        if(args==null || args.size()==0){
+            printer.p(")");
+        }
+        else {
+            printer.p(", ");
+            dispatch(args);
+            printer.p(")");
+        }
         printer.pln(";");
+        newClassExpression=false;
     }
 
     public void visitQualifiedIdentifier(GNode source){
-        printer.p(source.getString(0));
+        String qualifiedIndentifier=source.getString(0);
+        if(newClassExpression) printer.p("__"+qualifiedIndentifier+"::__init(new __"+qualifiedIndentifier+"()");
+        else printer.p(qualifiedIndentifier);
     }
 
     public void visitArguments(GNode source){
         printer.p("(");
-        visit(source);
+        for(int i=0;i<source.size();i++){
+            dispatch(source.getNode(i));
+            if(i!=source.size()-1) printer.p(",");
+        }
         printer.p(")");
     }
 

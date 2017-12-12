@@ -40,88 +40,88 @@ namespace inputs {
 
     struct __B2 {
 
-__B2_VT* __B2_VT*__vptr;
-String Stringa;
-String Stringb;
+__B2_VT* __vptr;
+String a;
+String b;
       __B2( );
 
 static       B2 __init();
       
 static     Class __class();
     
-static __B2_VT __B2_VT__vtable;
+static __B2_VT __vtable;
 };
 
 struct __A {
 
-__A_VT* __A_VT*__vptr;
-String Stringa;
+__A_VT* __vptr;
+String a;
   __A( );
 
 static   A __init();
   
-static void setA(A A,String String);
+static void setA(A ,String );
 
-static void printOther(A A,A A);
+static void printOther(A ,A );
 
-static String toString(A A);
+static String toString(A );
 
 static Class __class();
 
-static __A_VT __A_VT__vtable;
+static __A_VT __vtable;
 };
 
 struct __C {
 
-__C_VT* __C_VT*__vptr;
-String Stringa;
-String Stringb;
-String Stringc;
+__C_VT* __vptr;
+String a;
+String b;
+String c;
 __C( );
 
 static C __init();
 
 static Class __class();
 
-static __C_VT __C_VT__vtable;
+static __C_VT __vtable;
 };
 
 struct __Test010 {
 
-__Test010_VT* __Test010_VT*__vptr;
+__Test010_VT* __vptr;
 __Test010( );
 
 static Test010 __init();
 
-static void main(__rt::Array<String> String);
+static void main(__rt::Array<String> );
 
 static Class __class();
 
-static __Test010_VT __Test010_VT__vtable;
+static __Test010_VT __vtable;
 };
 
 struct __B1 {
 
-__B1_VT* __B1_VT*__vptr;
-String Stringa;
-String Stringb;
+__B1_VT* __vptr;
+String a;
+String b;
 __B1( );
 
 static B1 __init();
 
 static Class __class();
 
-static __B1_VT __B1_VT__vtable;
+static __B1_VT __vtable;
 };
 
 struct __B2_VT {
 
-Class Class__is_a;
+Class __is_a;
 (*__delete)(__B2*);
 int32_t (*hashCode)(B2);
 bool (*equals)(B2, Object);
-Class Class(*getClass)(B2);
-String String(*toString)(B2);
+Class (*getClass)(B2);
+String (*toString)(B2);
 (*setA)(B2, String);
 (*printOther)(B2, A);
 __B2_VT()
@@ -139,12 +139,12 @@ printOther((void (*)(B2, A)) &__A::printOther) {
 
 struct __A_VT {
 
-Class Class__is_a;
+Class __is_a;
 (*__delete)(__A*);
 int32_t (*hashCode)(A);
 bool (*equals)(A, Object);
-Class Class(*getClass)(A);
-String String(*toString)(A);
+Class (*getClass)(A);
+String (*toString)(A);
 (*setA)(A, String);
 (*printOther)(A, A);
 __A_VT()
@@ -162,12 +162,12 @@ printOther(&__A::printOther) {
 
 struct __C_VT {
 
-Class Class__is_a;
+Class __is_a;
 (*__delete)(__C*);
 int32_t (*hashCode)(C);
 bool (*equals)(C, Object);
-Class Class(*getClass)(C);
-String String(*toString)(C);
+Class (*getClass)(C);
+String (*toString)(C);
 (*setA)(C, String);
 (*printOther)(C, A);
 __C_VT()
@@ -185,12 +185,12 @@ printOther((void (*)(C, A)) &__A::printOther) {
 
 struct __Test010_VT {
 
-Class Class__is_a;
+Class __is_a;
 (*__delete)(__Test010*);
 int32_t (*hashCode)(Test010);
 bool (*equals)(Test010, Object);
-Class Class(*getClass)(Test010);
-String String(*toString)(Test010);
+Class (*getClass)(Test010);
+String (*toString)(Test010);
 __Test010_VT()
 :__is_a(__Test010::__class()),
 __delete(&__rt::__delete<__Test010>),
@@ -204,12 +204,12 @@ toString((String (*)(Test010)) &__Object::toString) {
 
 struct __B1_VT {
 
-Class Class__is_a;
+Class __is_a;
 (*__delete)(__B1*);
 int32_t (*hashCode)(B1);
 bool (*equals)(B1, Object);
-Class Class(*getClass)(B1);
-String String(*toString)(B1);
+Class (*getClass)(B1);
+String (*toString)(B1);
 (*setA)(B1, String);
 (*printOther)(B1, A);
 __B1_VT()
