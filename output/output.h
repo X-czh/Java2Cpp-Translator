@@ -6,113 +6,43 @@ using namespace java::lang;
 
 namespace inputs {
 
-  namespace test006 {
+  namespace testPrimitive {
 
-    struct __A;
+    struct __TestPrimitive;
 
-    struct __A_VT;
+    struct __TestPrimitive_VT;
 
-    struct __Test006;
+    typedef __rt::Ptr<__TestPrimitive> TestPrimitive;
 
-    struct __Test006_VT;
+    struct __TestPrimitive {
 
-    typedef __rt::Ptr<__A> A;
+__TestPrimitive_VT* __vptr = ;
+      __TestPrimitive( );
 
-    typedef __rt::Ptr<__Test006> Test006;
-
-    struct __A {
-
-      __A_VT* __vptr;
-
-      String fld;
-
-      __A( );
-
-      static A __init();
-
-      static void setFld(A ,String );
-
-      static void almostSetFld(A ,String );
-
-      static String getFld(A );
-
-      static Class __class();
-
-      static __A_VT __vtable;
-
-    };
-
-    struct __Test006 {
-
-      __Test006_VT* __vptr;
-
-      __Test006( );
-
-      static Test006 __init();
+      static TestPrimitive __init();
 
       static void main(__rt::Array<String> );
 
       static Class __class();
 
-      static __Test006_VT __vtable;
-
+static __TestPrimitive_VT __vtable = ;
     };
 
-    struct __A_VT {
+    struct __TestPrimitive_VT {
 
-      Class __is_a;
-
-      void (*__delete)(__A*);
-
-      int32_t (*hashCode)(A);
-
-      bool (*equals)(A, Object);
-
-      Class (*getClass)(A);
-
-      String (*toString)(A);
-
-      void (*setFld)(A, String);
-
-      void (*almostSetFld)(A, String);
-
-      String (*getFld)(A);
-
-      __A_VT()
-      :__is_a(__A::__class()),
-      __delete(&__rt::__delete<__A>),
-      hashCode((int32_t (*)(A)) &__Object::hashCode),
-      equals((bool (*)(A, Object)) &__Object::equals),
-      getClass((Class (*)(A)) &__Object::getClass),
-      toString((String (*)(A)) &__Object::toString),
-      setFld(&__A::setFld),
-      almostSetFld(&__A::almostSetFld),
-      getFld(&__A::getFld) {
-      }
-
-    };
-
-    struct __Test006_VT {
-
-      Class __is_a;
-
-      void (*__delete)(__Test006*);
-
-      int32_t (*hashCode)(Test006);
-
-      bool (*equals)(Test006, Object);
-
-      Class (*getClass)(Test006);
-
-      String (*toString)(Test006);
-
-      __Test006_VT()
-      :__is_a(__Test006::__class()),
-      __delete(&__rt::__delete<__Test006>),
-      hashCode((int32_t (*)(Test006)) &__Object::hashCode),
-      equals((bool (*)(Test006, Object)) &__Object::equals),
-      getClass((Class (*)(Test006)) &__Object::getClass),
-      toString((String (*)(Test006)) &__Object::toString) {
+Class __is_a = ;
+(*__delete)(__TestPrimitive*) = ;
+int32_t (*hashCode)(TestPrimitive) = ;
+bool (*equals)(TestPrimitive, Object) = ;
+Class (*getClass)(TestPrimitive) = ;
+String (*toString)(TestPrimitive) = ;
+      __TestPrimitive_VT()
+      :__is_a(__TestPrimitive::__class()),
+      __delete(&__rt::__delete<__TestPrimitive>),
+      hashCode((int32_t (*)(TestPrimitive)) &__Object::hashCode),
+      equals((bool (*)(TestPrimitive, Object)) &__Object::equals),
+      getClass((Class (*)(TestPrimitive)) &__Object::getClass),
+      toString((String (*)(TestPrimitive)) &__Object::toString) {
       }
 
     };
