@@ -384,7 +384,6 @@ public class CppPrinter extends RecursiveVisitor {
             dispatch(args);
             printer.p(")");
         }
-        printer.pln(";");
         newClassExpression=false;
     }
 
