@@ -69,25 +69,21 @@ return k;
 __Test010_VT __Test010::__vtable;
 void __Test010::main(__rt::Array<String> args){
 A a=__A::__init(new __A());
-;
 ({ auto temp1 = a;
 __rt::checkNotNull(temp1);
 temp1->__vptr->setA_String(temp1,__rt::literal("A"));
 })
 B1 b1=__B1::__init(new __B1());
-;
 ({ auto temp2 = b1;
 __rt::checkNotNull(temp2);
 temp2->__vptr->setA_String(temp2,__rt::literal("B1"));
 })
 B2 b2=__B2::__init(new __B2());
-;
 ({ auto temp3 = b2;
 __rt::checkNotNull(temp3);
 temp3->__vptr->setA_String(temp3,__rt::literal("B2"));
 })
 C c=__C::__init(new __C());
-;
 ({ auto temp4 = c;
 __rt::checkNotNull(temp4);
 temp4->__vptr->setA_String(temp4,__rt::literal("C"));
