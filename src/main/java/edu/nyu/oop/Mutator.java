@@ -207,6 +207,24 @@ public class Mutator extends Visitor {
         visit(n);
     }
 
+    public Node visitCallExpression(GNode n) {
+        Node receiver = n.getNode(0);
+
+        // check whether it is System.out.print()/println()
+        if (receiver != null &&
+                receiver.getName().equals("SelectionExpression") &&
+                receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
+                receiver.getNode(0).getString(0).equals("System") &&
+                receiver.getString(1).equals("out")) {
+            GNode printingExpression = GNode.create("PrintingExpression");
+            printingExpression.add(n.getNode(3).getNode(0));
+            printingExpression.add(n.getString(2));
+            return printingExpression;
+        }
+
+        return n;
+    }
+
     public void visit(GNode n) {
         for (int i = 0; i < n.size(); ++i) {
             Object o = n.get(i);
