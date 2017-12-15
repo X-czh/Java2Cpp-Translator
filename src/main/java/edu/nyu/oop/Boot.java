@@ -55,7 +55,7 @@ public class Boot extends Tool {
             bool("printJavaAst", "printJavaAst", false, "Print Java Ast.").
             bool("printSimpleJavaAst", "printSimpleJavaAst", false, "Print Simplified Java Ast.").
             bool("printJavaCode", "printJavaCode", false, "Print Java code.").
-//            bool("cppFilePrinter", "cppFilePrinter", false, "Print example cpp file into output directory.").
+            bool("cppFilePrinter", "cppFilePrinter", false, "Print example cpp file into output directory.").
             bool("printJavaImportCode", "printJavaImportCode", false, "Print Java code for imports of primary source file.").
             bool("printSymbolTable", "printSymbolTable", false, "Print symbol table for Java Ast.").
             bool("printConfig", "printConfig", false, "Output application configuration to screen.").
@@ -75,7 +75,7 @@ public class Boot extends Tool {
     // Perform consistency checks on command line arguments.
     // (i.e. are there some commands that cannot be run together?)
     logger.debug("This is a debugging statement."); // Example logging statement, you may delete
-    runtime.setValue("optionNoExit", true);
+    runtime.setValue("optionNoExit", true); // ignore exception raised by xtc's own bug
   }
 
   @Override
@@ -124,9 +124,9 @@ public class Boot extends Tool {
       XtcProps.getProperties().list(System.out);
     }
 
-//    if (runtime.test("cppFilePrinter")) {
-//      new CppFilePrinter().print(n);
-//    }
+    if (runtime.test("cppFilePrinter")) {
+      new CppFilePrinter().print(n);
+    }
 
     if (runtime.test("printSymbolTable")) {
       SymbolTable table = new SymbolTableBuilder(runtime).getTable(n);

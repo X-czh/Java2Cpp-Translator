@@ -91,7 +91,7 @@ public class DataLayout {
 
     private GNode makeInitMethod(ConstructorSignature c) {
         MethodSignature m = new MethodSignature(
-                Arrays.asList("static"),
+                new ArrayList<>(),
                 TypeResolver.createType(thisClass.getClassName(), null),
                 "__init",
                 c.getParameters(),
