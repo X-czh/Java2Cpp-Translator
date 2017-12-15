@@ -522,5 +522,10 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("})");
     }
 
+    public void visitNewCastExpression(GNode n){
+        printer.p(n.getString(2));
+        dispatch(n.getNode(3));
+    }
+
 }
 

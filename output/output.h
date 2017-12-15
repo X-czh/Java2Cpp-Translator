@@ -6,78 +6,84 @@ using namespace java::lang;
 
 namespace inputs {
 
-  namespace test006 {
+  namespace test042 {
 
     struct __A;
 
     struct __A_VT;
 
-    struct __Test006;
+    struct __B;
 
-    struct __Test006_VT;
+    struct __B_VT;
+
+    struct __Test042;
+
+    struct __Test042_VT;
 
     typedef __rt::Ptr<__A> A;
 
-    typedef __rt::Ptr<__Test006> Test006;
+    typedef __rt::Ptr<__B> B;
+
+    typedef __rt::Ptr<__Test042> Test042;
 
     struct __A {
 
 __A_VT* __vptr;
-;
-String fld;
-;
       __A( );
 
 static       A __init(A );
       
-static     void setFld_Type(QualifiedIdentifier("String"), null)(A ,String );
+static     void m(A );
     
-static   void almostSetFld_Type(QualifiedIdentifier("String"), null)(A ,String );
+static   A m_Type(QualifiedIdentifier("A"), null)(A , A );
   
-static String getFld(A );
-
 static Class __class();
 
 static __A_VT __vtable;
-;
 };
 
-struct __Test006 {
+struct __B {
 
-__Test006_VT* __vptr;
-;
-__Test006( );
+__B_VT* __vptr;
+__B( );
 
-static Test006 __init(Test006 );
+static B __init(B );
+
+static void m(B );
+
+static B m_Type(QualifiedIdentifier("B"), null)(B , B );
+
+static A m_Type(QualifiedIdentifier("A"), null)(B , A );
+
+static Class __class();
+
+static __B_VT __vtable;
+};
+
+struct __Test042 {
+
+__Test042_VT* __vptr;
+__Test042( );
+
+static Test042 __init(Test042 );
 
 static void main(__rt::Array<String> );
 
 static Class __class();
 
-static __Test006_VT __vtable;
-;
+static __Test042_VT __vtable;
 };
 
 struct __A_VT {
 
 Class __is_a;
-;
 void (*__delete)(__A*);
-;
 int32_t (*hashCode)(A);
-;
 bool (*equals)(A, Object);
-;
 Class (*getClass)(A);
-;
 String (*toString)(A);
-;
-void (*setFld_Type(QualifiedIdentifier("String"), null))(A, String);
-;
-void (*almostSetFld_Type(QualifiedIdentifier("String"), null))(A, String);
-;
-String (*getFld)(A);
-;
+void (*m)(A);
+A (*m_Type(QualifiedIdentifier("A"), null))(A, A);
 __A_VT()
 :__is_a(__A::__class()),
 __delete(&__rt::__delete<__A>),
@@ -85,34 +91,52 @@ hashCode((int32_t (*)(A)) &__Object::hashCode),
 equals((bool (*)(A, Object)) &__Object::equals),
 getClass((Class (*)(A)) &__Object::getClass),
 toString((String (*)(A)) &__Object::toString),
-setFld_Type(QualifiedIdentifier("String"), null)(&__A::setFld_Type(QualifiedIdentifier("String"), null)),
-almostSetFld_Type(QualifiedIdentifier("String"), null)(&__A::almostSetFld_Type(QualifiedIdentifier("String"), null)),
-getFld(&__A::getFld) {
+m(&__A::m),
+m_Type(QualifiedIdentifier("A"), null)(&__A::m_Type(QualifiedIdentifier("A"), null)) {
 }
 
 };
 
-struct __Test006_VT {
+struct __B_VT {
 
 Class __is_a;
-;
-void (*__delete)(__Test006*);
-;
-int32_t (*hashCode)(Test006);
-;
-bool (*equals)(Test006, Object);
-;
-Class (*getClass)(Test006);
-;
-String (*toString)(Test006);
-;
-__Test006_VT()
-:__is_a(__Test006::__class()),
-__delete(&__rt::__delete<__Test006>),
-hashCode((int32_t (*)(Test006)) &__Object::hashCode),
-equals((bool (*)(Test006, Object)) &__Object::equals),
-getClass((Class (*)(Test006)) &__Object::getClass),
-toString((String (*)(Test006)) &__Object::toString) {
+void (*__delete)(__B*);
+int32_t (*hashCode)(B);
+bool (*equals)(B, Object);
+Class (*getClass)(B);
+String (*toString)(B);
+void (*m)(B);
+A (*m_Type(QualifiedIdentifier("A"), null))(B, A);
+B (*m_Type(QualifiedIdentifier("B"), null))(B, B);
+__B_VT()
+:__is_a(__B::__class()),
+__delete(&__rt::__delete<__B>),
+hashCode((int32_t (*)(B)) &__Object::hashCode),
+equals((bool (*)(B, Object)) &__Object::equals),
+getClass((Class (*)(B)) &__Object::getClass),
+toString((String (*)(B)) &__Object::toString),
+m(&__B::m),
+m_Type(QualifiedIdentifier("A"), null)(&__B::m_Type(QualifiedIdentifier("A"), null)),
+m_Type(QualifiedIdentifier("B"), null)(&__B::m_Type(QualifiedIdentifier("B"), null)) {
+}
+
+};
+
+struct __Test042_VT {
+
+Class __is_a;
+void (*__delete)(__Test042*);
+int32_t (*hashCode)(Test042);
+bool (*equals)(Test042, Object);
+Class (*getClass)(Test042);
+String (*toString)(Test042);
+__Test042_VT()
+:__is_a(__Test042::__class()),
+__delete(&__rt::__delete<__Test042>),
+hashCode((int32_t (*)(Test042)) &__Object::hashCode),
+equals((bool (*)(Test042, Object)) &__Object::equals),
+getClass((Class (*)(Test042)) &__Object::getClass),
+toString((String (*)(Test042)) &__Object::toString) {
 }
 
 };

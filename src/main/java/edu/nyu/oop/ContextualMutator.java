@@ -43,6 +43,9 @@ public class ContextualMutator extends ContextualVisitor {
 
         visit(n);
 
+        //System.out.println("check method: " + methodName);
+        //System.out.println(n);
+
         // check whether it is System.out.print()/println()
         if (receiver != null &&
                 receiver.getName().equals("SelectionExpression") &&
@@ -242,6 +245,25 @@ public class ContextualMutator extends ContextualVisitor {
         GNode _this = GNode.create("ThisExpression", null);
         TypeUtil.setType(_this, JavaEntities.currentType(table));
         return _this;
+    }
+
+    public Node create_castexp(Node receiver, String method_name, Node arguments){
+        Node cast = GNode.create("NewCastExpression");
+        cast.add(receiver);
+        cast.add(null);
+        cast.add(method_name);
+        cast.add(arguments);
+        return cast;
+    }
+
+    public Node visitCastExpression(GNode n){
+        String cast_to=n.getNode(0).getNode(0).getString(0);
+        Node cast_exp = create_castexp(null, "__rt::java_cast<"+cast_to+">",
+                GNode.create("Arguments", n.getNode(1)));
+        //System.out.println(cast_exp);
+        TypeUtil.setType(cast_exp, JavaEntities.qualifiedNameToType(
+                table, classpath(), table.current().getQualifiedName(), cast_to));
+        return cast_exp;
     }
 
 }
