@@ -154,10 +154,11 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitFieldDeclaration(GNode source){
         visit(source);
+        printer.pln(";");
     }
 
-/*
-    public void visitFieldDeclaration(GNode source){
+
+    /*public void visitFieldDeclaration(GNode source){
         //get Field info
         Node modifiers = source.getNode(0);
         String type = TypeResolver.typeToString(source.getNode(1));
@@ -178,8 +179,8 @@ public class CppPrinter extends RecursiveVisitor {
 
         printer.pln(";");
         printer.pln();
-    }
-   */
+    }*/
+
 
     public void visitConstructorDeclaration(GNode source){
 
@@ -567,6 +568,7 @@ public class CppPrinter extends RecursiveVisitor {
         }
         printer.p(n.getString(2));
         dispatch(n.getNode(3));
+        printer.pln(";");
     }
 
     public void visitCBlock(GNode n) {

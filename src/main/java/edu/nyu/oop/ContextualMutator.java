@@ -95,7 +95,7 @@ public class ContextualMutator extends ContextualVisitor {
             Node replacement = GNode.create("CBlock");
             String temp_name = generate_temp_name(counter++);
             // A temp = translate(e);
-            replacement.add(create_field_dec(typeToSearch, temp_name, n.getNode(0)));
+            replacement.add(create_field_dec(GNode.create("PrimaryIdentifier", receiver_type_name), temp_name, n.getNode(0)));
             // __rt::checkNotNull(temp);
             Node primary_id = GNode.create("PrimaryIdentifier", temp_name);
             replacement.add(create_callexp(null, "__rt::checkNotNull",
@@ -120,6 +120,8 @@ public class ContextualMutator extends ContextualVisitor {
                         add_this_argu(n.getNode(3), primary_id)));
             }
 
+            TypeUtil.setType(replacement, JavaEntities.currentType(table));
+
             return replacement;
         }
 
@@ -140,7 +142,7 @@ public class ContextualMutator extends ContextualVisitor {
         return new_argus;
     }
 
-    public Node create_field_dec(Type type, String name, Node thing){
+    public Node create_field_dec(Node type, String name, Node thing){
         Node field = GNode.create("FieldDeclaration");
         field.add(GNode.create("Modifiers"));
         field.add(type);
