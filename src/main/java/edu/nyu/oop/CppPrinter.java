@@ -48,10 +48,6 @@ public class CppPrinter extends RecursiveVisitor {
 
     // Auxiliary methods
 
-    private void cout(String line) {
-        printer.incr().indent().pln("cout << \"" + line + "\" << endl;").decr();
-    }
-
     private String generate_temp_name(int x){
         String temp = "temp";
         temp = temp + Integer.toString(x);
@@ -92,7 +88,6 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("#include <iostream>");
         printer.pln("#include \"output.h\"");
         printer.pln();
-        printer.pln("using namespace std;");
         printer.pln("using namespace java::lang;");
     }
 
@@ -460,10 +455,10 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitPrintingExpression(GNode source){
         String printType = source.getString(1);
-        printer.p("cout << ");
+        printer.p("std::cout << ");
         visit(source);
         if (printType.equals("println"))
-            printer.pln(" << endl;");
+            printer.pln(" << std::endl;");
         else
             printer.pln(";");
     }

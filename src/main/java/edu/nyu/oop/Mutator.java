@@ -75,6 +75,9 @@ public class Mutator extends Visitor {
         prevHierarchy.add(make__classMethod());
         prevHierarchy.add(makeVTableInitialization());
 
+        if (classTreeMap.get(currentClassName).getConstructorList().isEmpty())
+            makeDefaultInitMethod(); // make init method for generated default constructor
+
         visit(n);
     }
 
@@ -299,6 +302,21 @@ public class Mutator extends Visitor {
         constructor.add(GNode.create("Block"));
 
         return constructor;
+    }
+
+    private void makeDefaultInitMethod() {
+        GNode constructor = GNode.create("MethodDeclaration");
+
+        constructor.add(null); // modifiers
+        constructor.add(null);
+        constructor.add(null); // return type
+        constructor.add(currentClassName); // method name
+        constructor.add(GNode.create("FormalParameters"));
+        constructor.add(null);
+        constructor.add(null);
+        constructor.add(GNode.create("Block"));
+
+        mutateConstructorDeclaration(constructor);
     }
 
     private GNode make__classMethod() {
