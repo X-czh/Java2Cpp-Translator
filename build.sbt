@@ -53,6 +53,10 @@ compilec := """g++ -std=c++11 output/main.cpp output/java_lang.cpp output/output
 val execc = TaskKey[Unit]("execc", "Execute the generated C++.")
 execc := """output/a.out""".!
 
+// Cleans generated C++ executable file located in the output directory
+val cleanc = TaskKey[Unit]("cleanc", "Clean the generated C++ executable.")
+cleanc := """rm output/a.out""".!
+
 // Shortcut for executing our root xtc Tool
 val runxtc = inputKey[Unit]("Run a command on your Boot class.")
 runxtc := Def.inputTaskDyn {
