@@ -9,7 +9,7 @@ for (int32_t i = 1; i < argc; i++) {
 (*args)[i] = __rt::literal(argv[i]);
 }
 
-inputs::test000::__Test000::main(args);
+inputs::test010::__Test010::main(args);
 
 return 0;
 }

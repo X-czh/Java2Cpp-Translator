@@ -39,26 +39,28 @@ public class ContextualMutator extends ContextualVisitor {
 
         Node receiver = n.getNode(0);
         String methodName = n.getString(2);
+        if ("VptrSelectionExpression".equals(receiver.getName()))
+            receiver = receiver.getNode(0);
 
         // check whether it is System.out.print()/println()
         if (receiver != null &&
                 receiver.getName().equals("SelectionExpression") &&
                 receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
                 receiver.getNode(0).getString(0).equals("System") &&
-                receiver.getString(1).equals("out")) {
-            GNode printingExpression = GNode.create("PrintingExpression");
-            printingExpression.add(n.getNode(3).getNode(0));
-            printingExpression.add(n.getString(2));
-            return printingExpression;
-        }
+                receiver.getString(1).equals("out"))
+            return n;
 
+        //TODO method name mangling
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
             Type typeToSearch;
-            if (receiver == null || "ThisExpression".equals(receiver.getName()))
+            if (receiver == null || "ThisExpression".equals(receiver.getName())) // receiver is of current class
                 typeToSearch = JavaEntities.currentType(table);
-            else
+            else if (TypeUtil.getType(receiver).hasAlias()) // receiver is of some other class
                 typeToSearch = TypeUtil.getType(receiver).toAlias();
+            else // for static method calls of the form A.m()
+                typeToSearch = JavaEntities.qualifiedNameToType(
+                        table, classpath(), table.current().getQualifiedName(), receiver.getString(0));
 
             // find type of called method
             List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
@@ -79,11 +81,10 @@ public class ContextualMutator extends ContextualVisitor {
                 }
 
                 if (!TypeUtil.isStaticType(method)) {
-                    //n.set(3, addExplicitThisArgument(n.getNode(3)));
-                    if (receiver == null) {}
-                        //n.set(0, makeThisExpression()); // make 'this' access explicit
+                    if (receiver == null)
+                        n.set(0, makeThisExpression()); // make 'this' access explicit
                     if (!TypeUtil.isPrivateType(method)) {
-                        GNode n1 = GNode.create("SelectionExpression", n.getNode(0), "__vptr");
+                        GNode n1 = GNode.create("VptrSelectionExpression", n.getNode(0), "__vptr");
                         n.set(0, n1);
                     }
                 }
