@@ -45,6 +45,19 @@ public class CppPrinter extends RecursiveVisitor {
         printer.register(this);
     }
 
+
+    // Auxiliary methods
+
+    private void cout(String line) {
+        printer.incr().indent().pln("cout << \"" + line + "\" << endl;").decr();
+    }
+
+    private String generate_temp_name(int x){
+        String temp = "temp";
+        temp = temp + Integer.toString(x);
+        return temp;
+    }
+
     public void printHeader(Node source) {
         flag=0;
         headerHeadOfFile();
@@ -52,22 +65,18 @@ public class CppPrinter extends RecursiveVisitor {
         printer.flush(); // important!
     }
 
-    public void printCpp(Node source){
+    public void printCpp(Node source) {
         flag=1;
         cppHeadOfFile();
         visit(source);
         printer.flush();
     }
 
-    public void printMain(Node source){
+    public void printMain(Node source) {
         flag=2;
         mainHeadOfFile();
         visit(source);
         printer.flush();
-    }
-
-    private void cout(String line) {
-        printer.incr().indent().pln("cout << \"" + line + "\" << endl;").decr();
     }
 
     private void headerHeadOfFile() {
@@ -94,7 +103,116 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln();
     }
 
-    public void visitCompilationUnit(GNode source){visit(source);}
+
+    // Basics first
+
+    public void visitBlock(GNode source){
+        printer.pln("{");
+        visit(source);
+        printer.indent().decr().pln("}");
+    }
+
+    public void visitType(GNode source){
+        String type = TypeResolver.typeToString(source);
+        printer.p(type+" ");
+    }
+
+    public void visitVoidType(GNode source){
+        String type = TypeResolver.typeToString(source);
+        printer.p(type+" ");
+    }
+
+    public void visitQualifiedIdentifier(GNode source){
+        String qualifiedIndentifier=source.getString(0);
+        if(newClassExpression) printer.p("__"+qualifiedIndentifier+"::__init(new __"+qualifiedIndentifier+"()");
+        else printer.p(qualifiedIndentifier);
+    }
+
+    public void visitPrimaryIdentifier(GNode n){
+        //System.out.println("printing Primary Identifier:");
+        printer.p(n.getString(0));
+    }
+
+    public void visitStringLiteral(GNode source){
+        String literal=source.getString(0);
+        literal="__rt::literal("+literal+")";
+        printer.p(literal);
+    }
+
+    public void visitIntegerLiteral(GNode source){
+        String literal=source.getString(0);
+        printer.p(literal);
+    }
+
+    public void visitFloatLiteral(GNode source){
+        String literal=source.getString(0);
+        printer.p(literal);
+    }
+
+    public void visitDeclarators(GNode source){
+        int declaratorSize = source.size();
+
+        for (int i = 0; i < declaratorSize; i++) {
+            Node declarator = source.getNode(i);
+            String string_i = declarator.getString(0);
+            Node assigner = declarator.getNode(2);
+
+            if(assigner!=null) {
+                printer.p(string_i + "=");
+                dispatch(assigner);
+            }
+            else printer.p(string_i);
+
+            if (i < declaratorSize - 1)
+                printer.p(", ");
+        }
+    }
+
+    public void visitFormalParameters(GNode source){
+
+        int parameterSize = source.size();
+
+        if(parameterSize==0) printer.p(")");
+
+        for(int i=0;i<parameterSize;i++){
+            Node formalParameter = source.getNode(i);
+            //traverse modifiers and type
+            visit(formalParameter);
+            //output parameterName
+            String parameterName = formalParameter.getString(3);
+            printer.p(parameterName);
+            if(i<parameterSize-1) printer.p(", ");
+            else printer.p(")");
+        }
+    }
+
+    public void visitModifiers(GNode source){
+        if(flag==0) visit(source);
+    }
+
+    public void visitModifier(GNode source){
+        if(source.getString(0).equals("static")) printer.p(source.getString(0)+" ");
+    }
+
+    public void visitArguments(GNode source) {
+        printer.p("(");
+        for(int i=0;i<source.size();i++){
+            dispatch(source.getNode(i));
+            if(i!=source.size()-1) printer.p(", ");
+        }
+        printer.p(")");
+    }
+
+    public void visitArgument(GNode source) {
+        visit(source);
+    }
+
+
+    // Big structures
+
+    public void visitCompilationUnit(GNode source) {
+        visit(source);
+    }
 
     public void visitNamespaceDeclaration(GNode source) {
 
@@ -129,7 +247,6 @@ public class CppPrinter extends RecursiveVisitor {
         printer.indent().pln(types+" "+systemType+" "+CustomType+";").pln();
     }
 
-
     public void visitClassDeclaration(GNode source){
         //get class name and class modifiers
         Node classModifiers = source.getNode(0);
@@ -151,35 +268,6 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitClassBody(GNode source){
         visit(source);
     }
-
-    public void visitFieldDeclaration(GNode source){
-        visit(source);
-    }
-
-/*
-    public void visitFieldDeclaration(GNode source){
-        //get Field info
-        Node modifiers = source.getNode(0);
-        String type = TypeResolver.typeToString(source.getNode(1));
-        Node declarators = source.getNode(2);
-
-        printer.indent();
-
-        if(modifiers!=null && modifiers.getName().compareTo("Modifiers")==0) dispatch(modifiers);
-
-        printer.p(type+" ");
-
-        for(int i=0;i<declarators.size();i++){
-            Node declarator = declarators.getNode(i);
-            String declaratorName = declarator.getString(0);
-            printer.p(declaratorName);
-            if (i<declarators.size()-1) printer.p(",");
-        }
-
-        printer.pln(";");
-        printer.pln();
-    }
-   */
 
     public void visitConstructorDeclaration(GNode source){
 
@@ -226,55 +314,10 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln();
     }
 
-    public void visitFormalParameters(GNode source){
-
-        int parameterSize = source.size();
-
-        if(parameterSize==0) printer.p(")");
-
-        for(int i=0;i<parameterSize;i++){
-            Node formalParameter = source.getNode(i);
-            //traverse modifiers and type
-            visit(formalParameter);
-            //output parameterName
-            String parameterName = formalParameter.getString(3);
-            printer.p(parameterName);
-            if(i<parameterSize-1) printer.p(",");
-            else printer.p(")");
-        }
+    public void visitFieldDeclaration(GNode source){
+        visit(source);
+        printer.pln(";");
     }
-
-    public void visitType(GNode source){
-        String type = TypeResolver.typeToString(source);
-        //String type = source.getNode(0).getString(0);
-        printer.p(type+" ");
-        //traverse on dimension
-    }
-
-    public void visitVoidType(GNode source){
-        String type = TypeResolver.typeToString(source);
-        //String type = source.getNode(0).getString(0);
-        printer.p(type+" ");
-        //traverse on dimension
-    }
-
-    /*
-    public void visitDimensions(GNode source){
-        for(int i=0;i<source.size();i++){
-            String dimension = source.getString(i);
-            printer.p("[] ");
-        }
-    }
-    */
-
-    public void visitModifiers(GNode source){
-        if(flag==0) visit(source);
-    }
-
-    public void visitModifier(GNode source){
-        if(source.getString(0).equals("static")) printer.p(source.getString(0)+" ");
-    }
-
 
     public void visitMethodDeclaration(GNode source){
 
@@ -307,8 +350,10 @@ public class CppPrinter extends RecursiveVisitor {
         printer.indent().decr().pln();
     }
 
-    //post midterm stuffs
-    public void visitConditionalStatement(GNode source){
+
+    // Statements
+
+    public void visitExpressionStatement(GNode source){
         visit(source);
     }
 
@@ -318,20 +363,8 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p(";");
     }
 
-    public void visitStringLiteral(GNode source){
-        String literal=source.getString(0);
-        literal="__rt::literal("+literal+")";
-        printer.p(literal);
-    }
-
-    public void visitIntegerLiteral(GNode source){
-        String literal=source.getString(0);
-        printer.p(literal);
-    }
-
-    public void visitFloatLiteral(GNode source){
-        String literal=source.getString(0);
-        printer.p(literal);
+    public void visitConditionalStatement(GNode source){
+        visit(source);
     }
 
     public void visitForStatement(GNode source){
@@ -352,10 +385,29 @@ public class CppPrinter extends RecursiveVisitor {
         visit(source);
     }
 
-    public void visitBlock(GNode source){
-        printer.pln("{");
+
+    // Expressions
+
+    public void visitExpression(GNode source){
+        //System.out.println(source);
+        dispatch(source.getNode(0));
+        printer.p(source.getString(1));
+        dispatch(source.getNode(2));
+        printer.pln(";");
+        /*String k = source.getNode(0).getString(0);
+        Node operation = source.getNode(2);
+        String K = operation.getNode(0).getString(0);
+        String operator = operation.getString(1);
+        String literal = operation.getNode(2).getString(0);
+        printer.pln(k+" "+equal+" "+K +" "+operator+" "+literal+" ;");*/
+    }
+
+    public void visitThisExpression(GNode n){
+        printer.p("this");
+    }
+
+    public void visitExpressionList(GNode source){
         visit(source);
-        printer.indent().decr().pln("}");
     }
 
     public void visitSelectionExpression(GNode source){
@@ -364,15 +416,16 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p("->"+field);
     }
 
-    public void visitVptrSelectionExpression(GNode source){
-        dispatch(source.getNode(0));
-        String field = source.getString(1);
-        printer.p("->"+field);
+    public void visitPrefixExpression(GNode source){
+        String string_i = source.getNode(0).getString(0);
+        String operation = source.getString(1);
+        printer.p(operation+string_i+")");
     }
 
-    //to be completed
-    public void visitExpressionStatement(GNode source){
-        visit(source);
+    public void visitPostfixExpression(GNode source){
+        String string_i = source.getNode(0).getString(0);
+        String operation = source.getString(1);
+        printer.p(string_i+operation+")");
     }
 
     public void visitSubscriptExpression(GNode source){
@@ -382,6 +435,37 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p("[");
         dispatch(second);
         printer.p("]");
+    }
+
+    public void visitRelationalExpression(GNode source){
+        Node primaryIndentifier = source.getNode(0);
+        dispatch(primaryIndentifier);
+        String compare = source.getString(1);
+        printer.p(compare);
+        Node expression = source.getNode(2);
+        dispatch(expression);
+        if(noLineBreak) printer.p(";");
+        else printer.pln(";");
+    }
+
+    public void visitCallExpression(GNode n){
+        if (n.getNode(0) != null) {
+            dispatch(n.getNode(0));
+            printer.p("->");
+        }
+        printer.p(n.getString(2));
+        dispatch(n.getNode(3));
+        printer.pln(";");
+    }
+
+    public void visitPrintingExpression(GNode source){
+        String printType = source.getString(1);
+        printer.p("cout << ");
+        visit(source);
+        if (printType.equals("println"))
+            printer.pln(" << endl;");
+        else
+            printer.pln(";");
     }
 
     public void visitNewClassExpression(GNode source){
@@ -399,44 +483,8 @@ public class CppPrinter extends RecursiveVisitor {
         newClassExpression=false;
     }
 
-    public void visitQualifiedIdentifier(GNode source){
-        String qualifiedIndentifier=source.getString(0);
-        if(newClassExpression) printer.p("__"+qualifiedIndentifier+"::__init(new __"+qualifiedIndentifier+"()");
-        else printer.p(qualifiedIndentifier);
-    }
 
-    public void visitArguments(GNode source){
-        printer.p("(");
-        for(int i=0;i<source.size();i++){
-            dispatch(source.getNode(i));
-            if(i!=source.size()-1) printer.p(",");
-        }
-        printer.p(")");
-    }
-
-    public void visitExpression(GNode source){
-        //System.out.println(source);
-        dispatch(source.getNode(0));
-        printer.p(source.getString(1));
-        dispatch(source.getNode(2));
-        printer.pln(";");
-        /*String k = source.getNode(0).getString(0);
-        Node operation = source.getNode(2);
-        String K = operation.getNode(0).getString(0);
-        String operator = operation.getString(1);
-        String literal = operation.getNode(2).getString(0);
-        printer.pln(k+" "+equal+" "+K +" "+operator+" "+literal+" ;");*/
-    }
-
-    public void visitPrintingExpression(GNode source){
-        String printType = source.getString(1);
-        printer.p("cout << ");
-        visit(source);
-        if (printType.equals("println"))
-            printer.pln(" << endl;");
-        else
-            printer.pln(";");
-    }
+    // Custom nodes
 
     public void visitMainMethodDefinition(GNode source){
         String mainMethodLocation = source.getString(0);
@@ -455,7 +503,6 @@ public class CppPrinter extends RecursiveVisitor {
 
     }
 
-    //fix
     public void visitClassMethodDefinition(GNode source){
         String name = source.getString(0);
         String parent = source.getString(1);
@@ -469,104 +516,11 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("}");
     }
 
-    public void visitDeclarators(GNode source){
-        visit(source);
+    public void visitCBlock(GNode n) {
+        printer.p("({");
+        visit(n);
+        printer.pln("})");
     }
 
-    public void visitDeclarator(GNode source){
-        String string_i = source.getString(0);
-        Node assigner = source.getNode(2);
-
-        if(assigner!=null) {
-            printer.p(string_i+"=");
-            dispatch(assigner);
-        }
-        else printer.p(string_i);
-
-        if(noLineBreak) printer.p(";");
-        else printer.pln(";");
-    }
-/*
-    public void visitRelationalExpression(GNode source){
-        Node primaryIndentifier = source.getNode(0);
-        String string_i = primaryIndentifier.getString(0);
-
-        String compare = primaryIndentifier.getString(1);
-        Node selectionExpression = source.getNode(2);
-        String s = selectionExpression.getNode(0).getString(0);
-        String l = selectionExpression.getString(1);
-        printer.p(string_i+" "+compare+" "+s+"."+l+"; ");
-    }
-*/
-
-    public void visitRelationalExpression(GNode source){
-        Node primaryIndentifier = source.getNode(0);
-        dispatch(primaryIndentifier);
-        String compare = source.getString(1);
-        printer.p(compare);
-        Node expression = source.getNode(2);
-        dispatch(expression);
-        if(noLineBreak) printer.p(";");
-        else printer.pln(";");
-    }
-
-    public void visitExpressionList(GNode source){
-        visit(source);
-    }
-
-    public void visitPostfixExpression(GNode source){
-        String string_i = source.getNode(0).getString(0);
-        String operation = source.getString(1);
-        printer.p(string_i+operation+")");
-    }
-
-    public void visitPrefixExpression(GNode source){
-        String string_i = source.getNode(0).getString(0);
-        String operation = source.getString(1);
-        printer.p(operation+string_i+")");
-    }
-
-
-    public String generate_temp_name(int x){
-        String temp = "temp";
-        temp = temp + Integer.toString(x);
-        return temp;
-    }
-
-    public void visitCallExpression(GNode n){
-        System.out.println(n);
-        printer.indent();
-        printer.p("({ ");
-        String temp_name = generate_temp_name(counter++);
-        boolean is_virtual = ("VptrSelectionExpression".equals(n.getNode(0).getName()));
-        printer.p("auto " + temp_name + " = ");
-        if (is_virtual) {
-            dispatch(n.getNode(0).getNode(0));
-        }
-        else {
-            dispatch(n.getNode(0));
-        }
-        printer.pln(";");
-        printer.incr().indent().pln("__rt::checkNotNull(" + temp_name + ");");
-        printer.indent().p(temp_name);
-        if (is_virtual) printer.p("->__vptr");
-        printer.p("->"+n.getString(2)+"(" + temp_name);
-        for (int i=0; i<n.getNode(3).size(); i++) {
-            printer.p(",");
-            dispatch(n.getNode(3).getNode(i));
-        }
-        printer.pln(");");
-        printer.decr().indent().pln("})");
-    }
-
-
-    public void visitPrimaryIdentifier(GNode n){
-        //System.out.println("printing Primary Identifier:");
-        printer.p(n.getString(0));
-    }
-
-    public void visitThisExpression(GNode n){
-        printer.p("this");
-    }
 }
 
