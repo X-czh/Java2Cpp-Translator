@@ -251,6 +251,13 @@ public class CppPrinter extends RecursiveVisitor {
         //traverse on dimension
     }
 
+    public void visitVoidType(GNode source){
+        String type = TypeResolver.typeToString(source);
+        //String type = source.getNode(0).getString(0);
+        printer.p(type+" ");
+        //traverse on dimension
+    }
+
     /*
     public void visitDimensions(GNode source){
         for(int i=0;i<source.size();i++){
@@ -259,7 +266,6 @@ public class CppPrinter extends RecursiveVisitor {
         }
     }
     */
-
 
     public void visitModifiers(GNode source){
         if(flag==0) visit(source);
