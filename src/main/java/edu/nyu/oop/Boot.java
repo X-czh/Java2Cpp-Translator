@@ -75,6 +75,7 @@ public class Boot extends Tool {
     // Perform consistency checks on command line arguments.
     // (i.e. are there some commands that cannot be run together?)
     logger.debug("This is a debugging statement."); // Example logging statement, you may delete
+    runtime.setValue("optionNoExit", true);
   }
 
   @Override
