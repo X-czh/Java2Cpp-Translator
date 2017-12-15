@@ -526,7 +526,7 @@ public class CppPrinter extends RecursiveVisitor {
         temp = temp + Integer.toString(x);
         return temp;
     }
-
+/*
     public void visitCallExpression(GNode n){
         System.out.println(n);
         printer.indent();
@@ -552,7 +552,22 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln(");");
         printer.decr().indent().pln("})");
     }
+*/
 
+    public void visitCallExpression(GNode n){
+        if (n.getNode(0) != null) {
+            dispatch(n.getNode(0));
+            printer.p("->");
+        }
+        printer.p(n.getString(2));
+        dispatch(n.getNode(3));
+    }
+
+    public void visitCBlock(GNode n) {
+        printer.p("({");
+        visit(n);
+        printer.pln(")}");
+    }
 
     public void visitPrimaryIdentifier(GNode n){
         //System.out.println("printing Primary Identifier:");
