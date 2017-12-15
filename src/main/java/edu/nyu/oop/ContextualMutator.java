@@ -51,7 +51,7 @@ public class ContextualMutator extends ContextualVisitor {
                 receiver.getString(1).equals("out"))
             return n;
 
-        //TODO method name mangling
+        //method name mangling
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
             Type typeToSearch;
@@ -63,18 +63,21 @@ public class ContextualMutator extends ContextualVisitor {
                 typeToSearch = JavaEntities.qualifiedNameToType(
                         table, classpath(), table.current().getQualifiedName(), receiver.getString(0));
 
-            String receiver_type_name;
-
-            if (typeToSearch.hasAlias())
-                receiver_type_name = typeToSearch.toAlias().getName();
-            else
-                receiver_type_name = typeToSearch.toClass().getName();
-
             // find type of called method
             List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
             MethodT method =
                     JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
 
+            if (method == null) return n;
+
+            // extract type of receiver
+            String receiver_type_name;
+            if (typeToSearch.hasAlias())
+                receiver_type_name = typeToSearch.toAlias().getName();
+            else
+                receiver_type_name = typeToSearch.toClass().getName();
+
+            // extract param types to generate new name
             List<Type> param_use = method.getParameters();
             String new_name = methodName;
             for (int i = 0; i < param_use.size(); i++) {
@@ -84,36 +87,38 @@ public class ContextualMutator extends ContextualVisitor {
                 else
                     temp = param_use.get(i).toVariable().getType().toString();
                 new_name = new_name + "_" + temp;
-                //n.set(2, new_name.toString());
             }
 
+            // make this access explicit
             if (!TypeUtil.isStaticType(method)) {
                 if (receiver == null)
-                    n.set(0, makeThisExpression()); // make 'this' access explicit
+                    n.set(0, makeThisExpression());
             }
 
+            // mutate and wrap call expression
             Node replacement = GNode.create("CBlock");
             String temp_name = generate_temp_name(counter++);
+
             // A temp = translate(e);
-            replacement.add(create_field_dec(GNode.create("PrimaryIdentifier", receiver_type_name), temp_name, n.getNode(0)));
+            replacement.add(create_field_dec(
+                    TypeResolver.createType(receiver_type_name, null), temp_name, n.getNode(0)));
             // __rt::checkNotNull(temp);
             Node primary_id = GNode.create("PrimaryIdentifier", temp_name);
             replacement.add(create_callexp(null, "__rt::checkNotNull",
                     GNode.create("Arguments", primary_id)) );
 
+            // custom mutation based on method type
             if (TypeUtil.isStaticType(method)) {
                 //__A::m();
                 replacement.add(create_callexp(null,
                         "__"+receiver_type_name+"::"+new_name,
                         n.getNode(3)));
-            }
-            else if (TypeUtil.isPrivateType(method)){
+            } else if (TypeUtil.isPrivateType(method)) {
                 //__A::m(temp);
                 replacement.add(create_callexp(null,
                         "__"+receiver_type_name+"::"+new_name,
                         add_this_argu(n.getNode(3), primary_id)));
-            }
-            else {
+            } else {
                 //temp->vptr->m(temp);
                 replacement.add(create_callexp(add_vptr(primary_id),
                         new_name,
@@ -147,7 +152,7 @@ public class ContextualMutator extends ContextualVisitor {
         field.add(GNode.create("Modifiers"));
         field.add(type);
         Node decs = GNode.create("Declarators");
-        Node dec = GNode.create("Declarators", name, null, thing);
+        Node dec = GNode.create("Declarator", name, null, thing);
         decs.add(dec);
         field.add(decs);
         return field;
