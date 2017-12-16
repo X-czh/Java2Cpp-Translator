@@ -1,6 +1,7 @@
 package edu.nyu.oop;
 
 import edu.nyu.oop.util.ContextualVisitor;
+import edu.nyu.oop.util.NodeUtil;
 import edu.nyu.oop.util.TypeUtil;
 import xtc.Constants;
 import xtc.lang.JavaEntities;
@@ -339,7 +340,7 @@ public class ContextualMutator extends ContextualVisitor {
                     GNode.create("Arguments",
                             GNode.create("PrimaryIdentifier", n.getNode(0).getNode(0).getString(0)),
                             n.getNode(2))));
-            array_store.add(n);
+            array_store.add(NodeUtil.deepCopyNode(n));
             dispatch(array_store);
             return array_store;
         }

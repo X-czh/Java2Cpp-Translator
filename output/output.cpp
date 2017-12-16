@@ -58,8 +58,8 @@ __rt::Array<A> as=({__rt::Array<B> temp0=new __rt::__Array<B>(10);
 temp0;})
 ;
 for(int32_t i=0; i<as->length; i++){
-({__rt::checkStore(as, __A::__init(new __A(), new __A(), i));
-(*as)[i]=__A::__init(new __A(), new __A(), i);
+({__rt::checkStore(as, __A::__init(new __A(), i));
+(*as)[i]=__A::__init(new __A(), i);
 })
 ;}
 int32_t k=0;
