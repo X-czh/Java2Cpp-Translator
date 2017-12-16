@@ -67,15 +67,15 @@ It supports inheritance and dynamic dispatch with virtual class table, method ov
 Design patterns are intensively used throughout the poject. A few representatives are:
 * Visitor Pattern
 
-It is intensively used for extensible operations to carry our translation. Tree nodes in ASTs are dynamicly dispatched according to their types, and different operations are carried on accordingly.
+It is intensively used for extensible operations to carry our translation. Tree nodes in ASTs are dynamically dispatched according to their types, and different operations are carried on accordingly.
 
 * Delegation Pattern
 
-For example, Translator.java provides an interface of using the translator, and delegrates actul work to the other constituting parts of the translator, including import parser, Java AST mutater, inheritance relation resolver, C++ printer and others.
+For example, Translator.java provides an interface of using the translator, and delegates actual work to the other constituting parts of the translator, including import parser, Java AST mutator, inheritance relation resolver, C++ printer and others.
 
 * Chain of Responsibility
 
-It is used naturally by our phrased approach and each phrase is implementated by a few files which take the corresponding responsibility.
+It is used naturally by our phrased approach and each phrase is implemented by a few files which take the corresponding responsibility.
 
 ## Team
 Our team consists of Zhanghao Chen, Yiqin Qiu, Hannah Kelly, Zishi Deng, and Pyay Aung San.
