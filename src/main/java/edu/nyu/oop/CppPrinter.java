@@ -8,13 +8,10 @@ import org.slf4j.Logger;
 import xtc.tree.*;
 
 /**
- * This class demonstrates a trivial usage of XTC's Printer class.
- * For much more sophisticated printing, see xtc.lang.CPrinter
+ * This class implements preety printing of C++ code with C++ AST as input.
  */
 public class CppPrinter extends RecursiveVisitor {
     private Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
-
-    static int counter = 0;
 
     private static int flag = -1;
 
@@ -23,8 +20,6 @@ public class CppPrinter extends RecursiveVisitor {
     private static boolean newClassExpression=false;
 
     private Printer printer;
-
-    private static int namespaceNum=0;
 
     private String outputLocation = XtcProps.get("output.location");
 
@@ -390,12 +385,6 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p(source.getString(1));
         dispatch(source.getNode(2));
         printer.pln(";");
-        /*String k = source.getNode(0).getString(0);
-        Node operation = source.getNode(2);
-        String K = operation.getNode(0).getString(0);
-        String operator = operation.getString(1);
-        String literal = operation.getNode(2).getString(0);
-        printer.pln(k+" "+equal+" "+K +" "+operator+" "+literal+" ;");*/
     }
 
     public void visitThisExpression(GNode n){
@@ -410,6 +399,13 @@ public class CppPrinter extends RecursiveVisitor {
         dispatch(source.getNode(0));
         String field = source.getString(1);
         printer.p("->"+field);
+    }
+
+    public void visitStaticSelectionExpression(GNode source){
+        printer.p("__");
+        dispatch(source.getNode(0));
+        String field = source.getString(1);
+        printer.p("::"+field);
     }
 
     public void visitPrefixExpression(GNode source){
@@ -490,8 +486,13 @@ public class CppPrinter extends RecursiveVisitor {
         newClassExpression=false;
     }
 
+    public void visitNewCastExpression(GNode n){
+        printer.p(n.getString(2));
+        dispatch(n.getNode(3));
+    }
 
-    // Custom nodes
+
+    // Other Custom nodes
 
     public void visitMainMethodDefinition(GNode source){
         String mainMethodLocation = source.getString(0);
@@ -507,7 +508,6 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln();
         printer.pln("return 0;");
         printer.pln("}");
-
     }
 
     public void visitClassMethodDefinition(GNode source){
@@ -529,17 +529,6 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("})");
     }
 
-    public void visitNewCastExpression(GNode n){
-        printer.p(n.getString(2));
-        dispatch(n.getNode(3));
-    }
-
-    public void visitStaticSelectionExpression(GNode source){
-        printer.p("__");
-        dispatch(source.getNode(0));
-        String field = source.getString(1);
-        printer.p("::"+field);
-    }
 
 }
 
