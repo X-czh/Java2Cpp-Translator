@@ -555,9 +555,8 @@ public class CppPrinter extends RecursiveVisitor {
         visit(n);
         printer.pln("})");
         Node parent = childParentMap.fetchParentFor(n);
-        Node grandParent = childParentMap.fetchParentFor(parent);
-        String grandGrandParentName = childParentMap.fetchParentFor(grandParent).getName();
-        if ("MethodDeclaration".equals(grandGrandParentName))
+        String grandParentName = childParentMap.fetchParentFor(parent).getName();
+        if ("Block".equals(grandParentName))
             printer.p(";");
     }
 
