@@ -1,6 +1,7 @@
 package edu.nyu.oop;
 
 import edu.nyu.oop.util.ChildToParentMap;
+import edu.nyu.oop.util.NodeUtil;
 import edu.nyu.oop.util.TypeUtil;
 import xtc.lang.JavaEntities;
 import xtc.tree.GNode;
@@ -91,15 +92,28 @@ public class Mutator extends Visitor {
         if (!childParentMap.fetchParentFor(n).getName().equals("ClassBody"))
             return;
 
-        for (Object declarator : n.getNode(2)) {
-            if (((Node) declarator).getNode(2) != null) {
-                String var = ((Node) declarator).getString(0);
-                Node value = ((Node) declarator).getNode(2);
-                GNode n1 = GNode.create("SelectionExpression", makeThisExpression(), var);
-                GNode n2 = GNode.create("Expression", n1, "=", value);
-                GNode n3 = GNode.create("ExpressionStatement", n2);
-                classInitialization.add(n3);
+        List<String> modifiers = new ArrayList<>();
+        Node mods = n.getNode(0);
+        for (Object mod : mods)
+            modifiers.add(((GNode) mod).getString(0));
+        if (!modifiers.contains("static")) {
+            for (Object declarator : n.getNode(2)) {
+                if (((Node) declarator).getNode(2) != null) {
+                    String var = ((Node) declarator).getString(0);
+                    Node value = ((Node) declarator).getNode(2);
+                    GNode n1 = GNode.create("SelectionExpression", makeThisExpression(), var);
+                    GNode n2 = GNode.create("Expression", n1, "=", value);
+                    GNode n3 = GNode.create("ExpressionStatement", n2);
+                    classInitialization.add(n3);
+                }
             }
+        } else {
+            // for C++ static field initialization, which cannot be done in header
+            GNode initStaticField = NodeUtil.deepCopyNode(n);
+            initStaticField.set(0, GNode.create("Modifiers"));
+            for (Node dec : NodeUtil.dfsAll(initStaticField, "Declarator"))
+                dec.set(0, "__" + currentClassName + "::" + dec.getString(0));
+            prevHierarchy.add(initStaticField);
         }
     }
 
