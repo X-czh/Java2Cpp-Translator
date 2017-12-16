@@ -2,6 +2,7 @@ package edu.nyu.oop;
 
 import java.io.*;
 
+import edu.nyu.oop.util.ChildToParentMap;
 import edu.nyu.oop.util.RecursiveVisitor;
 import edu.nyu.oop.util.XtcProps;
 import org.slf4j.Logger;
@@ -18,6 +19,8 @@ public class CppPrinter extends RecursiveVisitor {
     private static boolean noLineBreak=false;
 
     private static boolean newClassExpression=false;
+
+    private ChildToParentMap childParentMap;
 
     private Printer printer;
 
@@ -50,6 +53,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void printHeader(Node source) {
+        childParentMap = new ChildToParentMap(source);
         flag=0;
         headerHeadOfFile();
         visit(source);
@@ -57,6 +61,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void printCpp(Node source) {
+        childParentMap = new ChildToParentMap(source);
         flag=1;
         cppHeadOfFile();
         visit(source);
@@ -64,6 +69,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void printMain(Node source) {
+        childParentMap = new ChildToParentMap(source);
         flag=2;
         mainHeadOfFile();
         visit(source);
@@ -99,10 +105,7 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitBlock(GNode source){
         printer.pln("{");
-        for (int i=0; i<source.size();i++){
-            dispatch(source.getNode(i));
-            printer.pln(";");
-        }
+        visit(source);
         printer.indent().decr().pln("}");
     }
 
@@ -125,6 +128,10 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitPrimaryIdentifier(GNode n){
         //System.out.println("printing Primary Identifier:");
         printer.p(n.getString(0));
+    }
+
+    public void visitNullLiteral(GNode n){
+        printer.p("NULL");
     }
 
     public void visitStringLiteral(GNode source){
@@ -372,7 +379,12 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitBasicForControl(GNode source){
-        visit(source);
+        dispatch(source.getNode(0));
+        dispatch(source.getNode(1));
+        dispatch(source.getNode(2));
+        printer.p("; ");
+        dispatch(source.getNode(3));
+        dispatch(source.getNode(4));
     }
 
     public void visitWhileStatement(GNode source){
@@ -392,7 +404,13 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitAdditiveExpression(GNode source){
         dispatch(source.getNode(0));
-        printer.p(" + ");
+        printer.p(" " + source.getString(1) + " ");
+        dispatch(source.getNode(2));
+    }
+
+    public void visitMultiplicativeExpression(GNode source){
+        dispatch(source.getNode(0));
+        printer.p(" " + source.getString(1) + " ");
         dispatch(source.getNode(2));
     }
 
@@ -445,7 +463,7 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p(compare);
         Node expression = source.getNode(2);
         dispatch(expression);
-        if(noLineBreak) printer.p(";");
+        if (noLineBreak) printer.p(";");
         else printer.pln(";");
     }
 
@@ -536,10 +554,11 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p("({");
         visit(n);
         printer.pln("})");
-    }
-
-    public void visitNullLiteral(GNode n){
-        printer.p("NULL");
+        Node parent = childParentMap.fetchParentFor(n);
+        Node grandParent = childParentMap.fetchParentFor(parent);
+        String grandGrandParentName = childParentMap.fetchParentFor(grandParent).getName();
+        if ("MethodDeclaration".equals(grandGrandParentName))
+            printer.p(";");
     }
 
 }
