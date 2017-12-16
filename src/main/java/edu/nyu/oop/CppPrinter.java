@@ -398,7 +398,7 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitThisExpression(GNode n){
-        printer.p("this");
+        printer.p("__this");
     }
 
     public void visitExpressionList(GNode source){
