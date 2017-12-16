@@ -16,8 +16,6 @@ public class CppPrinter extends RecursiveVisitor {
 
     private static int flag = -1;
 
-    private static boolean noLineBreak=false;
-
     private static boolean newClassExpression=false;
 
     private ChildToParentMap childParentMap;
@@ -365,15 +363,16 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitConditionalStatement(GNode source){
-        visit(source);
+        printer.p("if (");
+        dispatch(source.getNode(0));
+        printer.p(")");
+        dispatch(source.getNode(1));
     }
 
     public void visitForStatement(GNode source){
-        noLineBreak=true;
         Node basic = source.getNode(0);
         printer.p("for(");
         dispatch(basic);
-        noLineBreak=false;
         Node block = source.getNode(1);
         dispatch(block);
     }
@@ -384,11 +383,15 @@ public class CppPrinter extends RecursiveVisitor {
         dispatch(source.getNode(2));
         printer.p("; ");
         dispatch(source.getNode(3));
+        printer.p("; ");
         dispatch(source.getNode(4));
     }
 
     public void visitWhileStatement(GNode source){
-        visit(source);
+        printer.p("while (");
+        dispatch(source.getNode(0));
+        printer.p(")");
+        dispatch(source.getNode(1));
     }
 
 
@@ -463,8 +466,12 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p(compare);
         Node expression = source.getNode(2);
         dispatch(expression);
-        if (noLineBreak) printer.p(";");
-        else printer.pln(";");
+    }
+
+    public void visitEqualityExpression(GNode source){
+        dispatch(source.getNode(0));
+        printer.p(source.getString(1));
+        dispatch(source.getNode(2));
     }
 
     public void visitCallExpression(GNode n){
@@ -555,9 +562,8 @@ public class CppPrinter extends RecursiveVisitor {
         visit(n);
         printer.pln("})");
         Node parent = childParentMap.fetchParentFor(n);
-        Node grandParent = childParentMap.fetchParentFor(parent);
-        String grandGrandParentName = childParentMap.fetchParentFor(grandParent).getName();
-        if ("MethodDeclaration".equals(grandGrandParentName))
+        String grandParentName = childParentMap.fetchParentFor(parent).getName();
+        if ("Block".equals(grandParentName))
             printer.p(";");
     }
 
