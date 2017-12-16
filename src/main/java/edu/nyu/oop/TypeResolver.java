@@ -15,7 +15,7 @@ public class TypeResolver {
     static {
         primitiveTypeMap = new HashMap<>();
         primitiveTypeMap.put("boolean", "bool");
-        primitiveTypeMap.put("byte", "signed char");
+        primitiveTypeMap.put("byte", "int8_t");
         primitiveTypeMap.put("char", "char"); // as handling UTF-16 characters in C++ is a bit of a mess, we choose not to translate it
         primitiveTypeMap.put("short", "int16_t");
         primitiveTypeMap.put("int", "int32_t");
@@ -64,6 +64,23 @@ public class TypeResolver {
             for (int i = 0; i < type.getNode(1).size(); i++)
                 sb.append(">");
             typeStr = sb.toString();
+        }
+
+        return typeStr;
+    }
+
+    public static String javaTypeToString(Node type) {
+        // check whether it is void type
+        if ("VoidType".equals(type.getName()))
+            return "void";
+
+        String typeStr;
+        Node dimension = type.getNode(1);
+
+        if (dimension == null) {
+            typeStr = type.getNode(0).getString(0);
+        } else {
+            typeStr = type.getNode(0).getString(0);
         }
 
         return typeStr;
