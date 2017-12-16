@@ -15,7 +15,7 @@ public class TypeResolver {
     static {
         primitiveTypeMap = new HashMap<>();
         primitiveTypeMap.put("boolean", "bool");
-        primitiveTypeMap.put("byte", "int8_t");
+        primitiveTypeMap.put("byte", "signed char");
         primitiveTypeMap.put("char", "char"); // as handling UTF-16 characters in C++ is a bit of a mess, we choose not to translate it
         primitiveTypeMap.put("short", "int16_t");
         primitiveTypeMap.put("int", "int32_t");
