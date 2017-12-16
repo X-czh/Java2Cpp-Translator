@@ -108,6 +108,7 @@ public class ClassTreeVisitor extends RecursiveVisitor {
             for (Node tp : parameter_types)
                 new_name.append("_" + tp.toString());
             method_name = new_name.toString();
+            n.set(3, method_name);
         }
 
         MethodSignature m = new MethodSignature(modifiers, return_type, method_name, parameters, parameter_types);
