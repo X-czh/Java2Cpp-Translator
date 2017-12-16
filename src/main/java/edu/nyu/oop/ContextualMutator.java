@@ -333,12 +333,15 @@ public class ContextualMutator extends ContextualVisitor {
     }
 
     public Node visitExpression(GNode n){
+        System.out.println(n);
         visit(n);
         if ("=".equals(n.getString(1)) && "SubscriptExpression".equals(n.getNode(0).getName())) {
+            Node temp = n.getNode(0);
+            while ("SubscriptExpression".equals(temp.getName())) temp=temp.getNode(0);
             Node array_store = GNode.create("CBlock");
             array_store.add(create_callexp(null, "__rt::checkStore",
                     GNode.create("Arguments",
-                            GNode.create("PrimaryIdentifier", n.getNode(0).getNode(0).getString(0)),
+                            GNode.create("PrimaryIdentifier", temp.getString(0)),
                             n.getNode(2))));
             array_store.add(NodeUtil.deepCopyNode(n));
             dispatch(array_store);
