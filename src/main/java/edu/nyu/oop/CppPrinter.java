@@ -138,7 +138,7 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p(literal);
     }
 
-    public void visitFloatLiteral(GNode source){
+    public void visitFloatingPointLiteral(GNode source){
         String literal=source.getString(0);
         printer.p(literal);
     }

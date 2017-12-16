@@ -50,8 +50,11 @@ public class TypeResolver {
         String typeStr;
         Node dimension = type.getNode(1);
 
-        if (dimension == null)
+        if (dimension == null) {
             typeStr = type.getNode(0).getString(0);
+            if (primitiveTypeMap.containsKey(typeStr))
+                typeStr = primitiveTypeMap.get(typeStr);
+        }
         else {
             String componentType = type.getNode(0).getString(0);
             StringBuilder sb = new StringBuilder();
