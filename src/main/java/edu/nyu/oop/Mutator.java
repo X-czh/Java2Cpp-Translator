@@ -147,7 +147,14 @@ public class Mutator extends Visitor {
             for (int i = 1; i < block.size(); ++i)
                 mutatedBlock.add(block.get(i));
         } else {
-            // no call to other constructors either of this class or of the super class
+            // no explicit call to other constructors either of this class or of the super class
+            // add call to super class's default constructor
+            GNode callExpression = GNode.create("CallExpression");
+            callExpression.add(null);
+            callExpression.add(null);
+            callExpression.add("__" + classTreeMap.get(currentClassName).getParentClassName() + "::__init");
+            callExpression.add(addExplicitThisArgument(GNode.create("FormalParameters")));
+            mutatedBlock.add(callExpression);
             for (Node t : classInitialization)
                 mutatedBlock.add(t);
             for (Object o : block)
