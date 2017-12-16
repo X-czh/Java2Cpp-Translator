@@ -43,16 +43,17 @@ public class ContextualMutator extends ContextualVisitor {
 
         visit(n);
 
-        //System.out.println("check method: " + methodName);
-        //System.out.println(n);
-
         // check whether it is System.out.print()/println()
         if (receiver != null &&
                 receiver.getName().equals("SelectionExpression") &&
                 receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
                 receiver.getNode(0).getString(0).equals("System") &&
-                receiver.getString(1).equals("out"))
-            return n;
+                receiver.getString(1).equals("out")) {
+            GNode printingExpression = GNode.create("PrintingExpression");
+            printingExpression.add(n.getNode(3).getNode(0));
+            printingExpression.add(n.getString(2));
+            return printingExpression;
+        }
 
         //method name mangling
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
@@ -98,39 +99,50 @@ public class ContextualMutator extends ContextualVisitor {
                     n.set(0, makeThisExpression());
             }
 
+
             // mutate and wrap call expression
             Node replacement = GNode.create("CBlock");
             String temp_name = generate_temp_name(counter++);
 
-            // A temp = translate(e);
-            replacement.add(create_field_dec(
-                    TypeResolver.createType(receiver_type_name, null), temp_name, n.getNode(0)));
-            // __rt::checkNotNull(temp);
-            Node primary_id = GNode.create("PrimaryIdentifier", temp_name);
-            replacement.add(create_callexp(null, "__rt::checkNotNull",
-                    GNode.create("Arguments", primary_id)) );
+            if (TypeUtil.getType(receiver).hasAlias()) {
+                // A temp = translate(e);
+                replacement.add(create_field_dec(
+                        TypeResolver.createType(receiver_type_name, null), temp_name, n.getNode(0)));
+                // __rt::checkNotNull(temp);
+                Node primary_id = GNode.create("PrimaryIdentifier", temp_name);
+                replacement.add(create_callexp(null, "__rt::checkNotNull",
+                        GNode.create("Arguments", primary_id)));
 
-            // custom mutation based on method type
-            if (TypeUtil.isStaticType(method)) {
-                //__A::m();
-                replacement.add(create_callexp(null,
-                        "__"+receiver_type_name+"::"+new_name,
-                        n.getNode(3)));
-            } else if (TypeUtil.isPrivateType(method)) {
-                //__A::m(temp);
-                replacement.add(create_callexp(null,
-                        "__"+receiver_type_name+"::"+new_name,
-                        add_this_argu(n.getNode(3), primary_id)));
+                // custom mutation based on method type
+                if (TypeUtil.isStaticType(method)) {
+                    //__A::m();
+                    replacement.add(create_staticcallexp(GNode.create("PrimaryIdentifier", receiver_type_name),
+                            new_name,
+                            n.getNode(3)));
+                } else if (TypeUtil.isPrivateType(method)) {
+                    //__A::m(temp);
+                    replacement.add(create_staticcallexp(GNode.create("PrimaryIdentifier", receiver_type_name),
+                            new_name,
+                            add_this_argu(n.getNode(3), primary_id)));
+                } else {
+                    //temp->vptr->m(temp);
+                    replacement.add(create_callexp(add_vptr(primary_id),
+                            new_name,
+                            add_this_argu(n.getNode(3), primary_id)));
+                }
             } else {
-                //temp->vptr->m(temp);
-                replacement.add(create_callexp(add_vptr(primary_id),
+                //__A::m();
+                replacement.add(create_staticcallexp(GNode.create("PrimaryIdentifier", receiver_type_name),
                         new_name,
-                        add_this_argu(n.getNode(3), primary_id)));
+                        n.getNode(3)));
             }
+
+
 
             TypeUtil.setType(replacement, JavaEntities.currentType(table));
 
             return replacement;
+
         }
 
         return n;
@@ -163,6 +175,15 @@ public class ContextualMutator extends ContextualVisitor {
 
     public Node create_callexp(Node receiver, String method_name, Node arguments){
         Node call = GNode.create("CallExpression");
+        call.add(receiver);
+        call.add(null);
+        call.add(method_name);
+        call.add(arguments);
+        return call;
+    }
+
+    public Node create_staticcallexp(Node receiver, String method_name, Node arguments){
+        Node call = GNode.create("StaticCallExpression");
         call.add(receiver);
         call.add(null);
         call.add(method_name);
@@ -264,6 +285,13 @@ public class ContextualMutator extends ContextualVisitor {
         TypeUtil.setType(cast_exp, JavaEntities.qualifiedNameToType(
                 table, classpath(), table.current().getQualifiedName(), cast_to));
         return cast_exp;
+    }
+
+    public Node visitSelectionExpression(GNode n) {
+        Node owner = n.getNode(0);
+        if (!TypeUtil.getType(owner).hasAlias())
+            return GNode.create("StaticSelectionExpression", owner, n.get(1));
+        return n;
     }
 
 }

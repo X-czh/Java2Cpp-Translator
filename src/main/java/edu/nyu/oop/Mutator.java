@@ -28,11 +28,14 @@ public class Mutator extends Visitor {
     private List<Node> classInitialization;
     private Map<String, ClassSignature> classTreeMap;
     private List<String> packageInfo;
+    private List<String> conflictMethodNames;
     private ChildToParentMap childParentMap;
 
-    public Mutator(Map<String, ClassSignature> classTreeMap, List<String> packageInfo) {
+    public Mutator(Map<String, ClassSignature> classTreeMap,
+                   List<String> packageInfo, List<String> conflictMethodNames) {
         this.classTreeMap = classTreeMap;
         this.packageInfo = packageInfo;
+        this.conflictMethodNames = conflictMethodNames;
     }
 
     public Node mutate(List<Node> javaAstList) {
@@ -160,6 +163,7 @@ public class Mutator extends Visitor {
             for (Object o : block)
                 mutatedBlock.add(o);
         }
+        mutatedBlock.add(GNode.create("ReturnStatement", GNode.create("PrimaryIdentifier", "__this")));
 
         // create initMethod GNode
         GNode initMethod = GNode.create("MethodDeclaration");
@@ -217,22 +221,22 @@ public class Mutator extends Visitor {
         visit(n);
     }
 
-    public Node visitCallExpression(GNode n) {
-        Node receiver = n.getNode(0);
+    public void visitCallExpression(GNode n) {
+        String methodName = n.getString(2);
 
-        // check whether it is System.out.print()/println()
-        if (receiver != null &&
-                receiver.getName().equals("SelectionExpression") &&
-                receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
-                receiver.getNode(0).getString(0).equals("System") &&
-                receiver.getString(1).equals("out")) {
-            GNode printingExpression = GNode.create("PrintingExpression");
-            printingExpression.add(n.getNode(3).getNode(0));
-            printingExpression.add(n.getString(2));
-            return printingExpression;
-        }
+        if (conflictMethodNames.contains(methodName))
+            n.set(2, methodName + "_impl");
 
-        return n;
+        visit(n);
+    }
+
+    public void visitStaticCallExpression(GNode n) {
+        String methodName = n.getString(2);
+
+        if (conflictMethodNames.contains(methodName))
+            n.set(2, methodName + "_impl");
+
+        visit(n);
     }
 
     public void visit(GNode n) {

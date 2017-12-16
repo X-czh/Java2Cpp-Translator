@@ -454,6 +454,17 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln(";");
     }
 
+    public void visitStaticCallExpression(GNode n){
+        if (n.getNode(0) != null) {
+            printer.p("__");
+            dispatch(n.getNode(0));
+            printer.p("::");
+        }
+        printer.p(n.getString(2));
+        dispatch(n.getNode(3));
+        printer.pln(";");
+    }
+
     public void visitPrintingExpression(GNode source){
         String printType = source.getString(1);
         printer.p("std::cout << ");
@@ -521,6 +532,13 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitNewCastExpression(GNode n){
         printer.p(n.getString(2));
         dispatch(n.getNode(3));
+    }
+
+    public void visitStaticSelectionExpression(GNode source){
+        printer.p("__");
+        dispatch(source.getNode(0));
+        String field = source.getString(1);
+        printer.p("::"+field);
     }
 
 }

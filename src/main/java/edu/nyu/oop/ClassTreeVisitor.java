@@ -22,6 +22,7 @@ public class ClassTreeVisitor extends RecursiveVisitor {
     private ChildToParentMap child_parent_map;
     private ClassSignature current_class;
     List<String> package_declaration = new ArrayList<>();
+    List<String> conflict_method_names = new ArrayList<>();
 
     public void visitClassDeclaration(GNode n) {
         String class_name, parent_class_name;
@@ -152,6 +153,10 @@ public class ClassTreeVisitor extends RecursiveVisitor {
         return package_declaration;
     }
 
+    public List<String> getConflictMethodNames() {
+        return conflict_method_names;
+    }
+
     public Map<String, ClassSignature> getClassTree(List<Node> javaAstList) {
         tree_map = new HashMap<>();
 
@@ -177,6 +182,7 @@ public class ClassTreeVisitor extends RecursiveVisitor {
                 for (FieldSignature f : c.getFieldList()) {
                     for (String fieldName : f.getDeclarators()) {
                         if (fieldName.equals(methodName)) {
+                            conflict_method_names.add(methodName);
                             m.setMethodName(m.getMethodName() + "_impl");
                         }
                     }
