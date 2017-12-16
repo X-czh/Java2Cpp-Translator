@@ -8,7 +8,7 @@ import org.slf4j.Logger;
 import xtc.tree.*;
 
 /**
- * This class implements preety printing of C++ code with C++ AST as input.
+ * This class implements pretty printing of C++ code with C++ AST as input.
  */
 public class CppPrinter extends RecursiveVisitor {
     private Logger logger = org.slf4j.LoggerFactory.getLogger(this.getClass());
