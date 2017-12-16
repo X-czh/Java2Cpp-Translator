@@ -61,12 +61,12 @@ public class Boot extends Tool {
             bool("printConfig", "printConfig", false, "Output application configuration to screen.").
             bool("printJavaAstList", "printJavaAstList", false, "Print list of Java Ast.").
             bool("printMutatedJavaAstList", "printMutatedJavaAstList", false, "Print list of mutated Java Ast.").
-            bool("printHeaderAst", "printHeaderAst", false, "print C++ header AST").
-            bool("printCppHeader", "printCppHeader", false, "print C++ header").
-            bool("printMutatedCppAst", "printMutatedCppAst", false, "print mutated C++ AST").
-            bool("printMainAst", "printMainAst", false, "print C++ main AST").
-            bool("printCppImplementation", "printCppImplementation", false, "print C++ implementation files").
-            bool("runTranslator", "runTranslator", false, "run translator");
+            bool("printHeaderAst", "printHeaderAst", false, "Print C++ header Ast.").
+            bool("printCppHeader", "printCppHeader", false, "Print C++ header.").
+            bool("printMutatedCppAst", "printMutatedCppAst", false, "Print mutated C++ Ast.").
+            bool("printMainAst", "printMainAst", false, "Print C++ main Ast.").
+            bool("printCppImplementation", "printCppImplementation", false, "Print C++ implementation files.").
+            bool("runTranslator", "runTranslator", false, "Run translator.");
   }
 
   @Override

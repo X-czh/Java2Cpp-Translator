@@ -13,19 +13,28 @@ Call sbt from the terminal in the translator directory and run the following cod
 
 Replace the xxx in "testxxx" and "Testxxx.java" with the number of the Java class file you want to run. 
 The output.h, output.cpp, and main.cpp in the output folder will then be modified accordingly.
-Currently, the translator only supports the generation of C++ header file output.h.
-
-The other possible commands are 
-* printJavaAst
-* printSimpleJavaAst 
-* printJavaCode
-* printJavaImportCode 
-* printConfig
-* printJavaAstList
-* printHeaderAst
-* printCppHeaderFile
-* runTranslator                                                                  
-
+Run
+&nbsp;&nbsp;&nbsp;`formatc`
+to format C++ files
+&nbsp;&nbsp;&nbsp;`compilec`
+&nbsp;&nbsp;&nbsp;`execc`
+&nbsp;&nbsp;&nbsp;`cleanc`
+All supported commands are 
+* printJavaAst - Print Java Ast
+* printSimpleJavaAst - Print Simplified Java Ast 
+* printJavaCode - Print Java code
+* cppFilePrinter - Print example cpp file into output directory
+* printJavaImportCode -Print Java code for imports of primary source file
+* printSymbolTable - Print symbol table for Java Ast
+* printConfig - Output application configuration to screen
+* printJavaAstList - Print list of Java Ast 
+* printMutatedJavaAstList - Print list of mutated Java Ast
+* printHeaderAst - print C++ header AST
+* printCppHeader - print C++ header
+* printMutatedCppAs - Print mutated C++ Ast
+* printMainAst - Print C++ main Ast
+* printCppImplementation - Print C++ implementation files
+* runTranslator - Run translator                                                           
 To run tests, in sbt do any of the following:
 
 ```

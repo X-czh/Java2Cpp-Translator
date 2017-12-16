@@ -106,7 +106,7 @@ public class ClassTreeVisitor extends RecursiveVisitor {
         if (!method_name.equals("main")) {
             StringBuilder new_name = new StringBuilder(method_name);
             for (Node tp : parameter_types)
-                new_name.append("_" + tp.toString());
+                new_name.append("_" + TypeResolver.typeToString(tp));
             method_name = new_name.toString();
             n.set(3, method_name);
         }
