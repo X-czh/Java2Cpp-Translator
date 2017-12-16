@@ -164,19 +164,21 @@ public class ClassTreeVisitor extends RecursiveVisitor {
         for (Node tree: javaAstList) {
             child_parent_map = new ChildToParentMap(tree);
             super.dispatch(tree);
-            mangleMethodName(tree);
         }
+        mangleMethodName();
 
         return tree_map;
     }
 
-    private void mangleMethodName(Node n) {
-        for (MethodSignature m : current_class.getMethodList()) {
-            String methodName = m.getMethodName();
-            for (FieldSignature  f: current_class.getFieldList()) {
-                for (String fieldName : f.getDeclarators()) {
-                    if (fieldName.equals(methodName)) {
-                        m.setMethodName(m.getMethodName() + "_impl");
+    private void mangleMethodName() {
+        for (ClassSignature c : tree_map.values()) {
+            for (MethodSignature m : c.getMethodList()) {
+                String methodName = m.getMethodName();
+                for (FieldSignature f : c.getFieldList()) {
+                    for (String fieldName : f.getDeclarators()) {
+                        if (fieldName.equals(methodName)) {
+                            m.setMethodName(m.getMethodName() + "_impl");
+                        }
                     }
                 }
             }
