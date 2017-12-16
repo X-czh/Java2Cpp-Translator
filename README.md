@@ -26,7 +26,7 @@ Run&nbsp;&nbsp;&nbsp;`formatc` to format the C++ files in the output folder to a
 
 Run&nbsp;&nbsp;&nbsp;`compilec` to compile the C++ files in the output folder 
 
-Run&nbsp;&nbsp;&nbsp;`execc` to execute the C++ files in the output folder
+Run&nbsp;&nbsp;&nbsp;`execc` to execute the C++ files in the output folder (does NOT support command line options, need to manually execuate output/a.out if command line options are needed)
 
 Run&nbsp;&nbsp;&nbsp;`cleanc` to clean the executable file previously generated in the output folder
 
