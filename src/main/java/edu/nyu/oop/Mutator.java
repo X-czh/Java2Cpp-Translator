@@ -26,7 +26,7 @@ public class Mutator extends Visitor {
     private GNode prevHierarchy;
     private String currentClassName;
     private String mainMethodClassName;
-    private List<Node> classInitialization;
+    private GNode classInitialization;
     private Map<String, ClassSignature> classTreeMap;
     private List<String> packageInfo;
     private List<String> conflictMethodNames;
@@ -51,7 +51,6 @@ public class Mutator extends Visitor {
         }
 
         for (Node tree : javaAstList) {
-            classInitialization = new ArrayList<>();
             childParentMap = new ChildToParentMap(tree);
             super.dispatch(tree);
         }
@@ -74,6 +73,7 @@ public class Mutator extends Visitor {
 
     public void visitClassDeclaration(GNode n) {
         currentClassName = n.getString(1);
+        classInitialization = GNode.create("Block");
 
         prevHierarchy.add(makeDefaultConstructor());
         prevHierarchy.add(make__classMethod());
@@ -118,11 +118,9 @@ public class Mutator extends Visitor {
     }
 
     public void visitBlockDeclaration(GNode n) {
-        visit(n);
-
         // part of the class initializing process, add to classInitialization
-        for (int i = 0; i < n.size(); ++i)
-            classInitialization.add(n.getNode(i));
+        classInitialization.add(n.getNode(1));
+        visit(n);
     }
 
     public void mutateConstructorDeclaration(GNode n) {
@@ -158,8 +156,7 @@ public class Mutator extends Visitor {
             mutatedBlock.add(block.getNode(0));
             if (!thisFlag) {
                 // no call to other constructors of this class
-                for (Node t : classInitialization)
-                    mutatedBlock.add(t);
+                mutatedBlock.add(classInitialization);
             }
             for (int i = 1; i < block.size(); ++i)
                 mutatedBlock.add(block.get(i));
@@ -172,8 +169,7 @@ public class Mutator extends Visitor {
             callExpression.add("__" + classTreeMap.get(currentClassName).getParentClassName() + "::__init");
             callExpression.add(addExplicitThisArgument(GNode.create("FormalParameters")));
             mutatedBlock.add(callExpression);
-            for (Node t : classInitialization)
-                mutatedBlock.add(t);
+            mutatedBlock.add(classInitialization);
             for (Object o : block)
                 mutatedBlock.add(o);
         }
@@ -249,6 +245,18 @@ public class Mutator extends Visitor {
 
         if (conflictMethodNames.contains(methodName))
             n.set(2, methodName + "_impl");
+
+        visit(n);
+    }
+
+    public void visitNewClassExpression(GNode n) {
+        String identifier = n.getNode(2).getString(0);
+        Node arg = n.getNode(3);
+        GNode newArg = GNode.create("Arguments");
+        newArg.add(GNode.create("CppNewClassExpression", identifier));
+        for (Object o : arg)
+            newArg.add(o);
+        n.set(3, newArg);
 
         visit(n);
     }

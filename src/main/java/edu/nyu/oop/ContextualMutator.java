@@ -1,6 +1,7 @@
 package edu.nyu.oop;
 
 import edu.nyu.oop.util.ContextualVisitor;
+import edu.nyu.oop.util.NodeUtil;
 import edu.nyu.oop.util.TypeUtil;
 import xtc.Constants;
 import xtc.lang.JavaEntities;
@@ -42,7 +43,9 @@ public class ContextualMutator extends ContextualVisitor {
         Node argus = n.getNode(3);
         String methodName = n.getString(2);
 
-        System.out.println("resolving method :"+methodName);
+        if (methodName.equals("__init")) return n;
+
+//        System.out.println("resolving method :"+methodName);
         // check whether it is System.out.print()/println()
         if (receiver != null &&
                 receiver.getName().equals("SelectionExpression") &&
@@ -60,7 +63,7 @@ public class ContextualMutator extends ContextualVisitor {
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
             Type typeToSearch;
-            System.out.println(TypeUtil.getType(receiver));
+//            System.out.println(TypeUtil.getType(receiver));
             if (receiver == null || "ThisExpression".equals(receiver.getName())) // receiver is of current class
                 typeToSearch = JavaEntities.currentType(table);
             else if (TypeUtil.getType(receiver).hasAlias()) // receiver is of some other class
@@ -80,9 +83,8 @@ public class ContextualMutator extends ContextualVisitor {
             MethodT method =
                     JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
 
-
-            System.out.println(typeToSearch);
-            System.out.println(actuals);
+//            System.out.println(typeToSearch);
+//            System.out.println(actuals);
 
             if (method == null) return n;
 
@@ -105,7 +107,7 @@ public class ContextualMutator extends ContextualVisitor {
                 new_name = new_name + "_" + temp;
             }
 
-            System.out.println("new name is: " + new_name);
+//            System.out.println("new name is: " + new_name);
             // make this access explicit
             if (!TypeUtil.isStaticType(method)) {
                 if (receiver == null)
@@ -161,55 +163,6 @@ public class ContextualMutator extends ContextualVisitor {
         return n;
     }
 
-    public Node add_vptr(Node p){
-        Node selection = GNode.create("SelectionExpression", p, "__vptr");
-        return selection;
-    }
-
-    public Node add_this_argu(Node argus, Node this_argu){
-        Node new_argus = GNode.create("Arguments");
-        new_argus.add(this_argu);
-        for (int i=0; i<argus.size(); i++) {
-            new_argus.add(argus.getNode(i));
-        }
-        return new_argus;
-    }
-
-    public Node create_field_dec(Node type, String name, Node thing){
-        Node field = GNode.create("FieldDeclaration");
-        field.add(GNode.create("Modifiers"));
-        field.add(type);
-        Node decs = GNode.create("Declarators");
-        Node dec = GNode.create("Declarator", name, null, thing);
-        decs.add(dec);
-        field.add(decs);
-        return field;
-    }
-
-    public Node create_callexp(Node receiver, String method_name, Node arguments){
-        Node call = GNode.create("CallExpression");
-        call.add(receiver);
-        call.add(null);
-        call.add(method_name);
-        call.add(arguments);
-        return call;
-    }
-
-    public Node create_staticcallexp(Node receiver, String method_name, Node arguments){
-        Node call = GNode.create("StaticCallExpression");
-        call.add(receiver);
-        call.add(null);
-        call.add(method_name);
-        call.add(arguments);
-        return call;
-    }
-
-    public String generate_temp_name(int x){
-        String temp = "temp";
-        temp = temp + Integer.toString(x);
-        return temp;
-    }
-
     public Node visitPrimaryIdentifier(GNode n) {
         String fieldName = n.getString(0);
 
@@ -263,6 +216,61 @@ public class ContextualMutator extends ContextualVisitor {
         return result;
     }
 
+    public Node visitCastExpression(GNode n){
+        visit(n);
+        String cast_to=n.getNode(0).getNode(0).getString(0);
+        Node cast_exp = create_castexp(null, "__rt::java_cast<"+cast_to+">",
+                GNode.create("Arguments", n.getNode(1)));
+        //System.out.println(cast_exp);
+        TypeUtil.setType(cast_exp, JavaEntities.qualifiedNameToType(
+                table, classpath(), table.current().getQualifiedName(), cast_to));
+        return cast_exp;
+    }
+
+    public Node visitSelectionExpression(GNode n) {
+        Node owner = n.getNode(0);
+        Type tp = TypeUtil.getType(owner);
+        if (tp.isAnnotated() && "PrimaryIdentifier".equals(owner.getName()))
+            return GNode.create("StaticSelectionExpression", owner, n.get(1));
+        return n;
+    }
+
+    public Node visitCBlock(GNode n){
+        return n;
+    }
+
+    public Node visitNewArrayExpression(GNode n){
+        String temp_name = generate_temp_name(counter++);
+        Node new_array = GNode.create("CBlock");
+        Node array_type = GNode.create("Type");
+        array_type.add(n.getNode(0));
+        Node dimension = GNode.create("Dimensions");
+        for (int i=0; i<n.getNode(1).size(); i++){
+            dimension.add("[");
+        }
+        array_type.add(dimension);
+        new_array.add(create_field_dec(array_type, temp_name, n));
+        new_array.add(GNode.create("PrimaryIdentifier", temp_name+";"));
+        return new_array;
+    }
+
+    public Node visitExpression(GNode n){
+        visit(n);
+        if ("=".equals(n.getString(1)) && "SubscriptExpression".equals(n.getNode(0).getName())) {
+            Node temp = n.getNode(0);
+            while ("SubscriptExpression".equals(temp.getName())) temp=temp.getNode(0);
+            Node array_store = GNode.create("CBlock");
+            array_store.add(create_callexp(null, "__rt::checkStore",
+                    GNode.create("Arguments",
+                            GNode.create("PrimaryIdentifier", temp.getString(0)),
+                            n.getNode(2))));
+            array_store.add(NodeUtil.deepCopyNode(n));
+            dispatch(array_store);
+            return array_store;
+        }
+        return n;
+    }
+
     public void visit(GNode n) {
         for (int i = 0; i < n.size(); ++i) {
             Object o = n.get(i);
@@ -290,26 +298,54 @@ public class ContextualMutator extends ContextualVisitor {
         return cast;
     }
 
-    public Node visitCastExpression(GNode n){
-        visit(n);
-        String cast_to=n.getNode(0).getNode(0).getString(0);
-        Node cast_exp = create_castexp(null, "__rt::java_cast<"+cast_to+">",
-                GNode.create("Arguments", n.getNode(1)));
-        //System.out.println(cast_exp);
-        TypeUtil.setType(cast_exp, JavaEntities.qualifiedNameToType(
-                table, classpath(), table.current().getQualifiedName(), cast_to));
-        return cast_exp;
+
+    public Node add_vptr(Node p){
+        Node selection = GNode.create("SelectionExpression", p, "__vptr");
+        return selection;
     }
 
-    public Node visitSelectionExpression(GNode n) {
-        Node owner = n.getNode(0);
-        if (!TypeUtil.getType(owner).hasAlias())
-            return GNode.create("StaticSelectionExpression", owner, n.get(1));
-        return n;
+    public Node add_this_argu(Node argus, Node this_argu){
+        Node new_argus = GNode.create("Arguments");
+        new_argus.add(this_argu);
+        for (int i=0; i<argus.size(); i++) {
+            new_argus.add(argus.getNode(i));
+        }
+        return new_argus;
     }
 
-    public Node visitCBlock(GNode n){
-        return n;
+    public Node create_field_dec(Node type, String name, Node thing){
+        Node field = GNode.create("FieldDeclaration");
+        field.add(GNode.create("Modifiers"));
+        field.add(type);
+        Node decs = GNode.create("Declarators");
+        Node dec = GNode.create("Declarator", name, null, thing);
+        decs.add(dec);
+        field.add(decs);
+        return field;
+    }
+
+    public Node create_callexp(Node receiver, String method_name, Node arguments){
+        Node call = GNode.create("CallExpression");
+        call.add(receiver);
+        call.add(null);
+        call.add(method_name);
+        call.add(arguments);
+        return call;
+    }
+
+    public Node create_staticcallexp(Node receiver, String method_name, Node arguments){
+        Node call = GNode.create("StaticCallExpression");
+        call.add(receiver);
+        call.add(null);
+        call.add(method_name);
+        call.add(arguments);
+        return call;
+    }
+
+    public String generate_temp_name(int x){
+        String temp = "temp";
+        temp = temp + Integer.toString(x);
+        return temp;
     }
 
 }
