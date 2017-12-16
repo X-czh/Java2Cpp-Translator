@@ -82,7 +82,7 @@ public class ContextualMutator extends ContextualVisitor {
 
             // extract param types to generate new name
             List<Type> param_use = method.getParameters();
-            String new_name = methodName + "_impl";
+            String new_name = methodName;
             for (int i = 0; i < param_use.size(); i++) {
                 String temp;
                 if (param_use.get(i).hasAlias())

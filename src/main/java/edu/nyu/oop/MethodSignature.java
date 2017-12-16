@@ -14,13 +14,17 @@ public class MethodSignature {
     private List<String> parameters;
     private List<Node> parameter_types;
     private String owner;
+    private Node methodDeclaration;
 
-    public MethodSignature(List<String> modifier, Node return_type, String method_name, List<String> parameters, List<Node> parameter_types) {
+    public MethodSignature(List<String> modifier, Node return_type, String method_name,
+                           List<String> parameters, List<Node> parameter_types,
+                           Node methodDeclaration) {
         this.modifier = modifier;
         this.return_type = return_type;
         this.method_name = method_name;
         this.parameters = parameters;
         this.parameter_types = parameter_types;
+        this.methodDeclaration = methodDeclaration;
     }
 
     public List<String> getModifier() {
@@ -29,6 +33,11 @@ public class MethodSignature {
 
     public Node getReturnType(){
         return return_type;
+    }
+
+    public void setMethodName(String newName) {
+        method_name = newName;
+        methodDeclaration.set(3, method_name);
     }
 
     public String getMethodName() {
@@ -50,6 +59,7 @@ public class MethodSignature {
     public String getOwner(){
         return owner;
     }
+
 }
 
 

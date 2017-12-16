@@ -104,14 +104,14 @@ public class ClassTreeVisitor extends RecursiveVisitor {
         // assume no other method named "main" though and do not support array typed parameters
         if (!method_name.equals("main")) {
             StringBuilder new_name = new StringBuilder(method_name);
-            new_name.append("_impl");
             for (Node tp : parameter_types)
                 new_name.append("_" + tp.toString());
             method_name = new_name.toString();
             n.set(3, method_name);
         }
 
-        MethodSignature m = new MethodSignature(modifiers, return_type, method_name, parameters, parameter_types);
+        MethodSignature m = new MethodSignature(modifiers, return_type, method_name,
+                parameters, parameter_types, n);
         current_class.addMethod(m);
 
         visit(n);
@@ -164,9 +164,23 @@ public class ClassTreeVisitor extends RecursiveVisitor {
         for (Node tree: javaAstList) {
             child_parent_map = new ChildToParentMap(tree);
             super.dispatch(tree);
+            mangleMethodName(tree);
         }
 
         return tree_map;
+    }
+
+    private void mangleMethodName(Node n) {
+        for (MethodSignature m : current_class.getMethodList()) {
+            String methodName = m.getMethodName();
+            for (FieldSignature  f: current_class.getFieldList()) {
+                for (String fieldName : f.getDeclarators()) {
+                    if (fieldName.equals(methodName)) {
+                        m.setMethodName(m.getMethodName() + "_impl");
+                    }
+                }
+            }
+        }
     }
 
 }
