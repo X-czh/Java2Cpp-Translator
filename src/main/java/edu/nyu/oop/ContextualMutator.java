@@ -39,16 +39,17 @@ public class ContextualMutator extends ContextualVisitor {
 
     public Node visitCallExpression(GNode n) {
         Node receiver = n.getNode(0);
+        Node argus = n.getNode(3);
         String methodName = n.getString(2);
 
-        visit(n);
-
+        System.out.println("resolving method :"+methodName);
         // check whether it is System.out.print()/println()
         if (receiver != null &&
                 receiver.getName().equals("SelectionExpression") &&
                 receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
                 receiver.getNode(0).getString(0).equals("System") &&
                 receiver.getString(1).equals("out")) {
+            visit(n);
             GNode printingExpression = GNode.create("PrintingExpression");
             printingExpression.add(n.getNode(3).getNode(0));
             printingExpression.add(n.getString(2));
@@ -59,18 +60,29 @@ public class ContextualMutator extends ContextualVisitor {
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
             Type typeToSearch;
+            System.out.println(TypeUtil.getType(receiver));
             if (receiver == null || "ThisExpression".equals(receiver.getName())) // receiver is of current class
                 typeToSearch = JavaEntities.currentType(table);
             else if (TypeUtil.getType(receiver).hasAlias()) // receiver is of some other class
                 typeToSearch = TypeUtil.getType(receiver).toAlias();
+            else if (TypeUtil.getType(receiver).isClass()){
+                typeToSearch = TypeUtil.getType(receiver);
+            }
             else // for static method calls of the form A.m()
                 typeToSearch = JavaEntities.qualifiedNameToType(
                         table, classpath(), table.current().getQualifiedName(), receiver.getString(0));
 
             // find type of called method
-            List<Type> actuals = JavaEntities.typeList((List) dispatch(n.getNode(3)));
+            List<Type> actuals = JavaEntities.typeList((List) dispatch(argus));
+
+            visit(n);
+
             MethodT method =
                     JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
+
+
+            System.out.println(typeToSearch);
+            System.out.println(actuals);
 
             if (method == null) return n;
 
@@ -93,6 +105,7 @@ public class ContextualMutator extends ContextualVisitor {
                 new_name = new_name + "_" + temp;
             }
 
+            System.out.println("new name is: " + new_name);
             // make this access explicit
             if (!TypeUtil.isStaticType(method)) {
                 if (receiver == null)
@@ -104,7 +117,7 @@ public class ContextualMutator extends ContextualVisitor {
             Node replacement = GNode.create("CBlock");
             String temp_name = generate_temp_name(counter++);
 
-            if (TypeUtil.getType(receiver).hasAlias()) {
+            if (TypeUtil.getType(receiver).hasAlias() || TypeUtil.getType(receiver).isClass()) {
                 // A temp = translate(e);
                 replacement.add(create_field_dec(
                         TypeResolver.createType(receiver_type_name, null), temp_name, n.getNode(0)));
@@ -278,6 +291,7 @@ public class ContextualMutator extends ContextualVisitor {
     }
 
     public Node visitCastExpression(GNode n){
+        visit(n);
         String cast_to=n.getNode(0).getNode(0).getString(0);
         Node cast_exp = create_castexp(null, "__rt::java_cast<"+cast_to+">",
                 GNode.create("Arguments", n.getNode(1)));
@@ -291,6 +305,10 @@ public class ContextualMutator extends ContextualVisitor {
         Node owner = n.getNode(0);
         if (!TypeUtil.getType(owner).hasAlias())
             return GNode.create("StaticSelectionExpression", owner, n.get(1));
+        return n;
+    }
+
+    public Node visitCBlock(GNode n){
         return n;
     }
 

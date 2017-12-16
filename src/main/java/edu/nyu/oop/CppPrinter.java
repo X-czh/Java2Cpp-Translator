@@ -99,7 +99,10 @@ public class CppPrinter extends RecursiveVisitor {
 
     public void visitBlock(GNode source){
         printer.pln("{");
-        visit(source);
+        for (int i=0; i<source.size();i++){
+            dispatch(source.getNode(i));
+            printer.pln(";");
+        }
         printer.indent().decr().pln("}");
     }
 
@@ -529,6 +532,9 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("})");
     }
 
+    public void visitNullLiteral(GNode n){
+        printer.p("NULL");
+    }
 
 }
 
