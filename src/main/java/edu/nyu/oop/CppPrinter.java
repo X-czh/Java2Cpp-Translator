@@ -89,6 +89,7 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("#include \"output.h\"");
         printer.pln();
         printer.pln("using namespace java::lang;");
+        printer.pln();
     }
 
     private void mainHeadOfFile(){
@@ -275,7 +276,7 @@ public class CppPrinter extends RecursiveVisitor {
 
         if (formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0) dispatch(formalParameters);
         //there is no Formal parameters
-        else printer.p(" )");
+        else printer.p(")");
 
         //Initializations
 
@@ -332,7 +333,7 @@ public class CppPrinter extends RecursiveVisitor {
 
         if(formalParameters!=null && formalParameters.getName().compareTo("FormalParameters")==0) dispatch(formalParameters);
         //else there is no parameter
-        else printer.p(" )");
+        else printer.p(")");
 
         if(block != null){
             //print what is inside the block

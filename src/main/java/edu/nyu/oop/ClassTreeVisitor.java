@@ -104,6 +104,7 @@ public class ClassTreeVisitor extends RecursiveVisitor {
         // assume no other method named "main" though and do not support array typed parameters
         if (!method_name.equals("main")) {
             StringBuilder new_name = new StringBuilder(method_name);
+            new_name.append("_impl");
             for (Node tp : parameter_types)
                 new_name.append("_" + tp.toString());
             method_name = new_name.toString();
