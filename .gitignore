@@ -4,5 +4,5 @@ project
 target
 output/cmake-build-debug
 output/*.o
-output/main
+output/*.out
 *.DS_Store

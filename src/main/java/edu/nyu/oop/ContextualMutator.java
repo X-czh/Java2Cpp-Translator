@@ -45,7 +45,7 @@ public class ContextualMutator extends ContextualVisitor {
 
         if (methodName.equals("__init")) return n;
 
-        System.out.println("resolving method :"+methodName);
+//        System.out.println("resolving method :"+methodName);
         // check whether it is System.out.print()/println()
         if (receiver != null &&
                 receiver.getName().equals("SelectionExpression") &&
@@ -63,7 +63,7 @@ public class ContextualMutator extends ContextualVisitor {
         if (!"super".equals(methodName) && !"this".equals(methodName)) {
             // find type to search for relevant methods
             Type typeToSearch;
-            System.out.println(TypeUtil.getType(receiver));
+//            System.out.println(TypeUtil.getType(receiver));
             if (receiver == null || "ThisExpression".equals(receiver.getName())) // receiver is of current class
                 typeToSearch = JavaEntities.currentType(table);
             else if (TypeUtil.getType(receiver).hasAlias()) // receiver is of some other class
@@ -83,9 +83,8 @@ public class ContextualMutator extends ContextualVisitor {
             MethodT method =
                     JavaEntities.typeDotMethod(table, classpath(), typeToSearch, true, methodName, actuals);
 
-
-            System.out.println(typeToSearch);
-            System.out.println(actuals);
+//            System.out.println(typeToSearch);
+//            System.out.println(actuals);
 
             if (method == null) return n;
 
@@ -108,7 +107,7 @@ public class ContextualMutator extends ContextualVisitor {
                 new_name = new_name + "_" + temp;
             }
 
-            System.out.println("new name is: " + new_name);
+//            System.out.println("new name is: " + new_name);
             // make this access explicit
             if (!TypeUtil.isStaticType(method)) {
                 if (receiver == null)
@@ -256,7 +255,6 @@ public class ContextualMutator extends ContextualVisitor {
     }
 
     public Node visitExpression(GNode n){
-        System.out.println(n);
         visit(n);
         if ("=".equals(n.getString(1)) && "SubscriptExpression".equals(n.getNode(0).getName())) {
             Node temp = n.getNode(0);

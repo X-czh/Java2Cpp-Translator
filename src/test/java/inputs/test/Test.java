@@ -51,6 +51,10 @@ class BB extends AA {
 }
 
 class AAA {
+    // class initialization block
+    {
+        System.out.println("class initialization block");
+    }
     int m(byte b) { System.out.println("AAA.m(byte)"); return b; }
     int m(int i) { System.out.println("AAA.m(int)"); return i; }
     void m(double d) { System.out.println("AAA.m(double)"); }
@@ -72,7 +76,7 @@ public class Test {
         A a = new A();
         b.m((A) b).m((B) b.m(b)).m();
 
-        //static field, static method, name conflict resolving and consturctor overloading
+        //static field, static method, name conflict resolving and constructor overloading
         int x;
         x = A.x;
         System.out.println(x);
