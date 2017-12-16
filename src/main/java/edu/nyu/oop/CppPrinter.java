@@ -390,6 +390,12 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln(";");
     }
 
+    public void visitAdditiveExpression(GNode source){
+        dispatch(source.getNode(0));
+        printer.p(" + ");
+        dispatch(source.getNode(2));
+    }
+
     public void visitThisExpression(GNode n){
         printer.p("__this");
     }
