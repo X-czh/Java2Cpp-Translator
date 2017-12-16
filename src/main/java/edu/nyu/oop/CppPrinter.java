@@ -16,8 +16,6 @@ public class CppPrinter extends RecursiveVisitor {
 
     private static int flag = -1;
 
-    private static boolean newClassExpression=false;
-
     private ChildToParentMap childParentMap;
 
     private Printer printer;
@@ -117,10 +115,13 @@ public class CppPrinter extends RecursiveVisitor {
         printer.p(type+" ");
     }
 
+    public void visitPrimitiveType(GNode source) {
+        printer.p(TypeResolver.primitiveTypeToString(source.getString(0)));
+    }
+
     public void visitQualifiedIdentifier(GNode source){
         String qualifiedIndentifier=source.getString(0);
-        if(newClassExpression) printer.p("__"+qualifiedIndentifier+"::__init(new __"+qualifiedIndentifier+"()");
-        else printer.p(qualifiedIndentifier);
+        printer.p(qualifiedIndentifier);
     }
 
     public void visitPrimaryIdentifier(GNode n){
@@ -453,7 +454,9 @@ public class CppPrinter extends RecursiveVisitor {
     public void visitSubscriptExpression(GNode source){
         Node first=source.getNode(0);
         Node second=source.getNode(1);
+        printer.p("(*");
         dispatch(first);
+        printer.p(")");
         printer.p("[");
         dispatch(second);
         printer.p("]");
@@ -506,18 +509,32 @@ public class CppPrinter extends RecursiveVisitor {
     }
 
     public void visitNewClassExpression(GNode source){
-        newClassExpression=true;
         Node args=source.getNode(3);
+        printer.p("__");
         dispatch(source.getNode(2));
-        if(args==null || args.size()==0){
+        printer.p("::__init");
+        dispatch(args);
+    }
+
+    public void visitCppNewClassExpression(GNode source){
+        printer.p("new ");
+        printer.p("__" + source.getString(0));
+        printer.p("()");
+    }
+
+    public void visitNewArrayExpression(GNode source){
+        printer.p("new ");
+        Node identifier = source.getNode(0);
+        for (int i = 0; i < source.getNode(1).size(); i++)
+            printer.p("__rt::__Array<");
+        dispatch(identifier);
+        for (int i = 0; i < source.getNode(1).size(); i++)
+            printer.p(">");
+        for (int i = 0; i < source.getNode(1).size(); i++) {
+            printer.p("(");
+            dispatch(source.getNode(1).getNode(i));
             printer.p(")");
         }
-        else {
-            printer.p(", ");
-            dispatch(args);
-            printer.p(")");
-        }
-        newClassExpression=false;
     }
 
     public void visitNewCastExpression(GNode n){
@@ -535,7 +552,7 @@ public class CppPrinter extends RecursiveVisitor {
         printer.pln("__rt::Array<String> args = new __rt::__Array<String>(argc - 1);");
         printer.pln();
         printer.pln("for (int32_t i = 1; i < argc; i++) {");
-        printer.pln("(*args)[i] = __rt::literal(argv[i]);");
+        printer.pln("(*args)[i - 1] = __rt::literal(argv[i]);");
         printer.pln("}");
         printer.pln();
         printer.pln(mainMethodLocation+"::main(args);");

@@ -253,6 +253,18 @@ public class Mutator extends Visitor {
         visit(n);
     }
 
+    public void visitNewClassExpression(GNode n) {
+        String identifier = n.getNode(2).getString(0);
+        Node arg = n.getNode(3);
+        GNode newArg = GNode.create("Arguments");
+        newArg.add(GNode.create("CppNewClassExpression", identifier));
+        for (Object o : arg)
+            newArg.add(o);
+        n.set(3, newArg);
+
+        visit(n);
+    }
+
     public void visit(GNode n) {
         for (int i = 0; i < n.size(); ++i) {
             Object o = n.get(i);

@@ -161,55 +161,6 @@ public class ContextualMutator extends ContextualVisitor {
         return n;
     }
 
-    public Node add_vptr(Node p){
-        Node selection = GNode.create("SelectionExpression", p, "__vptr");
-        return selection;
-    }
-
-    public Node add_this_argu(Node argus, Node this_argu){
-        Node new_argus = GNode.create("Arguments");
-        new_argus.add(this_argu);
-        for (int i=0; i<argus.size(); i++) {
-            new_argus.add(argus.getNode(i));
-        }
-        return new_argus;
-    }
-
-    public Node create_field_dec(Node type, String name, Node thing){
-        Node field = GNode.create("FieldDeclaration");
-        field.add(GNode.create("Modifiers"));
-        field.add(type);
-        Node decs = GNode.create("Declarators");
-        Node dec = GNode.create("Declarator", name, null, thing);
-        decs.add(dec);
-        field.add(decs);
-        return field;
-    }
-
-    public Node create_callexp(Node receiver, String method_name, Node arguments){
-        Node call = GNode.create("CallExpression");
-        call.add(receiver);
-        call.add(null);
-        call.add(method_name);
-        call.add(arguments);
-        return call;
-    }
-
-    public Node create_staticcallexp(Node receiver, String method_name, Node arguments){
-        Node call = GNode.create("StaticCallExpression");
-        call.add(receiver);
-        call.add(null);
-        call.add(method_name);
-        call.add(arguments);
-        return call;
-    }
-
-    public String generate_temp_name(int x){
-        String temp = "temp";
-        temp = temp + Integer.toString(x);
-        return temp;
-    }
-
     public Node visitPrimaryIdentifier(GNode n) {
         String fieldName = n.getString(0);
 
@@ -263,6 +214,29 @@ public class ContextualMutator extends ContextualVisitor {
         return result;
     }
 
+    public Node visitCastExpression(GNode n){
+        visit(n);
+        String cast_to=n.getNode(0).getNode(0).getString(0);
+        Node cast_exp = create_castexp(null, "__rt::java_cast<"+cast_to+">",
+                GNode.create("Arguments", n.getNode(1)));
+        //System.out.println(cast_exp);
+        TypeUtil.setType(cast_exp, JavaEntities.qualifiedNameToType(
+                table, classpath(), table.current().getQualifiedName(), cast_to));
+        return cast_exp;
+    }
+
+    public Node visitSelectionExpression(GNode n) {
+        Node owner = n.getNode(0);
+        Type tp = TypeUtil.getType(owner);
+        if (tp.isAnnotated())
+            return GNode.create("StaticSelectionExpression", owner, n.get(1));
+        return n;
+    }
+
+    public Node visitCBlock(GNode n){
+        return n;
+    }
+
     public void visit(GNode n) {
         for (int i = 0; i < n.size(); ++i) {
             Object o = n.get(i);
@@ -290,26 +264,54 @@ public class ContextualMutator extends ContextualVisitor {
         return cast;
     }
 
-    public Node visitCastExpression(GNode n){
-        visit(n);
-        String cast_to=n.getNode(0).getNode(0).getString(0);
-        Node cast_exp = create_castexp(null, "__rt::java_cast<"+cast_to+">",
-                GNode.create("Arguments", n.getNode(1)));
-        //System.out.println(cast_exp);
-        TypeUtil.setType(cast_exp, JavaEntities.qualifiedNameToType(
-                table, classpath(), table.current().getQualifiedName(), cast_to));
-        return cast_exp;
+
+    public Node add_vptr(Node p){
+        Node selection = GNode.create("SelectionExpression", p, "__vptr");
+        return selection;
     }
 
-    public Node visitSelectionExpression(GNode n) {
-        Node owner = n.getNode(0);
-        if (!TypeUtil.getType(owner).hasAlias())
-            return GNode.create("StaticSelectionExpression", owner, n.get(1));
-        return n;
+    public Node add_this_argu(Node argus, Node this_argu){
+        Node new_argus = GNode.create("Arguments");
+        new_argus.add(this_argu);
+        for (int i=0; i<argus.size(); i++) {
+            new_argus.add(argus.getNode(i));
+        }
+        return new_argus;
     }
 
-    public Node visitCBlock(GNode n){
-        return n;
+    public Node create_field_dec(Node type, String name, Node thing){
+        Node field = GNode.create("FieldDeclaration");
+        field.add(GNode.create("Modifiers"));
+        field.add(type);
+        Node decs = GNode.create("Declarators");
+        Node dec = GNode.create("Declarator", name, null, thing);
+        decs.add(dec);
+        field.add(decs);
+        return field;
+    }
+
+    public Node create_callexp(Node receiver, String method_name, Node arguments){
+        Node call = GNode.create("CallExpression");
+        call.add(receiver);
+        call.add(null);
+        call.add(method_name);
+        call.add(arguments);
+        return call;
+    }
+
+    public Node create_staticcallexp(Node receiver, String method_name, Node arguments){
+        Node call = GNode.create("StaticCallExpression");
+        call.add(receiver);
+        call.add(null);
+        call.add(method_name);
+        call.add(arguments);
+        return call;
+    }
+
+    public String generate_temp_name(int x){
+        String temp = "temp";
+        temp = temp + Integer.toString(x);
+        return temp;
     }
 
 }

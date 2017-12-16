@@ -4,9 +4,9 @@ project(output)
 set(CMAKE_CXX_STANDARD 11)
 
 add_executable(output
-        java_lang.cpp
-        java_lang.h
-        main.cpp
-        output.cpp
-        output.h
-        ptr.h)
+               java_lang.cpp
+               java_lang.h
+               main.cpp
+               output.cpp
+               output.h
+               ptr.h)

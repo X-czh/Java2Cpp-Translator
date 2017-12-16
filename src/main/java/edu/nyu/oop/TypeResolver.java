@@ -84,4 +84,11 @@ public class TypeResolver {
 
         return typeStr;
     }
+
+    public static String primitiveTypeToString(String s) {
+        if (primitiveTypeMap.containsKey(s))
+            return primitiveTypeMap.get(s);
+        return s;
+    }
+
 }
