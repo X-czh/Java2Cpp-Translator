@@ -42,6 +42,8 @@ public class ContextualMutator extends ContextualVisitor {
         Node argus = n.getNode(3);
         String methodName = n.getString(2);
 
+        if (methodName.equals("__init")) return n;
+
         System.out.println("resolving method :"+methodName);
         // check whether it is System.out.print()/println()
         if (receiver != null &&
@@ -312,6 +314,36 @@ public class ContextualMutator extends ContextualVisitor {
         String temp = "temp";
         temp = temp + Integer.toString(x);
         return temp;
+    }
+
+    public Node visitNewArrayExpression(GNode n){
+        String temp_name = generate_temp_name(counter++);
+        Node new_array = GNode.create("CBlock");
+        Node array_type = GNode.create("Type");
+        array_type.add(n.getNode(0));
+        Node dimension = GNode.create("Dimensions");
+        for (int i=0; i<n.getNode(1).size(); i++){
+            dimension.add("[");
+        }
+        array_type.add(dimension);
+        new_array.add(create_field_dec(array_type, temp_name, n));
+        new_array.add(GNode.create("PrimaryIdentifier", temp_name+";"));
+        return new_array;
+    }
+
+    public Node visitExpression(GNode n){
+        visit(n);
+        if ("=".equals(n.getString(1)) && "SubscriptExpression".equals(n.getNode(0).getName())) {
+            Node array_store = GNode.create("CBlock");
+            array_store.add(create_callexp(null, "__rt::checkStore",
+                    GNode.create("Arguments",
+                            GNode.create("PrimaryIdentifier", n.getNode(0).getNode(0).getString(0)),
+                            n.getNode(2))));
+            array_store.add(n);
+            dispatch(array_store);
+            return array_store;
+        }
+        return n;
     }
 
 }

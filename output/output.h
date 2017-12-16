@@ -4,96 +4,130 @@
 
 using namespace java::lang;
 
-namespace inputs
-{
+namespace inputs {
 
-namespace test024
-{
+  namespace test026 {
 
-struct __A;
+    struct __A;
 
-struct __A_VT;
+    struct __A_VT;
 
-struct __Test024;
+    struct __B;
 
-struct __Test024_VT;
+    struct __B_VT;
 
-typedef __rt::Ptr<__A> A;
+    struct __Test026;
 
-typedef __rt::Ptr<__Test024> Test024;
+    struct __Test026_VT;
 
-struct __A
-{
+    typedef __rt::Ptr<__A> A;
 
-    __A_VT* __vptr;
-    int32_t i;
-    __A();
+    typedef __rt::Ptr<__B> B;
 
-    static       A __init(A , int32_t );
+    typedef __rt::Ptr<__Test026> Test026;
 
-    static     int32_t get(A );
+    struct __A {
 
-    static   Class __class();
+__A_VT* __vptr;
+int32_t i;
+      __A();
 
-    static __A_VT __vtable;
+static       A __init(A , int32_t );
+      
+static     int32_t get(A );
+    
+static   Class __class();
+  
+static __A_VT __vtable;
 };
 
-struct __Test024
-{
+struct __B {
 
-    __Test024_VT* __vptr;
-    __Test024();
+__B_VT* __vptr;
+int32_t i;
+__B();
 
-    static Test024 __init(Test024 );
+static B __init(B , int32_t );
 
-    static void main(__rt::Array<String> );
+static int32_t get(B );
 
-    static Class __class();
+static Class __class();
 
-    static __Test024_VT __vtable;
+static __B_VT __vtable;
 };
 
-struct __A_VT
-{
+struct __Test026 {
 
-    Class __is_a;
-    void (*__delete)(__A*);
-    int32_t (*hashCode)(A);
-    bool (*equals)(A, Object);
-    Class (*getClass)(A);
-    String (*toString)(A);
-    int32_t (*get)(A);
-    __A_VT()
-        :__is_a(__A::__class()),
-         __delete(&__rt::__delete<__A>),
-         hashCode((int32_t (*)(A)) &__Object::hashCode),
-         equals((bool (*)(A, Object)) &__Object::equals),
-         getClass((Class (*)(A)) &__Object::getClass),
-         toString((String (*)(A)) &__Object::toString),
-         get(&__A::get)
-    {
-    }
+__Test026_VT* __vptr;
+__Test026();
+
+static Test026 __init(Test026 );
+
+static void main(__rt::Array<String> );
+
+static Class __class();
+
+static __Test026_VT __vtable;
+};
+
+struct __A_VT {
+
+Class __is_a;
+void (*__delete)(__A*);
+int32_t (*hashCode)(A);
+bool (*equals)(A, Object);
+Class (*getClass)(A);
+String (*toString)(A);
+int32_t (*get)(A);
+__A_VT()
+:__is_a(__A::__class()),
+__delete(&__rt::__delete<__A>),
+hashCode((int32_t (*)(A)) &__Object::hashCode),
+equals((bool (*)(A, Object)) &__Object::equals),
+getClass((Class (*)(A)) &__Object::getClass),
+toString((String (*)(A)) &__Object::toString),
+get(&__A::get) {
+}
 
 };
 
-struct __Test024_VT
-{
+struct __B_VT {
 
-    Class __is_a;
-    void (*__delete)(__Test024*);
-    int32_t (*hashCode)(Test024);
-    bool (*equals)(Test024, Object);
-    Class (*getClass)(Test024);
-    String (*toString)(Test024);
-    __Test024_VT()
-        :__is_a(__Test024::__class()),
-         __delete(&__rt::__delete<__Test024>),
-         hashCode((int32_t (*)(Test024)) &__Object::hashCode),
-         equals((bool (*)(Test024, Object)) &__Object::equals),
-         getClass((Class (*)(Test024)) &__Object::getClass),
-         toString((String (*)(Test024)) &__Object::toString)
-    {
-    }
+Class __is_a;
+void (*__delete)(__B*);
+int32_t (*hashCode)(B);
+bool (*equals)(B, Object);
+Class (*getClass)(B);
+String (*toString)(B);
+int32_t (*get)(B);
+__B_VT()
+:__is_a(__B::__class()),
+__delete(&__rt::__delete<__B>),
+hashCode((int32_t (*)(B)) &__Object::hashCode),
+equals((bool (*)(B, Object)) &__Object::equals),
+getClass((Class (*)(B)) &__Object::getClass),
+toString((String (*)(B)) &__Object::toString),
+get(&__B::get) {
+}
+
+};
+
+struct __Test026_VT {
+
+Class __is_a;
+void (*__delete)(__Test026*);
+int32_t (*hashCode)(Test026);
+bool (*equals)(Test026, Object);
+Class (*getClass)(Test026);
+String (*toString)(Test026);
+__Test026_VT()
+:__is_a(__Test026::__class()),
+__delete(&__rt::__delete<__Test026>),
+hashCode((int32_t (*)(Test026)) &__Object::hashCode),
+equals((bool (*)(Test026, Object)) &__Object::equals),
+getClass((Class (*)(Test026)) &__Object::getClass),
+toString((String (*)(Test026)) &__Object::toString) {
+}
 
 };
 
