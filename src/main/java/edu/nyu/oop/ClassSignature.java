@@ -60,11 +60,21 @@ public class ClassSignature {
     public static ClassSignature buildObject() {
         ClassSignature object_class = new ClassSignature("Object", "null");
 
-        MethodSignature __delete = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("void", null), "__delete", new ArrayList<String>(), new ArrayList<Node>());
-        MethodSignature hashCode = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("int", null), "hashCode", new ArrayList<String>(), new ArrayList<Node>());
-        MethodSignature equals = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("boolean", null), "equals", Arrays.asList("other"), Arrays.asList(TypeResolver.createType("Object", null)));
-        MethodSignature getClass = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("Class", null), "getClass", new ArrayList<String>(), new ArrayList<Node>());
-        MethodSignature toString = new MethodSignature(Arrays.asList("public"), TypeResolver.createType("String", null), "toString", new ArrayList<String>(), new ArrayList<Node>());
+        MethodSignature __delete = new MethodSignature(
+                Arrays.asList("public"), TypeResolver.createType("void", null), "__delete",
+                new ArrayList<String>(), new ArrayList<Node>(), null);
+        MethodSignature hashCode = new MethodSignature(
+                Arrays.asList("public"), TypeResolver.createType("int", null), "hashCode",
+                new ArrayList<String>(), new ArrayList<Node>(), null);
+        MethodSignature equals = new MethodSignature(
+                Arrays.asList("public"), TypeResolver.createType("boolean", null), "equals",
+                Arrays.asList("other"), Arrays.asList(TypeResolver.createType("Object", null)), null);
+        MethodSignature getClass = new MethodSignature(
+                Arrays.asList("public"), TypeResolver.createType("Class", null), "getClass",
+                new ArrayList<String>(), new ArrayList<Node>(), null);
+        MethodSignature toString = new MethodSignature(
+                Arrays.asList("public"), TypeResolver.createType("String", null), "toString",
+                new ArrayList<String>(), new ArrayList<Node>(),null);
 
         object_class.addMethod(__delete);
         object_class.addMethod(hashCode);
@@ -78,15 +88,27 @@ public class ClassSignature {
         ClassSignature string_class = new ClassSignature("String","Object");
 
 
-        FieldSignature data = new FieldSignature(new ArrayList<>(), TypeResolver.createType("String", null), Arrays.asList("data"));
+        FieldSignature data = new FieldSignature(
+                new ArrayList<>(), TypeResolver.createType("String", null), Arrays.asList("data"));
 
-        ConstructorSignature constr = new ConstructorSignature("String", Arrays.asList("data"), Arrays.asList(TypeResolver.createType("String", null)));
+        ConstructorSignature constr = new ConstructorSignature(
+                "String", Arrays.asList("data"), Arrays.asList(TypeResolver.createType("String", null)));
 
-        MethodSignature hashCode = new MethodSignature(new ArrayList<>(), TypeResolver.createType("int", null), "hashCode", null, null);
-        MethodSignature toString = new MethodSignature(new ArrayList<>(), TypeResolver.createType("String", null), "toString", null, null);
-        MethodSignature length = new MethodSignature(new ArrayList<>(), TypeResolver.createType("int", null), "length", null, null);
-        MethodSignature equals = new MethodSignature(new ArrayList<>(), TypeResolver.createType("int", null), "equals", null, Arrays.asList(TypeResolver.createType("Object", null)));
-        MethodSignature charAt = new MethodSignature(new ArrayList<>(), TypeResolver.createType("char", null), "charAt", null, Arrays.asList(TypeResolver.createType("int", null)));
+        MethodSignature hashCode = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("int", null), "hashCode",
+                null, null, null);
+        MethodSignature toString = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("String", null), "toString",
+                null, null, null);
+        MethodSignature length = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("int", null), "length",
+                null, null, null);
+        MethodSignature equals = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("int", null), "equals",
+                null, Arrays.asList(TypeResolver.createType("Object", null)), null);
+        MethodSignature charAt = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("char", null), "charAt",
+                null, Arrays.asList(TypeResolver.createType("int", null)), null);
 
         string_class.addField(data);
         string_class.addConstructor(constr);
@@ -108,10 +130,14 @@ public class ClassSignature {
         String_type.add(temp1);
         String_type.add(null);
 
-        FieldSignature name = new FieldSignature(new ArrayList<>(), TypeResolver.createType("String", null), Arrays.asList("name"));
-        FieldSignature parent = new FieldSignature(new ArrayList<>(), TypeResolver.createType("Class", null), Arrays.asList("parent"));
-        FieldSignature component = new FieldSignature(new ArrayList<>(), TypeResolver.createType("Class", null), Arrays.asList("component"));
-        FieldSignature primitive = new FieldSignature(new ArrayList<>(), TypeResolver.createType("boolean", null), Arrays.asList("primitive"));
+        FieldSignature name = new FieldSignature(
+                new ArrayList<>(), TypeResolver.createType("String", null), Arrays.asList("name"));
+        FieldSignature parent = new FieldSignature(
+                new ArrayList<>(), TypeResolver.createType("Class", null), Arrays.asList("parent"));
+        FieldSignature component = new FieldSignature(
+                new ArrayList<>(), TypeResolver.createType("Class", null), Arrays.asList("component"));
+        FieldSignature primitive = new FieldSignature(
+                new ArrayList<>(), TypeResolver.createType("boolean", null), Arrays.asList("primitive"));
 
         ArrayList<String> params = new ArrayList<>();
         ArrayList<Node> param_types = new ArrayList<>();
@@ -121,13 +147,27 @@ public class ClassSignature {
         param_types.add(TypeResolver.createType("Class", null));
         ConstructorSignature constr = new ConstructorSignature("Class", params, param_types);
 
-        MethodSignature toString = new MethodSignature(new ArrayList<>(), TypeResolver.createType("String", null), "toString", null, null);
-        MethodSignature getName = new MethodSignature(new ArrayList<>(), TypeResolver.createType("Class", null), "getName", null, null);
-        MethodSignature getSuperclass = new MethodSignature(new ArrayList<>(), TypeResolver.createType("Class", null), "getSuperclass", null, null);
-        MethodSignature isPrimitive = new MethodSignature(new ArrayList<>(), TypeResolver.createType("boolean", null), "isPrimitive", null, null);
-        MethodSignature isArray = new MethodSignature(new ArrayList<>(), TypeResolver.createType("boolean", null), "isArray", null, null);
-        MethodSignature getComponentType = new MethodSignature(new ArrayList<>(), TypeResolver.createType("Class", null), "getComponentType", null, null);
-        MethodSignature isInstance = new MethodSignature(new ArrayList<>(), TypeResolver.createType("boolean", null), "isInstance", null, Arrays.asList(TypeResolver.createType("Object", null)));
+        MethodSignature toString = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("String", null), "toString",
+                null, null, null);
+        MethodSignature getName = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("Class", null), "getName",
+                null, null, null);
+        MethodSignature getSuperclass = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("Class", null), "getSuperclass",
+                null, null, null);
+        MethodSignature isPrimitive = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("boolean", null), "isPrimitive",
+                null, null, null);
+        MethodSignature isArray = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("boolean", null), "isArray",
+                null, null, null);
+        MethodSignature getComponentType = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("Class", null), "getComponentType",
+                null, null, null);
+        MethodSignature isInstance = new MethodSignature(
+                new ArrayList<>(), TypeResolver.createType("boolean", null), "isInstance",
+                null, Arrays.asList(TypeResolver.createType("Object", null)), null);
 
         class_class.addField(name);
         class_class.addField(parent);

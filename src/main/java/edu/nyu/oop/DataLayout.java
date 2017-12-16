@@ -95,7 +95,8 @@ public class DataLayout {
                 TypeResolver.createType(thisClass.getClassName(), null),
                 "__init",
                 c.getParameters(),
-                c.getParameterTypes()
+                c.getParameterTypes(),
+                null
         );
 
         return makeMethodDeclaration(m);
@@ -107,7 +108,8 @@ public class DataLayout {
                 TypeResolver.createType("Class", null),
                 "__class",
                 new ArrayList<>(),
-                new ArrayList<>()
+                new ArrayList<>(),
+                null
         );
         return makeMethodDeclaration(m);
     }

@@ -23,6 +23,7 @@ public class Translator {
     private Node root;
     private Map<String, ClassSignature> classTreeMap;
     private List<String> packageInfo;
+    private List<String> conflictMethodNames;
     private List<Node> javaAstList;
     private Node headerAst;
     private Node mutatedCppAst;
@@ -51,6 +52,7 @@ public class Translator {
         ClassTreeVisitor classTreeVisitor = new ClassTreeVisitor();
         classTreeMap = classTreeVisitor.getClassTree(javaAstList);
         packageInfo = classTreeVisitor.getPackageInfo();
+        conflictMethodNames = classTreeVisitor.getConflictMethodNames();
         HeaderAstBuilder headerAstBuilder = new HeaderAstBuilder(classTreeMap, packageInfo);
         headerAst = headerAstBuilder.buildHeaderAst();
     }
@@ -61,7 +63,7 @@ public class Translator {
     }
 
     private void makeMutatedCppAst() {
-        Mutator mutator = new Mutator(classTreeMap, packageInfo);
+        Mutator mutator = new Mutator(classTreeMap, packageInfo, conflictMethodNames);
         mutatedCppAst = mutator.mutate(javaAstList);
         mainAst = mutator.makeMainAst();
     }

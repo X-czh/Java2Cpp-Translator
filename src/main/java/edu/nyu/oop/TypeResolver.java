@@ -32,7 +32,7 @@ public class TypeResolver {
         GNode temp1;
         if (primitiveTypeMap.containsKey(name)) {
             temp1 = GNode.create("PrimitiveType");
-            temp1.add(primitiveTypeMap.get(name));
+            temp1.add(name);
         } else {
             temp1 = GNode.create("QualifiedIdentifier");
             temp1.add(name);
@@ -50,9 +50,11 @@ public class TypeResolver {
         String typeStr;
         Node dimension = type.getNode(1);
 
-        if (dimension == null)
+        if (dimension == null) {
             typeStr = type.getNode(0).getString(0);
-        else {
+            if (primitiveTypeMap.containsKey(typeStr))
+                typeStr = primitiveTypeMap.get(typeStr);
+        } else {
             String componentType = type.getNode(0).getString(0);
             StringBuilder sb = new StringBuilder();
             for (int i = 0; i < type.getNode(1).size(); i++)
@@ -61,6 +63,23 @@ public class TypeResolver {
             for (int i = 0; i < type.getNode(1).size(); i++)
                 sb.append(">");
             typeStr = sb.toString();
+        }
+
+        return typeStr;
+    }
+
+    public static String javaTypeToString(Node type) {
+        // check whether it is void type
+        if ("VoidType".equals(type.getName()))
+            return "void";
+
+        String typeStr;
+        Node dimension = type.getNode(1);
+
+        if (dimension == null) {
+            typeStr = type.getNode(0).getString(0);
+        } else {
+            typeStr = type.getNode(0).getString(0);
         }
 
         return typeStr;

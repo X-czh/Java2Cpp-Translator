@@ -1,6 +1,7 @@
 package edu.nyu.oop;
 
 import edu.nyu.oop.util.ChildToParentMap;
+import edu.nyu.oop.util.NodeUtil;
 import edu.nyu.oop.util.TypeUtil;
 import xtc.lang.JavaEntities;
 import xtc.tree.GNode;
@@ -28,11 +29,14 @@ public class Mutator extends Visitor {
     private List<Node> classInitialization;
     private Map<String, ClassSignature> classTreeMap;
     private List<String> packageInfo;
+    private List<String> conflictMethodNames;
     private ChildToParentMap childParentMap;
 
-    public Mutator(Map<String, ClassSignature> classTreeMap, List<String> packageInfo) {
+    public Mutator(Map<String, ClassSignature> classTreeMap,
+                   List<String> packageInfo, List<String> conflictMethodNames) {
         this.classTreeMap = classTreeMap;
         this.packageInfo = packageInfo;
+        this.conflictMethodNames = conflictMethodNames;
     }
 
     public Node mutate(List<Node> javaAstList) {
@@ -75,6 +79,9 @@ public class Mutator extends Visitor {
         prevHierarchy.add(make__classMethod());
         prevHierarchy.add(makeVTableInitialization());
 
+        if (classTreeMap.get(currentClassName).getConstructorList().isEmpty())
+            makeDefaultInitMethod(); // make init method for generated default constructor
+
         visit(n);
     }
 
@@ -85,15 +92,28 @@ public class Mutator extends Visitor {
         if (!childParentMap.fetchParentFor(n).getName().equals("ClassBody"))
             return;
 
-        for (Object declarator : n.getNode(2)) {
-            if (((Node) declarator).getNode(2) != null) {
-                String var = ((Node) declarator).getString(0);
-                Node value = ((Node) declarator).getNode(2);
-                GNode n1 = GNode.create("SelectionExpression", makeThisExpression(), var);
-                GNode n2 = GNode.create("Expression", n1, "=", value);
-                GNode n3 = GNode.create("ExpressionStatement", n2);
-                classInitialization.add(n3);
+        List<String> modifiers = new ArrayList<>();
+        Node mods = n.getNode(0);
+        for (Object mod : mods)
+            modifiers.add(((GNode) mod).getString(0));
+        if (!modifiers.contains("static")) {
+            for (Object declarator : n.getNode(2)) {
+                if (((Node) declarator).getNode(2) != null) {
+                    String var = ((Node) declarator).getString(0);
+                    Node value = ((Node) declarator).getNode(2);
+                    GNode n1 = GNode.create("SelectionExpression", makeThisExpression(), var);
+                    GNode n2 = GNode.create("Expression", n1, "=", value);
+                    GNode n3 = GNode.create("ExpressionStatement", n2);
+                    classInitialization.add(n3);
+                }
             }
+        } else {
+            // for C++ static field initialization, which cannot be done in header
+            GNode initStaticField = NodeUtil.deepCopyNode(n);
+            initStaticField.set(0, GNode.create("Modifiers"));
+            for (Node dec : NodeUtil.dfsAll(initStaticField, "Declarator"))
+                dec.set(0, "__" + currentClassName + "::" + dec.getString(0));
+            prevHierarchy.add(initStaticField);
         }
     }
 
@@ -144,12 +164,20 @@ public class Mutator extends Visitor {
             for (int i = 1; i < block.size(); ++i)
                 mutatedBlock.add(block.get(i));
         } else {
-            // no call to other constructors either of this class or of the super class
+            // no explicit call to other constructors either of this class or of the super class
+            // add call to super class's default constructor
+            GNode callExpression = GNode.create("CallExpression");
+            callExpression.add(null);
+            callExpression.add(null);
+            callExpression.add("__" + classTreeMap.get(currentClassName).getParentClassName() + "::__init");
+            callExpression.add(addExplicitThisArgument(GNode.create("FormalParameters")));
+            mutatedBlock.add(callExpression);
             for (Node t : classInitialization)
                 mutatedBlock.add(t);
             for (Object o : block)
                 mutatedBlock.add(o);
         }
+        mutatedBlock.add(GNode.create("ReturnStatement", GNode.create("PrimaryIdentifier", "__this")));
 
         // create initMethod GNode
         GNode initMethod = GNode.create("MethodDeclaration");
@@ -207,22 +235,22 @@ public class Mutator extends Visitor {
         visit(n);
     }
 
-    public Node visitCallExpression(GNode n) {
-        Node receiver = n.getNode(0);
+    public void visitCallExpression(GNode n) {
+        String methodName = n.getString(2);
 
-        // check whether it is System.out.print()/println()
-        if (receiver != null &&
-                receiver.getName().equals("SelectionExpression") &&
-                receiver.getNode(0).getName().equals("PrimaryIdentifier") &&
-                receiver.getNode(0).getString(0).equals("System") &&
-                receiver.getString(1).equals("out")) {
-            GNode printingExpression = GNode.create("PrintingExpression");
-            printingExpression.add(n.getNode(3).getNode(0));
-            printingExpression.add(n.getString(2));
-            return printingExpression;
-        }
+        if (conflictMethodNames.contains(methodName))
+            n.set(2, methodName + "_impl");
 
-        return n;
+        visit(n);
+    }
+
+    public void visitStaticCallExpression(GNode n) {
+        String methodName = n.getString(2);
+
+        if (conflictMethodNames.contains(methodName))
+            n.set(2, methodName + "_impl");
+
+        visit(n);
     }
 
     public void visit(GNode n) {
@@ -299,6 +327,21 @@ public class Mutator extends Visitor {
         constructor.add(GNode.create("Block"));
 
         return constructor;
+    }
+
+    private void makeDefaultInitMethod() {
+        GNode constructor = GNode.create("MethodDeclaration");
+
+        constructor.add(null); // modifiers
+        constructor.add(null);
+        constructor.add(null); // return type
+        constructor.add(currentClassName); // method name
+        constructor.add(GNode.create("FormalParameters"));
+        constructor.add(null);
+        constructor.add(null);
+        constructor.add(GNode.create("Block"));
+
+        mutateConstructorDeclaration(constructor);
     }
 
     private GNode make__classMethod() {
