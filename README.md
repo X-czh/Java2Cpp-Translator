@@ -10,7 +10,7 @@ The translator is primarily interested in modeling basic translation and support
 * Inheritance and Dynamic Dispatch
 * Method Overloading
 * Auto Memory Management
-* Imitated Java Object Initialzation Process
+* Imitated Java Object Initialization Process
 * Array Translation
 * Java Package Import
 
@@ -56,7 +56,7 @@ Unit tests are located in the folder src/test/java/edu/nyu/oop.
 ### Implementation
 It supports inheritance and dynamic dispatch with virtual class table, method overloading with method name mangling, auto memory management with smart pointers using reference counting, imitated Java object initilization process with translated constructor scheme, array translation with custom array templates, and Java package import with modified xtc-demo's import parser.
 
-### Phrased Approach
+### Phased Approach
 * Phase 1: Load all sources as Java AST
 * Phase 2: Generate AST for inheritance hierarchy
 * Phase 3: Write C++ header with inheritance hierarchy
