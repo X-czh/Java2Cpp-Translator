@@ -42,7 +42,7 @@ All supported commands are
 * printMutatedJavaAstList - Print list of mutated Java Ast
 * printHeaderAst - print C++ header AST
 * printCppHeader - print C++ header
-* printMutatedCppAs - Print mutated C++ Ast
+* printMutatedCppAst - Print mutated C++ Ast
 * printMainAst - Print C++ main Ast
 * printCppImplementation - Print C++ implementation files
 * runTranslator - Run translator
